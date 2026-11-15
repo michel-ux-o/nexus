@@ -1,0 +1,24 @@
+aside.settings-backup-reminder { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; min-width: 0; padding: 5px 16px; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--ui-accent) 17%, transparent); border-radius: 0; background: var(--ui-surface); color: var(--ui-text); }
+aside.settings-backup-reminder > svg { flex: 0 0 auto; color: var(--ui-accent); }
+aside.settings-backup-reminder p { display: flex; flex: 1 1 250px; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0; font-size: .875rem; line-height: 1.4; }
+aside.settings-backup-reminder p span { display: inline; color: var(--ui-text-muted); font-size: .75rem; }
+aside.settings-backup-reminder button { min-height: 40px; }
+aside.settings-backup-reminder .icon-button { min-width: 40px; }
+@media (pointer: coarse) {
+  aside.settings-backup-reminder button { min-height: 44px; }
+  aside.settings-backup-reminder .icon-button { min-width: 44px; }
+}
+@media (max-width: 480px) {
+  aside.settings-backup-reminder { gap: 2px 8px; padding-inline: 12px; }
+  aside.settings-backup-reminder p { flex-basis: calc(100% - 32px); }
+  aside.settings-backup-reminder .secondary-button { margin-left: auto; }
+}
+
+html[data-theme='nexus'] aside.settings-backup-reminder {
+  padding-block: 8px;
+  border-color: var(--hz-line, #a8cfe526);
+  background: #0c141ee8;
+}
+html[data-theme='nexus'] aside.settings-backup-reminder p { font-size: var(--hz-body, .875rem); font-weight: 400; }
+html[data-theme='nexus'] aside.settings-backup-reminder p span { font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] aside.settings-backup-reminder button { font-size: var(--hz-meta, .75rem); }

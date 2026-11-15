@@ -1,0 +1,133 @@
+/* Shared motion grammar. Motion acknowledges a change without moving hit areas. */
+:root {
+  --motion-hover: 140ms;
+  --motion-press: 90ms;
+  --motion-panel: 180ms;
+  --motion-view: 200ms;
+  --motion-ease: cubic-bezier(.2, .7, .25, 1);
+}
+
+/* Exclude outlines and shadows so focus remains immediate. */
+button, a, input, textarea, select, summary {
+  transition: background-color var(--motion-hover) var(--motion-ease), border-color var(--motion-hover) var(--motion-ease), color var(--motion-hover) var(--motion-ease), opacity var(--motion-hover) var(--motion-ease);
+}
+button:active, a:active, summary:active { transition-duration: var(--motion-press); }
+.nexus-view-enter, .planning-task-feedback.is-committed { animation: nexus-view-enter var(--motion-view) var(--motion-ease) both; }
+@keyframes nexus-view-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nexus-panel-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* The working canvas arrives as one surface; its geometry stays stable. */
+:is(.nexus-atelier, .settings-atelier) .nexus-view-enter {
+  animation: nexus-view-enter var(--motion-view) var(--motion-ease) both;
+}
+.settings-page.settings-atelier { animation: nexus-view-enter var(--motion-view) var(--motion-ease) both; }
+.dialog.settings-atelier[open] { animation: nexus-panel-enter var(--motion-panel) var(--motion-ease) both; }
+.dialog.settings-atelier[open]::backdrop { animation: nexus-backdrop-enter 180ms var(--motion-ease) both; }
+:is(.nexus-atelier, .settings-atelier) .week-days { animation: nexus-view-enter var(--motion-view) var(--motion-ease) both; }
+
+/* Six rows at most, with a maximum 100ms stagger. All remain visible and
+   keyboard reachable from the first frame. Existing keyed rows do not replay
+   when a neighbouring field or an editor receives input. */
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-list > .planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):nth-child(-n + 6) {
+  --row-delay: 0ms;
+  animation: nexus-row-arrive 180ms var(--motion-ease) var(--row-delay) both;
+}
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-list > .planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):nth-child(2) { --row-delay: 20ms; }
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-list > .planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):nth-child(3) { --row-delay: 40ms; }
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-list > .planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):nth-child(4) { --row-delay: 60ms; }
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-list > .planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):nth-child(5) { --row-delay: 80ms; }
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-list > .planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):nth-child(6) { --row-delay: 100ms; }
+@keyframes nexus-row-arrive { from { opacity: .72; } to { opacity: 1; } }
+
+/* Paint-only interaction feedback keeps pointer targets and text stationary. */
+:is(.nexus-atelier, .settings-atelier) :is(button, a, summary) {
+  transition: background-color var(--motion-hover) var(--motion-ease), border-color var(--motion-hover) var(--motion-ease), color var(--motion-hover) var(--motion-ease), opacity var(--motion-hover) var(--motion-ease);
+}
+:is(.nexus-atelier, .settings-atelier) :is(button, a, summary):active { transition-duration: var(--motion-press); }
+:is(.nexus-atelier, .settings-atelier) :is(input, textarea, select) {
+  transition: background-color var(--motion-hover) var(--motion-ease), border-color var(--motion-hover) var(--motion-ease), color var(--motion-hover) var(--motion-ease);
+}
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-card, .reminders-card, .note-card, .nexus-calendar-entry, .week-day, .week-placement, .today-priority-list > li) {
+  transition: background-color var(--motion-hover) var(--motion-ease), border-color var(--motion-hover) var(--motion-ease), color var(--motion-hover) var(--motion-ease);
+}
+:is(.nexus-atelier, .settings-atelier) :is(.primary-button, .secondary-button, .app-nav-capture button, .nexus-header-create > summary, .nexus-header-icon, .today-button, .week-button, .nexus-calendar-button) > svg:not(.spin) {
+  transition: transform var(--motion-hover) var(--motion-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.nexus-atelier, .settings-atelier) :is(.primary-button, .secondary-button, .app-nav-capture button, .nexus-header-create > summary, .nexus-header-icon, .today-button, .week-button, .nexus-calendar-button):not(:disabled):hover > svg:not(.spin) { transform: translateY(-1px); }
+}
+:is(.nexus-atelier, .settings-atelier) :is(.primary-button, .secondary-button, .app-nav-capture button, .nexus-header-create > summary, .nexus-header-icon, .today-button, .week-button, .nexus-calendar-button):not(:disabled):active > svg:not(.spin) { transform: scale(.9); transition-duration: var(--motion-press); }
+
+/* The small spatial mark settles when a new route becomes current. */
+:is(.nexus-atelier, .settings-atelier) .app-nav-destination.is-current .app-nav-current-dot { animation: nexus-coordinate-settle 200ms var(--motion-ease) both; }
+@keyframes nexus-coordinate-settle { from { opacity: .35; transform: rotate(0deg) scale(.55); } to { opacity: 1; transform: rotate(45deg) scale(1); } }
+:is(.nexus-atelier, .settings-atelier) :is([role="tab"][aria-selected="true"], .sidebar-view-button.active, .tasks-overview button.is-active) { animation: nexus-selection-confirm 180ms var(--motion-ease) both; }
+@keyframes nexus-selection-confirm { from { opacity: .7; } to { opacity: 1; } }
+
+/* Disclosure content reveals at its source, without animating height, margin,
+   grid tracks or any other layout property. Closing remains immediate. */
+:is(.nexus-atelier, .settings-atelier) details[open] > :not(summary),
+:is(.nexus-atelier, .settings-atelier) .app-nav.is-mobile-open .app-nav-body {
+  animation: nexus-disclosure-enter 180ms var(--motion-ease) both;
+}
+@keyframes nexus-disclosure-enter { from { opacity: .6; } to { opacity: 1; } }
+:is(.nexus-atelier, .settings-atelier) :is(.nexus-header-meta, .nexus-header-create, .planning-more-options, .home-details, .week-day-conflicts, .nexus-calendar-key) > summary > svg:last-child {
+  transition: transform var(--motion-hover) var(--motion-ease);
+}
+:is(.nexus-atelier, .settings-atelier) :is(.nexus-header-meta, .nexus-header-create)[open] > summary > svg:last-child { transform: rotate(180deg); }
+
+/* Native dialogs are open and focused immediately. Their initial visual
+   movement is only six pixels and never delays form entry or modal semantics. */
+.nexus-workspace-dialog[open],
+.dialog.planning-dialog[open],
+.dialog.ai-atelier[open],
+.dialog.voice-atelier[open] { animation: nexus-panel-enter var(--motion-panel) var(--motion-ease) both; }
+.dialog.planning-dialog[open],
+.dialog.ai-atelier.ai-sidepanel[open] { animation-name: nexus-drawer-enter; }
+.nexus-workspace-dialog[open]::backdrop,
+.dialog.planning-dialog[open]::backdrop,
+.dialog.ai-atelier[open]::backdrop,
+.dialog.voice-atelier[open]::backdrop { animation: nexus-backdrop-enter 180ms var(--motion-ease) both; }
+:is(.nexus-atelier, .settings-atelier) :is(.dialog, .nexus-workspace-dialog)[open] { animation: nexus-panel-enter var(--motion-panel) var(--motion-ease) both; }
+:is(.nexus-atelier, .settings-atelier) .dialog.planning-dialog[open],
+:is(.nexus-atelier, .settings-atelier) .dialog.ai-sidepanel[open] { animation-name: nexus-drawer-enter; }
+:is(.nexus-atelier, .settings-atelier) :is(.dialog, .nexus-workspace-dialog)[open]::backdrop { animation: nexus-backdrop-enter 180ms var(--motion-ease) both; }
+@keyframes nexus-drawer-enter { from { opacity: .8; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes nexus-backdrop-enter { from { opacity: .65; } to { opacity: 1; } }
+
+/* A committed result gets a single visual acknowledgement, never a loop. */
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-feedback.is-committed, .undo-bar-status:not(:empty), .week-announcement:not(:empty), .nexus-timeline-status:not(:empty), .home-action-status:not(:empty), .toast, .reminder-snackbar) {
+  animation: nexus-confirm-enter 200ms var(--motion-ease) both;
+}
+:is(.nexus-atelier, .settings-atelier) .planning-task-card.is-done .planning-task-state > svg { animation: nexus-check-confirm 200ms var(--motion-ease) both; }
+@keyframes nexus-confirm-enter { from { opacity: .55; } to { opacity: 1; } }
+@keyframes nexus-check-confirm { from { transform: scale(.72); } to { transform: scale(1); } }
+
+/* Dragging, resizing, selection and writing have immediate geometry. In
+   particular a timeline's top/height updates never acquire interpolation. */
+:is(.nexus-atelier, .settings-atelier) :is([draggable="true"], .nexus-timeline-entry, .nexus-timeline-entry *, .nexus-timeline-resize, .nexus-timeline-touch-resize *, .today-pool-row, .week-task-drag, .editor-content, .editor-textarea, [contenteditable="true"]) {
+  animation: none;
+  transition-property: background-color, border-color, color, opacity;
+}
+:is(.nexus-atelier, .settings-atelier) :is(input, textarea, [contenteditable="true"]):focus-visible,
+:is(.nexus-atelier, .settings-atelier) :is(.planning-task-card, .home-focus-list > li, .note-list > li, .reminders-card):focus-within {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after, dialog::backdrop {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+[data-power-saving="true"] .nexus-view-enter,
+[data-power-saving="true"] .nexus-workspace-dialog[open],
+[data-power-saving="true"] .undo-bar-status,
+[data-power-saving="true"] .planning-task-feedback.is-committed { animation: none !important; }
+[data-power-saving="true"] button, [data-power-saving="true"] a,
+[data-power-saving="true"] input, [data-power-saving="true"] textarea,
+[data-power-saving="true"] select, [data-power-saving="true"] summary { transition: none !important; }
+[data-power-saving="true"] *, [data-power-saving="true"] *::before,
+[data-power-saving="true"] *::after,
+[data-power-saving="true"] dialog::backdrop { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

@@ -1,0 +1,207 @@
+/* Shared Nexus vocabulary, derived from the home view. Other worlds remain independent. */
+html[data-theme='nexus'], .nexus-horizon {
+  --hz-title: clamp(1.6rem, 2.6vw, 2.5rem);
+  --hz-body: .875rem;
+  --hz-label: .65rem;
+  --hz-meta: .75rem;
+  --hz-tracking: .22em;
+  --hz-line: #a8cfe526;
+  --hz-window: rgb(12 20 30 / .55);
+  --hz-backdrop: rgb(3 8 15 / .18);
+  --hz-radius: 5px;
+}
+
+.nexus-horizon {
+  font-size: var(--hz-body);
+  line-height: 1.55;
+  --ui-border: var(--hz-line);
+  --ui-border-soft: #a8cfe512;
+}
+.nexus-horizon :is(.primary-button, .secondary-button, .danger-button, .icon-button, .new-note-button, .ai-primary) {
+  border-radius: var(--hz-radius);
+  font-size: var(--hz-body);
+  font-weight: 400;
+  box-shadow: none;
+}
+.nexus-horizon :is(.secondary-button, .icon-button) {
+  background: transparent;
+  border-color: var(--hz-line);
+}
+.nexus-horizon :is(.secondary-button, .icon-button):hover {
+  background: #a8cfe50b;
+  color: var(--ui-accent-hover);
+}
+.nexus-horizon :is(button, a, input, textarea, select, summary):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+.nexus-horizon :is(.dialog, .nexus-workspace-dialog, .horizon-focus-dialog) {
+  border: 1px solid var(--hz-line);
+  border-radius: var(--hz-radius);
+  background: var(--hz-window);
+  box-shadow: 0 24px 72px #0007;
+  color: var(--ui-text);
+  font-size: var(--hz-body);
+}
+.nexus-horizon :is(.dialog-header, .nexus-dialog-heading) :is(h1, h2) {
+  font-size: var(--hz-title);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.nexus-horizon :is(.dialog-header, .dialog-footer, .nexus-dialog-heading) {
+  border-color: var(--hz-line);
+  background: transparent;
+}
+.nexus-horizon :is(.eyebrow, .horizon-section-heading h2) {
+  font-size: var(--hz-label);
+  font-weight: 550;
+  letter-spacing: var(--hz-tracking);
+  text-transform: uppercase;
+}
+.nexus-horizon .horizon-home { --home-ice: var(--ui-accent-hover); --home-muted: var(--ui-text-muted); }
+.nexus-horizon .horizon-areas-panel {
+  border-color: var(--hz-line);
+  border-radius: var(--hz-radius);
+  background: var(--hz-window);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 64px #0003;
+}
+.nexus-horizon .horizon-dock .horizon-destination { border-radius: var(--hz-radius); }
+.nexus-horizon :is(.toast, .save-error, .error-box) {
+  border-radius: var(--hz-radius);
+  font-size: var(--hz-body);
+}
+.nexus-horizon :is(.toast, .app-bottom-status) { font-size: var(--hz-meta); }
+html[data-theme='nexus'] .startup-state h1 {
+  font-size: var(--hz-title);
+  font-weight: 400;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .startup-state { font-size: var(--hz-body); }
+
+/* Prose, editor headings and date grids keep their semantic hierarchy. */
+/* Editing uses the same open lines as the home view, including portal dialogs. */
+html[data-theme='nexus'] :is(.ai-horizon, .voice-horizon) .field > span,
+html[data-theme='nexus'] .horizon-capture-label {
+  font-size: var(--hz-body);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ui-text-secondary);
+}
+html[data-theme='nexus'] .horizon-capture-label :is(input, textarea),
+html[data-theme='nexus'] .nexus-search-field {
+  border: 0;
+  border-bottom: 1px solid #a8cfe54d;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--hz-body);
+}
+html[data-theme='nexus'] .horizon-capture-label :is(input, textarea) { padding-inline: 2px; min-height: 44px; }
+html[data-theme='nexus'] .dialog.planning-dialog .planning-save-error textarea {
+  font-family: ui-monospace, monospace;
+  font-size: var(--hz-meta);
+}
+html[data-theme='nexus'] :is(.nexus-workspace-dialog, .settings-atelier, .confirm-dialog) {
+  --hz-field-line: #a8cfe54d;
+}
+html[data-theme='nexus'] .nexus-workspace-dialog .nexus-capture-field :is(input, textarea),
+html[data-theme='nexus'] .settings-atelier .settings-preferences :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]), select),
+html[data-theme='nexus'] .settings-atelier .settings-reset-confirmation input:not([type=checkbox]) {
+  border: 0;
+  border-bottom: 1px solid var(--hz-field-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-inline: 2px;
+  min-height: 44px;
+  font-size: var(--hz-body);
+}
+html[data-theme='nexus'] .nexus-workspace-dialog :is(.nexus-capture-kind, .nexus-capture-target) label {
+  border: 0;
+  border-bottom: 1px solid var(--hz-line);
+  border-radius: 0;
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-workspace-dialog :is(.nexus-capture-kind, .nexus-capture-target) .is-selected {
+  border-bottom-color: var(--ui-accent);
+  color: var(--ui-accent-hover);
+  background: #a8cfe508;
+}
+html[data-theme='nexus'] :is(.nexus-workspace-dialog, .settings-atelier) :is(input, textarea, select):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+html[data-theme='nexus'] .confirm-dialog {
+  border: 1px solid var(--hz-line);
+  border-radius: var(--hz-radius);
+  background: var(--hz-window);
+  font-size: var(--hz-body);
+}
+html[data-theme='nexus'] .confirm-dialog .dialog-header h2 {
+  font-size: var(--hz-title);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .confirm-dialog :is(.dialog-header, .dialog-footer) { border-color: var(--hz-line); }
+
+/* One translucent surface across native top-layer windows and the area menu. */
+html[data-theme='nexus'] dialog:is(.dialog.planning-dialog, .dialog.settings-dialog, .dialog.ai-dialog, .dialog.voice-panel, .dialog.onboarding-dialog, .dialog.confirm-dialog, .nexus-workspace-dialog, .horizon-focus-dialog) {
+  background: var(--hz-window);
+  border-color: var(--hz-line);
+  box-shadow: 0 24px 72px #0003;
+  backdrop-filter: blur(10px);
+}
+html[data-theme='nexus'] dialog:is(.dialog.planning-dialog, .dialog.settings-dialog, .dialog.ai-dialog, .dialog.voice-panel, .dialog.onboarding-dialog, .dialog.confirm-dialog, .nexus-workspace-dialog, .horizon-focus-dialog)::backdrop {
+  background: var(--hz-backdrop);
+  backdrop-filter: none;
+}
+html[data-theme='nexus'] :is(.planning-dialog, .settings-dialog, .ai-dialog, .voice-panel, .onboarding-dialog, .confirm-dialog, .nexus-workspace-dialog) :is(.dialog-header, .dialog-body, .dialog-footer, .planning-dialog-header, .planning-dialog-body, .planning-dialog-footer, .nexus-dialog-heading, .ai-header, .ai-body, .ai-footer, .voice-header, .voice-body, .voice-footer) {
+  background: transparent;
+  border-color: var(--hz-line);
+  box-shadow: none;
+}
+.nexus-horizon .horizon-areas-heading {
+  border-bottom: 1px solid var(--hz-line);
+  background: transparent;
+}
+.nexus-horizon .horizon-dock .horizon-destination {
+  border: 0;
+  border-bottom: 1px solid var(--hz-line);
+  border-radius: 0;
+  background: transparent;
+}
+.nexus-horizon .horizon-dock .horizon-destination:is(.is-current, :hover) {
+  border-color: #a8cfe54a;
+  background: #a8cfe508;
+}
+html[data-theme='nexus'] .horizon-home-capture.is-open {
+  background: var(--hz-window);
+  border-color: var(--hz-line);
+}
+html[data-theme='nexus'] .horizon-focus-dialog-body::before { background: none; }
+@media (max-width: 480px) {
+  html[data-theme='nexus'] :is(.planning-dialog-header, .nexus-dialog-heading, .ai-horizon .ai-header) { flex-wrap: wrap; }
+  html[data-theme='nexus'] :is(.planning-dialog-header, .nexus-dialog-heading, .ai-horizon .ai-header) > div {
+    flex: 1 1 100%;
+    order: 2;
+    overflow-wrap: anywhere;
+  }
+  html[data-theme='nexus'] :is(.planning-dialog-header, .nexus-dialog-heading, .ai-horizon .ai-header) > button {
+    order: 1;
+    margin-left: auto;
+  }
+  html[data-theme='nexus'] .nexus-capture-footer > div { min-width: 0; }
+  html[data-theme='nexus'] .nexus-capture-footer button {
+    flex: 1 1 100%;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nexus-horizon :is(.primary-button, .secondary-button, .icon-button) { transition: none; }
+}

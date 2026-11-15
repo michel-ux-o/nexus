@@ -1,0 +1,49 @@
+.dialog.onboarding-dialog { width: min(45rem, calc(100vw - 24px)); max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); padding: 0; overflow-y: auto; border: 1px solid var(--ui-border); border-radius: 22px; background: linear-gradient(145deg, var(--ui-surface), var(--ui-surface)); color: var(--ui-text); }
+.onboarding-content { padding: clamp(24px, 5vw, 48px); }
+.onboarding-mark { display: grid; place-items: center; width: 66px; height: 66px; margin-bottom: 24px; border: 1px solid color-mix(in srgb, var(--ui-accent) 25%, transparent); border-radius: 20px; background: color-mix(in srgb, var(--ui-accent) 7%, transparent); color: var(--ui-accent); }
+.onboarding-content h1 { margin: 12px 0 20px; font-size: clamp(1.65rem, 4vw, 2.4rem); line-height: 1.25; letter-spacing: -.04em; }
+.onboarding-content > p { line-height: 1.7; overflow-wrap: anywhere; }
+.onboarding-content > p:not(.eyebrow):not(.onboarding-error):not(.onboarding-status) { color: var(--ui-text-muted); }
+.onboarding-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 28px 0; }
+.onboarding-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; min-height: 185px; padding: 22px; border: 1px solid var(--ui-border); border-radius: 14px; background: color-mix(in srgb, var(--ui-surface-hover) 1%, transparent); color: inherit; text-align: left; font: inherit; cursor: pointer; }
+.onboarding-choice-primary { border-color: color-mix(in srgb, var(--ui-accent) 50%, transparent); background: color-mix(in srgb, var(--ui-accent) 7%, transparent); }
+.onboarding-choice:hover:not(:disabled) { border-color: var(--ui-accent); background: color-mix(in srgb, var(--ui-accent) 12%, transparent); }
+.onboarding-choice:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 4px; }
+.onboarding-choice:disabled { opacity: .6; cursor: wait; }
+.onboarding-choice > svg { color: var(--ui-accent); }
+.onboarding-choice strong { line-height: 1.5; }
+.onboarding-choice span { font-size: .8125rem; line-height: 1.7; color: var(--ui-text-muted); overflow-wrap: anywhere; }
+.onboarding-privacy { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0; font-size: .75rem; }
+.onboarding-privacy svg { flex: 0 0 auto; margin-top: 3px; }
+.onboarding-error { padding: 12px; border: 1px solid color-mix(in srgb, var(--ui-danger) 30%, transparent); border-radius: 10px; color: var(--ui-danger); }
+.onboarding-status { color: var(--ui-accent); font-size: .875rem; }
+@media (max-width: 540px) { .onboarding-choices { grid-template-columns: 1fr; } .onboarding-choice { min-height: 0; padding: 18px; } }
+@media (max-height: 520px) { .dialog.onboarding-dialog { width: min(45rem, calc(100vw - 12px)); max-height: calc(100dvh - 12px); } .onboarding-content { padding: 20px; } .onboarding-mark { margin-bottom: 12px; width: 44px; height: 44px; border-radius: 12px; } }
+
+html[data-theme='nexus'] .dialog.onboarding-dialog {
+  border-color: var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: var(--hz-window, #0c141eee);
+  box-shadow: 0 24px 72px #0007;
+}
+html[data-theme='nexus'] .onboarding-dialog::backdrop { background: #04080ec9; }
+html[data-theme='nexus'] .onboarding-mark { border-color: var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); background: #a8cfe508; }
+html[data-theme='nexus'] .onboarding-content h1 {
+  font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem));
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .onboarding-content > .eyebrow {
+  color: var(--ui-text-muted);
+  font-size: var(--hz-label, .65rem);
+  font-weight: 550;
+  letter-spacing: var(--hz-tracking, .22em);
+  text-transform: uppercase;
+}
+html[data-theme='nexus'] .onboarding-content > p:not(.eyebrow):not(.onboarding-status) { font-size: var(--hz-body, .875rem); }
+html[data-theme='nexus'] .onboarding-choice { border-color: var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); background: transparent; }
+html[data-theme='nexus'] .onboarding-choice-primary { border-color: #a8cfe55c; background: #a8cfe508; }
+html[data-theme='nexus'] .onboarding-choice strong { font-size: 1.1rem; font-weight: 400; letter-spacing: -.02em; }
+html[data-theme='nexus'] .onboarding-choice span { font-size: var(--hz-body, .875rem); }
+html[data-theme='nexus'] .onboarding-content > .onboarding-privacy { font-size: var(--hz-meta, .75rem); }

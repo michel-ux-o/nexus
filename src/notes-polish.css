@@ -1,0 +1,173 @@
+/* Note list and writing surface: compact navigation with readable labels. */
+.area-content .sidebar .note-card, .sidebar .note-card {
+  min-height: 44px;
+  padding: 11px 13px;
+  border-radius: 8px;
+}
+.area-content .sidebar .note-card-topline, .sidebar .note-card-topline { margin-bottom: 3px; }
+.area-content .sidebar .note-card-title, .sidebar .note-card-title {
+  font-size: .9375rem;
+  line-height: 1.4;
+  font-weight: 550;
+}
+.area-content .sidebar .note-card-preview, .sidebar .note-card-preview {
+  margin-bottom: 4px;
+  font-size: .8125rem;
+  line-height: 1.45;
+}
+.area-content .sidebar .note-card-meta, .sidebar .note-card-meta {
+  margin-top: 3px;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+.area-content .sidebar .note-card-tag, .sidebar .note-card-tag { font-size: .75rem; }
+
+.area-content .notes-editor .editor-header, .notes-editor .editor-header {
+  width: min(100%, 1040px);
+  padding: 28px 36px 14px;
+}
+.area-content .notes-editor .editor-header > .eyebrow, .notes-editor .editor-header > .eyebrow { margin-bottom: 7px; }
+.area-content .notes-editor .editor-content, .notes-editor .editor-content {
+  width: min(100%, 1040px);
+  padding: 20px 36px 24px;
+}
+.notes-editor .editor-toolbar, .notes-editor .editor-footer, .notes-editor .revision-history {
+  width: min(calc(100% - 72px), 968px);
+}
+.notes-editor .editor-toolbar { border-top: 0; }
+.notes-editor .editor-footer { border-top: 0; }
+@media (max-width: 700px) {
+  .area-content .notes-editor .editor-header, .notes-editor .editor-header { padding: 24px 20px 12px; }
+  .area-content .notes-editor .editor-content, .notes-editor .editor-content { padding: 18px 20px 20px; }
+  .notes-editor .editor-toolbar, .notes-editor .editor-footer, .notes-editor .revision-history { width: calc(100% - 40px); }
+}
+
+/* Navigation has a tactile edge; the writing surface remains still and plain. */
+.area-content .sidebar-pane { border: 1px solid var(--world-line, var(--ui-border)); background: var(--world-panel, var(--ui-surface)); }
+.area-content .sidebar-view-tabs { padding: 4px; border-color: var(--ui-border); background: var(--ui-canvas); }
+.area-content .sidebar-view-button[aria-selected="true"],
+.area-content .sidebar-view-button[aria-pressed="true"],
+.area-content .sidebar-view-button.active { border-color: color-mix(in srgb, var(--ui-accent) 30%, var(--ui-border)); background: color-mix(in srgb, var(--ui-accent) 10%, var(--ui-surface)); }
+.area-content .sidebar .note-card { margin-block: 2px; border-color: transparent; }
+.area-content .sidebar .note-card:hover { border-color: var(--ui-border); background: var(--ui-surface-hover); }
+.area-content .sidebar .note-card.active,
+.area-content .sidebar .note-card[aria-current="true"] { border-color: color-mix(in srgb, var(--ui-accent) 32%, var(--ui-border)); background: color-mix(in srgb, var(--ui-accent) 9%, var(--ui-surface)); }
+.area-content .sidebar .note-card.active::before,
+.area-content .sidebar .note-card[aria-current="true"]::before { display: block; top: 12px; bottom: 12px; width: 3px; }
+.area-content .sidebar .note-card-title { color: var(--ui-text); font-weight: 550; }
+.notes-editor .editor-header { border-bottom: 1px solid var(--ui-border-soft, var(--ui-border)); }
+.notes-editor .editor-toolbar { padding-block: 8px; }
+@media (max-width: 700px) {
+  .area-content .sidebar-pane { border-radius: 0; }
+}
+
+/* Atelier: an open library beside one still writing page. */
+.notes-library-heading { display: flex; align-items: center; gap: 12px; padding: 0 18px 20px; }
+.horizon-library-count { display: none; }
+.notes-library-heading h1 { margin: 0; color: var(--ui-text); font-family: 'Bahnschrift', 'Segoe UI', sans-serif; font-size: 1.75rem; font-weight: 400; letter-spacing: -.045em; line-height: 1.2; }
+.notes-library-mark { position: relative; width: 17px; height: 21px; border: 1px solid var(--ui-accent); transform: skewY(-15deg); }
+.notes-library-mark::after { position: absolute; inset: 4px -5px -5px 4px; border: 1px solid var(--ui-border); content: ''; }
+.notes-page-date { display: block; margin-bottom: 16px; color: var(--ui-text-muted); font: .625rem/1.6 Consolas, 'Liberation Mono', monospace; letter-spacing: .025em; }
+.nexus-atelier .nexus-view-enter > .app-shell { padding: 20px clamp(20px, 3vw, 44px) 0; grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); gap: clamp(22px, 3vw, 42px); background: transparent; }
+/* worlds.css uses :root[data-theme] plus a two-class :is() branch. */
+:root[data-theme] .nexus-atelier .area-content .app-shell > .sidebar-pane,
+:root[data-theme] .nexus-atelier .area-content .app-shell > .workspace { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+:root[data-theme] .nexus-atelier .area-content .app-shell > .workspace { border-left: 1px solid var(--ui-border); }
+.nexus-atelier .area-content .sidebar { padding-top: 4px; }
+.nexus-atelier .notes-library-heading { padding: 0 0 22px; }
+.nexus-atelier .notes-library-heading h1 { font-size: clamp(1.75rem, 2.5vw, 2.25rem); }
+.nexus-atelier .sidebar > :is(.sidebar-view-tabs, .search-box, .sidebar-filters, .tag-filters, .sidebar-heading-row),
+.nexus-atelier .area-content .sidebar .new-note-button { margin-inline: 0; }
+.nexus-atelier .area-content .sidebar .new-note-button { justify-content: flex-start; min-height: 44px; margin-bottom: 14px; padding: 9px 0; border: 0; border-block: 1px solid var(--ui-border); border-radius: 0; background: transparent; box-shadow: none; color: var(--ui-accent); font-size: .8125rem; }
+.nexus-atelier .area-content .sidebar .new-note-button:hover { color: var(--ui-text); background: color-mix(in srgb, var(--ui-accent) 4%, transparent); }
+.nexus-atelier .area-content .sidebar-view-tabs { gap: 0; padding: 0; margin-bottom: 10px; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; }
+.nexus-atelier .area-content .sidebar-view-button { justify-content: flex-start; gap: 7px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 8px 4px; background: transparent; font-size: .75rem; }
+.nexus-atelier .area-content .sidebar-view-button.active { border-color: var(--ui-accent); background: transparent; color: var(--ui-text); }
+.nexus-atelier .sidebar-view-button > svg { width: 14px; height: 14px; }
+.nexus-atelier .sidebar-view-button .note-count { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; font: .625rem/1.5 Consolas, 'Liberation Mono', monospace; }
+.nexus-atelier .area-content .sidebar .search-box { min-height: 44px; padding-inline: 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; }
+.nexus-atelier .sidebar .search-box:focus-within { border-color: var(--ui-accent); box-shadow: 0 1px var(--ui-accent); }
+.nexus-atelier .sidebar .search-input { font-size: .8125rem; }
+.nexus-atelier .sidebar-filters { gap: 2px; }
+.nexus-atelier .sidebar .filter-button { padding-inline: 0 7px; border: 0; border-radius: 0; font-size: .6875rem; }
+.nexus-atelier .sidebar .sort-select { padding-inline: 3px 18px; font-size: .6875rem; }
+.nexus-atelier .sidebar .tag-filters { gap: 0 10px; }
+.nexus-atelier .sidebar .tag-filter { min-height: 36px; padding-inline: 0; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; }
+.nexus-atelier .sidebar .tag-filter.active { border-color: var(--ui-accent); color: var(--ui-accent); }
+.nexus-atelier .sidebar > .sidebar-heading-row { margin-block: 18px 8px; }
+.nexus-atelier .sidebar-heading-row .sidebar-heading { padding: 0; font: .5625rem/1.7 Consolas, 'Liberation Mono', monospace; letter-spacing: .12em; }
+.nexus-atelier .sidebar-heading-row > .note-count { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.nexus-atelier .sidebar .note-list { gap: 0; padding: 0 4px 12px 0; scrollbar-gutter: stable; }
+.nexus-atelier .sidebar .note-list > li { border-top: 1px solid var(--ui-border-soft); }
+.nexus-atelier .sidebar .note-card { min-height: 108px; margin: 0; padding: 14px 10px 14px 12px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.nexus-atelier .sidebar .note-card:hover { background: color-mix(in srgb, var(--ui-accent) 4%, transparent); }
+.nexus-atelier .sidebar .note-card.active { background: color-mix(in srgb, var(--ui-accent) 7%, transparent); box-shadow: none; }
+.nexus-atelier .sidebar .note-card.active::before { top: 14px; bottom: auto; left: 0; width: 3px; height: 22px; border-radius: 0; }
+.nexus-atelier .sidebar .note-card-title { color: var(--ui-text); font-size: .9375rem; font-weight: 500; letter-spacing: -.012em; }
+.nexus-atelier .sidebar .note-card.active .note-card-title { color: var(--ui-accent); }
+.nexus-atelier .sidebar .note-card-preview { margin-block: 4px 8px; font-size: .75rem; line-height: 1.55; }
+.nexus-atelier .sidebar .note-card-meta { font-size: .625rem; }
+.nexus-atelier .sidebar .note-card-tag { padding: 0; border: 0; border-radius: 0; background: transparent; font-size: .625rem; }
+.nexus-atelier .sidebar .sidebar-footer { justify-content: flex-end; margin: 0; padding-block: 4px; border-color: var(--ui-border-soft); }
+.nexus-atelier .workspace .workspace-topbar { gap: 4px 10px; min-height: 48px; padding: 0 0 6px 22px; border: 0; background: transparent; }
+.nexus-atelier .workspace .breadcrumb { font: .625rem/1.6 Consolas, 'Liberation Mono', monospace; }
+.nexus-atelier .workspace .workspace-actions { gap: 1px; }
+.nexus-atelier .workspace .note-task-links { min-height: 44px; max-height: 110px; padding: 0 22px 5px; border-bottom: 1px solid var(--ui-border-soft); }
+.nexus-atelier .workspace .note-task-links .text-button { font-size: .6875rem; }
+.nexus-atelier .workspace .linked-task { min-height: 44px; padding: 7px 0; border: 0; border-bottom: 1px solid var(--ui-accent); border-radius: 0; background: transparent; font-size: .6875rem; }
+.nexus-atelier .notes-editor { background: transparent; }
+.nexus-atelier .notes-editor .editor-header { width: min(100%, 900px); padding: 28px clamp(22px, 4vw, 58px) 12px; border: 0; }
+.nexus-atelier .notes-editor .title-input { min-height: 56px; padding-bottom: 6px; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.875rem, 3vw, 3rem); font-weight: 400; line-height: 1.22; letter-spacing: -.04em; }
+.nexus-atelier .notes-editor .tag-editor { margin-top: 7px; gap: 4px; }
+.nexus-atelier .notes-editor .tag-chip { padding-left: 0; border: 0; border-radius: 0; background: transparent; font-size: .6875rem; }
+.nexus-atelier .notes-editor .tag-chip::before { content: '#'; opacity: .65; }
+.nexus-atelier .notes-editor .tag-input { padding-left: 3px; font-size: .6875rem; }
+.nexus-atelier .notes-editor .editor-toolbar,
+.nexus-atelier .notes-editor .editor-footer,
+.nexus-atelier .notes-editor .revision-history { width: min(calc(100% - clamp(44px, 8vw, 116px)), 784px); }
+.nexus-atelier .notes-editor .editor-toolbar { padding-block: 5px; border-block: 1px solid var(--ui-border-soft); gap: 0; }
+.nexus-atelier .notes-editor .editor-toolbar button { border-radius: 2px; padding-inline: 8px; }
+.nexus-atelier .notes-editor .editor-content { width: min(100%, 900px); padding: 26px clamp(22px, 4vw, 58px) 28px; }
+.nexus-atelier .notes-editor .editor-textarea,
+.nexus-atelier .notes-editor .editor-textarea:read-only,
+.nexus-atelier .notes-editor .markdown-preview { color: var(--ui-text); font-size: 1rem; line-height: 1.9; letter-spacing: .002em; }
+.nexus-atelier .notes-editor .editor-textarea { transition: none; animation: none; }
+.nexus-atelier .notes-editor .editor-footer { justify-content: flex-start; padding-block: 14px; font: .5625rem/1.6 Consolas, 'Liberation Mono', monospace; }
+.nexus-atelier .notes-editor .revision-history { padding-top: 4px; border-top: 1px solid var(--ui-border-soft); }
+.nexus-atelier .notes-editor .revision-item { border: 0; border-bottom: 1px solid var(--ui-border-soft); border-radius: 0; background: transparent; }
+.nexus-atelier .notes-editor .revision-preview { border-radius: 2px; background: var(--ui-surface); }
+.nexus-atelier .workspace .empty-state { align-items: flex-start; padding: 40px clamp(22px, 4vw, 58px); text-align: left; }
+.nexus-atelier .workspace .empty-state h1 { color: var(--ui-text); font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 3.5vw, 3.5rem); font-weight: 400; line-height: 1.15; }
+.nexus-atelier .workspace .empty-orbit { width: 72px; height: 72px; margin-bottom: 24px; border-radius: 0; background: transparent; }
+.nexus-atelier .workspace .empty-orbit::before { border-radius: 0; }
+
+@media (max-width: 1100px) and (min-width: 701px) {
+  .nexus-atelier .nexus-view-enter > .app-shell { grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); gap: 18px; padding-inline: 20px; }
+  .nexus-atelier .notes-editor .editor-header { padding-inline: 22px; }
+  .nexus-atelier .notes-editor .editor-content { padding-inline: 22px; }
+  .nexus-atelier .notes-editor .editor-toolbar,
+  .nexus-atelier .notes-editor .editor-footer,
+  .nexus-atelier .notes-editor .revision-history { width: calc(100% - 44px); }
+  .nexus-atelier .workspace .workspace-topbar { padding-left: 14px; }
+}
+@media (max-width: 700px) {
+  .nexus-atelier .nexus-view-enter > .app-shell { gap: 0; padding: 0; }
+  .nexus-atelier .area-content .app-shell > .sidebar-pane { width: 100%; }
+  :root[data-theme] .nexus-atelier .area-content .app-shell > .workspace { border: 0; }
+  .nexus-atelier .area-content .sidebar { padding: 24px 20px 0; }
+  .nexus-atelier .notes-library-heading { padding-bottom: 20px; }
+  .nexus-atelier .sidebar .note-card { min-height: 105px; }
+  .nexus-atelier .sidebar .note-card-title { font-size: 1rem; }
+  .nexus-atelier .sidebar .note-card-preview { font-size: .8125rem; }
+  .nexus-atelier .workspace .workspace-topbar { padding: 8px 12px; border-bottom: 1px solid var(--ui-border-soft); }
+  .nexus-atelier .workspace .note-task-links { padding-inline: 20px; }
+  .nexus-atelier .notes-editor .editor-header { padding: 24px 20px 12px; }
+  .nexus-atelier .notes-editor .title-input { font-size: clamp(1.875rem, 6vw, 2.5rem); }
+  .nexus-atelier .notes-editor .editor-toolbar,
+  .nexus-atelier .notes-editor .editor-footer,
+  .nexus-atelier .notes-editor .revision-history { width: calc(100% - 40px); }
+  .nexus-atelier .notes-editor .editor-content { padding: 24px 20px; }
+  .nexus-atelier .notes-editor .editor-textarea,
+  .nexus-atelier .notes-editor .markdown-preview { font-size: 1rem; line-height: 1.85; }
+  .nexus-atelier .workspace .empty-state { padding: 32px 20px; }
+}

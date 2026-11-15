@@ -1,0 +1,34 @@
+/* Larger interactive targets for touch, scoped to existing controls. */
+@media (pointer: coarse) {
+  .home-view .home-capture-tools .home-icon-button { min-height: 44px; height: 44px; }
+  .home-view .home-text-button { min-height: 44px; }
+  .home-view .home-task-check,
+  .home-view .home-task-edit.home-icon-button { width: 44px; min-width: 44px; }
+
+  .planning-task-title { min-height: 44px; }
+  .today-view .today-priority-list .today-icon-button { flex-basis: 44px; width: 44px; }
+  .today-view .today-pool-copy > .today-text-button,
+  .today-view .today-date-field input { min-height: 44px; }
+  .week-task-drag { flex-basis: 44px; }
+
+  .nexus-calendar .nexus-calendar-icon { flex-basis: 44px; min-width: 44px; }
+  .nexus-calendar-modes button,
+  .nexus-calendar .nexus-calendar-more,
+  .nexus-calendar .nexus-calendar-empty-slot,
+  .nexus-calendar .nexus-calendar-note { min-height: 44px; }
+  .nexus-calendar-cell > header { flex-wrap: wrap; }
+  .nexus-calendar .nexus-calendar-date,
+  .nexus-calendar .nexus-calendar-cell-add { min-width: 44px; min-height: 44px; }
+  .nexus-calendar .nexus-calendar-cell-add { width: 44px; }
+  .reminders-link { min-height: 44px; }
+  .search-box input, .search-input { min-height: 44px; }
+}
+
+@media (pointer: coarse) and (max-width: 600px) {
+  .nexus-calendar-navigation { grid-template-columns: 44px minmax(0, 1fr) 44px auto; }
+}
+
+@media (pointer: coarse) and (max-width: 850px) {
+  .week-mobile-tabs { grid-template-columns: repeat(7, minmax(44px, 1fr)); overflow-x: auto; }
+}
+

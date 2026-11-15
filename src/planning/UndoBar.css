@@ -1,0 +1,44 @@
+﻿/* A single quiet action line, shared with the atelier canvas. */
+.undo-bar { position: relative; grid-column: 1 / -1; flex: 0 0 auto; min-width: 0; margin: 0 12px; padding: 0 2px; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; color: var(--ui-text); font-size: .75rem; }
+.nexus-atelier .undo-bar { margin: 0 clamp(20px, 3.8vw, 68px); }
+.undo-bar-main { display: flex; align-items: center; gap: 8px 18px; min-width: 0; min-height: 44px; }
+.undo-bar-button { display: inline-flex; align-items: center; justify-content: flex-start; flex: 0 0 auto; gap: 7px; min-height: 44px; max-width: 100%; padding: 6px 0; border: 0; border-radius: 0; background: transparent; color: var(--ui-accent); font: inherit; cursor: pointer; overflow-wrap: anywhere; }
+.undo-bar-button:disabled { opacity: .5; cursor: default; }
+.undo-bar-button:focus-visible, .undo-bar-history > summary:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+.undo-bar-details { display: flex; flex: 1 1 auto; align-items: baseline; gap: 4px 14px; min-width: 0; }
+.undo-bar-label { display: block; min-width: 0; overflow: hidden; color: var(--ui-text-secondary); text-overflow: ellipsis; white-space: nowrap; }
+.undo-bar-count { flex: 0 0 auto; color: var(--ui-text-muted); font: .625rem/1.7 Consolas, 'Liberation Mono', monospace; }
+.undo-bar-history { position: relative; flex: 0 0 auto; }
+.undo-bar-history > summary { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 6px 0; color: var(--ui-text-muted); font-size: .6875rem; line-height: 1.6; list-style: none; cursor: pointer; }
+.undo-bar-history > summary::-webkit-details-marker { display: none; }
+.undo-bar-history > summary:hover, .undo-bar-history[open] > summary { color: var(--ui-accent); }
+.undo-bar-history > .undo-bar-hint { position: absolute; z-index: 6; top: calc(100% + 4px); right: 0; width: min(350px, calc(100vw - 44px)); margin: 0; padding: 14px 16px; border: 1px solid var(--ui-border); border-radius: 3px; background: var(--ui-surface); box-shadow: 0 12px 30px color-mix(in srgb, var(--ui-canvas) 55%, transparent); color: var(--ui-text-secondary); font-size: .75rem; line-height: 1.8; overflow-wrap: anywhere; }
+.undo-bar-hint > span { display: block; margin-top: 10px; color: var(--ui-text-muted); }
+/* Feedback stays visible without shifting the working surface. */
+.undo-bar-status:not(:empty) { position: absolute; z-index: 6; right: 0; top: calc(100% + 5px); max-width: min(28rem, 100%); margin: 0; padding: 10px 14px; border: 1px solid var(--ui-border); border-left-color: var(--ui-accent); border-radius: 3px; background: var(--ui-surface); color: var(--ui-text); box-shadow: 0 10px 26px color-mix(in srgb, var(--ui-canvas) 45%, transparent); font-size: .75rem; line-height: 1.7; overflow-wrap: anywhere; animation: nexus-view-enter var(--motion-view, 140ms) var(--motion-ease, ease-out) both; }
+.undo-bar-status:empty { display: none; }
+.undo-bar-status.is-error { border-left-color: var(--ui-danger); color: var(--ui-danger); }
+.undo-bar-button { transition: color var(--motion-hover, 140ms) ease-out; }
+@media (hover: hover) { .undo-bar-button:not(:disabled):hover { color: var(--ui-accent-hover); } }
+.undo-bar-button:not(:disabled):active { color: var(--ui-text); transition-duration: var(--motion-press, 90ms); }
+@media (max-width: 650px) {
+  .undo-bar-main { flex-wrap: wrap; gap: 0 15px; }
+  .undo-bar-details { order: 2; flex-basis: 100%; justify-content: space-between; padding-bottom: 10px; }
+  .undo-bar-history { margin-left: auto; }
+  .undo-bar-count { white-space: nowrap; }
+}
+@media (max-width: 370px) { .nexus-atelier .undo-bar { margin-inline: 15px; } }
+@media (prefers-reduced-motion: reduce) { .undo-bar-status:not(:empty) { animation: none !important; } .undo-bar-button { transition: none !important; } }
+
+html[data-theme='nexus'] .undo-bar { border-color: var(--hz-line, #a8cfe526); font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .undo-bar-button { font-weight: 400; letter-spacing: normal; text-transform: none; }
+html[data-theme='nexus'] :is(.undo-bar-count, .undo-bar-history > summary) { font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .undo-bar-history > .undo-bar-hint,
+html[data-theme='nexus'] .undo-bar-status:not(:empty) {
+  border-color: var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: var(--hz-window, #0c141eee);
+  font-size: var(--hz-meta, .75rem);
+}
+html[data-theme='nexus'] .undo-bar-status:not(:empty) { border-left-color: var(--ui-accent); }
+html[data-theme='nexus'] .undo-bar-status.is-error { border-left-color: var(--ui-danger); }

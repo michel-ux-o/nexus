@@ -1,0 +1,29 @@
+# Apply only from the reviewed, dedicated Nexus deployment repository.
+# Runtime credentials are entered in Render and never committed here.
+services:
+  - type: web
+    name: nexus
+    runtime: node
+    region: frankfurt
+    plan: free
+    autoDeployTrigger: 'off'
+    buildCommand: npm ci --include=dev && npx tsc -b && npx vite build --configLoader native
+    startCommand: node server/index.mjs
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: NEXUS_CLOUD_MODE
+        value: "1"
+      - key: APP_ORIGIN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXUS_SETUP_CODE
+        sync: false

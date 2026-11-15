@@ -1,0 +1,18 @@
+# Allowlist: local credentials, user data and review artifacts never enter a build.
+**
+!Dockerfile
+!package.json
+!package-lock.json
+!tsconfig.json
+!vite.config.ts
+!index.html
+!src/
+!src/**
+!public/
+!public/**
+!server/
+!server/**
+**/.env
+**/.env.*
+**/*.pem
+**/*.key

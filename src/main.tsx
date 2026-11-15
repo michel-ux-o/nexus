@@ -1,0 +1,16 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './styles.css';
+import './design-system.css';
+import './touch-comfort.css';
+import './motion.css';
+import './themes/themes.css';
+import './themes/worlds.css';
+import './horizon/notes.css';
+import './horizon/scheme.css';
+import { registerOffline } from './offline';
+import { InstanceBoundary } from './InstanceBoundary';
+import { AccountBoundary } from './auth/AccountBoundary';
+createRoot(document.getElementById('root')!).render(<React.StrictMode><AccountBoundary><InstanceBoundary><App /></InstanceBoundary></AccountBoundary></React.StrictMode>);
+registerOffline();

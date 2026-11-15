@@ -1,0 +1,232 @@
+.dialog.planning-dialog {
+  position: fixed;
+  inset: 12px 12px 12px auto;
+  width: min(620px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  height: calc(100vh - 24px);
+  height: calc(100dvh - 24px);
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  box-shadow: -24px 0 90px color-mix(in srgb, var(--ui-surface-raised) 40%, transparent);
+}
+.dialog.planning-dialog[open] { display: block; }
+.dialog.planning-dialog::backdrop { background: color-mix(in srgb, var(--ui-canvas) 74%, transparent); backdrop-filter: blur(5px); }
+.planning-dialog-form { display: flex; flex-direction: column; min-height: 100%; min-width: 0; }
+.planning-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px; border-bottom: 1px solid var(--ui-border); }
+.planning-dialog-header > div { min-width: 0; }
+.planning-dialog-header h2 { margin: 0; font-size: 1.25rem; overflow-wrap: anywhere; }
+.planning-dialog-header .eyebrow { margin-bottom: 7px; color: var(--ui-accent); font-size: .6875rem; letter-spacing: .11em; }
+.planning-dialog .planning-close { flex: 0 0 44px; min-width: 44px; min-height: 44px; padding: 10px; }
+.planning-dialog-body { display: flex; flex: 1 0 auto; flex-direction: column; gap: 18px; padding: 24px; min-width: 0; }
+.planning-dialog-footer { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 18px 24px; border-top: 1px solid var(--ui-border); background: var(--ui-surface); }
+.planning-dialog-footer > button { min-height: 44px; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.planning-dialog-footer .planning-delete-trigger { margin-right: auto; }
+.planning-dialog fieldset.planning-inputs { display: flex; flex-direction: column; flex-wrap: nowrap; gap: 20px; padding: 0; margin: 0; min-width: 0; border: 0; }
+.planning-dialog fieldset.planning-fieldset { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 14px; padding: 16px; margin: 0; min-width: 0; max-width: 100%; border: 1px solid var(--ui-border); border-radius: 11px; }
+.planning-dialog .planning-inputs > * { min-width: 0; max-width: 100%; }
+.planning-dialog .planning-inputs button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.planning-dialog .planning-fieldset > legend { max-width: 100%; color: var(--ui-text); font-size: .8125rem; font-weight: 550; white-space: normal; overflow-wrap: anywhere; }
+.planning-dialog fieldset label.field, .planning-dialog label.field { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-height: 0; padding: 0; background: transparent; }
+.planning-dialog .field > span { display: block; min-width: 0; overflow-wrap: anywhere; }
+.planning-dialog .field input, .planning-dialog .field select, .planning-dialog .field textarea { width: 100%; max-width: 100%; min-width: 0; min-height: 44px; }
+.planning-dialog input[type="date"], .planning-dialog input[type="time"] { min-inline-size: 0; }
+.planning-dialog .field textarea { resize: vertical; }
+.planning-dialog .planning-two-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; min-width: 0; }
+.planning-dialog .planning-help, .planning-dialog .planning-info p { margin: 0; color: var(--ui-text-secondary); font-size: .75rem; line-height: 1.75; overflow-wrap: anywhere; }
+.planning-dialog .planning-warning, .planning-dialog .planning-warning[role="status"] { margin: 0; padding: 12px; border: 1px solid color-mix(in srgb, var(--ui-warning) 22%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--ui-warning) 5%, transparent); color: var(--ui-warning); font-size: .8125rem; line-height: 1.7; overflow-wrap: anywhere; }
+.planning-dialog .planning-info { display: grid; gap: 10px; padding: 14px; border: 1px solid color-mix(in srgb, var(--ui-accent) 17%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--ui-accent) 3%, transparent); }
+.planning-dialog .planning-save-error, .planning-dialog .planning-delete-confirm { display: grid; gap: 12px; padding: 15px; border: 1px solid color-mix(in srgb, var(--ui-danger) 33%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--ui-danger) 4%, transparent); min-width: 0; }
+.planning-dialog .planning-save-error > p, .planning-dialog .planning-delete-confirm > p { margin: 0; color: var(--ui-danger); font-size: .8125rem; line-height: 1.7; overflow-wrap: anywhere; }
+.planning-dialog .planning-save-error > button { justify-self: start; white-space: normal; }
+.planning-dialog .planning-save-error details { min-width: 0; }
+.planning-dialog .planning-save-error details .field { margin-bottom: 10px; }
+.planning-dialog .planning-save-error textarea { font-family: ui-monospace, monospace; font-size: .75rem; }
+.planning-dialog .planning-button-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.planning-dialog .planning-button-row > button { min-height: 44px; }
+.planning-dialog .planning-check { display: flex; flex-direction: row; align-items: center; gap: 12px; min-height: 44px; padding: 8px; font-size: .8125rem; cursor: pointer; }
+.planning-dialog .planning-check > span { min-width: 0; overflow-wrap: anywhere; }
+.planning-dialog .planning-check > input { flex: 0 0 18px; width: 18px; height: 18px; }
+.planning-dialog .planning-subtasks { display: grid; gap: 12px; }
+.planning-dialog .planning-subtask { display: grid; gap: 12px; min-width: 0; padding: 12px; border: 1px solid var(--ui-border); border-radius: 9px; background: color-mix(in srgb, var(--ui-info) 38%, transparent); }
+.planning-dialog .planning-note-options { display: grid; gap: 3px; max-height: 300px; overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
+.planning-dialog .planning-note-option small { display: block; color: var(--ui-text-muted); margin-top: 4px; }
+.planning-dialog .planning-more-options { min-width: 0; border: 1px solid var(--ui-border); border-radius: 11px; background: linear-gradient(130deg, color-mix(in srgb, var(--ui-accent) 3%, transparent), transparent); }
+.planning-dialog .planning-more-options > summary { display: list-item; list-style-position: inside; min-height: 48px; padding: 14px 16px; color: var(--ui-text); font-size: .8125rem; overflow-wrap: anywhere; }
+.planning-dialog .planning-more-options > summary > span { display: block; margin: 5px 0 0 16px; color: var(--ui-text-muted); font-size: .6875rem; }
+.planning-dialog .planning-more-body { display: flex; flex-direction: column; gap: 18px; min-width: 0; padding: 4px 16px 16px; }
+.planning-dialog .planning-inputs:disabled .planning-more-options > summary { cursor: default; }
+.planning-dialog .planning-operation-status { margin: 0; color: var(--ui-text-muted); font-size: .75rem; line-height: 1.7; }
+.planning-task-list { display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; min-width: 0; }
+.planning-task-card { display: grid; gap: 12px; min-width: 0; padding: 16px; border: 1px solid var(--ui-border); border-radius: 12px; background: var(--ui-surface); }
+.planning-task-title-row { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.planning-task-title-row > h3 { min-width: 0; margin: 0; flex: 1; font-size: .9375rem; line-height: 1.6; font-weight: 550; }
+.planning-task-state { display: inline-flex; align-items: center; min-height: 34px; color: var(--ui-accent); }
+.planning-task-title { display: block; width: 100%; min-height: 34px; padding: 3px 0; border: 0; background: transparent; color: var(--ui-text); text-align: left; font: inherit; white-space: normal; overflow-wrap: anywhere; }
+.planning-task-title:hover { color: var(--ui-accent-hover); }
+.planning-task-card.is-done .planning-task-title { color: var(--ui-text-secondary); text-decoration: line-through; text-decoration-thickness: 1px; }
+.planning-task-card.is-done .planning-task-state { color: var(--ui-success); }
+.planning-task-description { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 0; color: var(--ui-text-secondary); font-size: .8125rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.planning-task-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.planning-task-chip { padding: 4px 7px; border: 1px solid var(--ui-border); border-radius: 6px; color: var(--ui-text-secondary); font-size: .6875rem; line-height: 1.6; overflow-wrap: anywhere; }
+.planning-task-chip.priority-high { color: var(--ui-accent); border-color: color-mix(in srgb, var(--ui-accent) 31%, transparent); background: color-mix(in srgb, var(--ui-accent) 7%, transparent); }
+.planning-task-chip.is-tag { color: var(--ui-accent); border-color: color-mix(in srgb, var(--ui-accent) 15%, transparent); background: color-mix(in srgb, var(--ui-accent) 3%, transparent); }
+.planning-task-chip.is-overdue { color: var(--ui-danger); border-color: color-mix(in srgb, var(--ui-danger) 33%, transparent); }
+.planning-task-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.planning-task-actions .secondary-button { min-height: 44px; padding: 8px 10px; white-space: normal; font-size: .75rem; }
+.planning-task-actions button[aria-pressed="true"] { color: var(--ui-accent-hover); background: color-mix(in srgb, var(--ui-accent) 8%, transparent); border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent); }
+.planning-task-feedback { min-height: 3em; margin: 0; font-size: .75rem; line-height: 1.5; color: var(--ui-success); }
+.planning-task-error { display: grid; justify-items: start; gap: 8px; }
+.planning-task-error > p { margin: 0; color: var(--ui-danger); font-size: .75rem; overflow-wrap: anywhere; }
+.planning-task-empty { margin: 0; padding: 18px; border: 1px dashed var(--ui-border); border-radius: 10px; color: var(--ui-text-muted); font-size: .8125rem; }
+.planning-task-card.is-compact { gap: 10px; padding: 12px; }
+.planning-task-card.is-compact .planning-task-actions { gap: 5px; }
+.planning-task-card.is-compact .planning-task-actions .secondary-button { flex: 1 1 auto; padding: 7px 8px; font-size: .6875rem; }
+@media (max-width: 520px) {
+  .dialog.planning-dialog { inset: 0 0 0 auto; width: 100%; max-width: 100%; height: 100vh; height: 100dvh; border-radius: 0; border-width: 0; }
+  .planning-dialog-header { padding: 18px 16px; }
+  .planning-dialog-body { padding: 18px 16px; }
+  .planning-dialog-footer { padding: 16px; }
+  .planning-dialog-footer > button { flex: 1 1 100%; width: 100%; }
+  .planning-dialog fieldset.planning-fieldset { padding: 12px; }
+  .planning-dialog .planning-two-columns { grid-template-columns: minmax(0, 1fr); }
+  .planning-task-actions > .secondary-button { flex: 1 1 130px; }
+}
+@media (max-height: 430px) {
+  .planning-dialog-header { padding-block: 12px; }
+  .planning-dialog-body { padding-block: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .planning-dialog *, .planning-task-list * { scroll-behavior: auto; transition: none; animation: none; }
+}
+
+/* Task actions remain readable and easy to reach in compact lists. */
+.planning-task-card { border-color: transparent; border-bottom-color: var(--ui-border); border-radius: 8px; }
+.planning-task-title { min-height: 44px; }
+.planning-task-state { min-height: 44px; }
+.planning-task-chip { border-color: transparent; padding: 2px 4px; font-size: .75rem; }
+.planning-task-actions .secondary-button, .planning-task-card.is-compact .planning-task-actions .secondary-button { min-height: 44px; font-size: .875rem; }
+.planning-task-more { position: relative; flex: 1 1 auto; min-width: 0; }
+.planning-task-more > summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 10px; border: 1px solid var(--ui-border); border-radius: 8px; color: var(--ui-text-secondary); cursor: pointer; font-size: .875rem; list-style: none; }
+.planning-task-more > summary::-webkit-details-marker { display: none; }
+.planning-task-more > summary::after { content: '⌄'; margin-left: 5px; }
+.planning-task-more-options { display: grid; gap: 4px; padding: 6px 0; }
+.planning-task-more-options .secondary-button { width: 100%; justify-content: flex-start; text-align: left; }
+.planning-task-more-options span { padding: 8px; font-size: .75rem; color: var(--ui-text-secondary); }
+
+/* One visual grammar for all planning forms, including native top-layer dialogs. */
+html[data-theme='nexus'] .dialog.planning-dialog {
+  border-color: var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: var(--hz-window, #0c141eee);
+  box-shadow: 0 24px 72px #0007;
+  font-size: var(--hz-body, .875rem);
+}
+html[data-theme='nexus'] .dialog.planning-dialog::backdrop { background: #04080ec9; }
+html[data-theme='nexus'] .planning-dialog :is(.planning-dialog-header, .planning-dialog-footer) {
+  border-color: var(--hz-line, #a8cfe526);
+  background: transparent;
+}
+html[data-theme='nexus'] .planning-dialog-header h2 {
+  color: var(--ui-text);
+  font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem));
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .planning-dialog-header .eyebrow {
+  color: var(--ui-text-muted);
+  font-size: var(--hz-label, .65rem);
+  font-weight: 550;
+  line-height: 1.6;
+  letter-spacing: var(--hz-tracking, .22em);
+  text-transform: uppercase;
+}
+html[data-theme='nexus'] .dialog.planning-dialog .planning-dialog-body { gap: 24px; }
+html[data-theme='nexus'] .dialog.planning-dialog fieldset.planning-inputs { gap: 22px; }
+html[data-theme='nexus'] .dialog.planning-dialog fieldset.planning-fieldset {
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+html[data-theme='nexus'] .dialog.planning-dialog :is(.planning-more-options, .planning-subtask, .planning-info) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-theme='nexus'] .dialog.planning-dialog .planning-more-options {
+  border-top: 1px solid var(--hz-line, #a8cfe526);
+}
+html[data-theme='nexus'] .dialog.planning-dialog .planning-more-options > summary { padding: 14px 0; }
+html[data-theme='nexus'] .dialog.planning-dialog .planning-more-body { gap: 22px; padding: 4px 0 20px; }
+html[data-theme='nexus'] .dialog.planning-dialog .planning-subtask {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hz-line, #a8cfe526);
+}
+html[data-theme='nexus'] .dialog.planning-dialog .planning-info { padding: 0; }
+html[data-theme='nexus'] .planning-dialog .planning-fieldset > legend {
+  margin-bottom: 12px;
+  color: var(--ui-text-muted);
+  font-size: var(--hz-label, .65rem);
+  font-weight: 550;
+  line-height: 1.7;
+  letter-spacing: var(--hz-tracking, .22em);
+  text-transform: uppercase;
+}
+html[data-theme='nexus'] .planning-dialog :is(.field > span, .planning-check, .planning-more-options > summary) {
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+html[data-theme='nexus'] .dialog.planning-dialog .field :is(input, select, textarea) {
+  padding: 10px 0;
+  color: var(--ui-text);
+  border: 0;
+  border-bottom: 1px solid var(--hz-line, #a8cfe526);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+  letter-spacing: normal;
+}
+html[data-theme='nexus'] .dialog.planning-dialog .field :is(input, select, textarea):focus-visible { border-bottom-color: var(--ui-focus, #c3e6f7); }
+html[data-theme='nexus'] .planning-dialog :is(.planning-help, .planning-info p, .planning-operation-status, .planning-more-options > summary > span, .planning-note-option small) {
+  font-size: var(--hz-meta, .75rem);
+  line-height: 1.7;
+}
+html[data-theme='nexus'] .planning-dialog :is(.secondary-button, .primary-button, .danger-button) {
+  border-radius: var(--hz-radius, 5px);
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  box-shadow: none;
+}
+html[data-theme='nexus'] .planning-task-card {
+  border-color: transparent;
+  border-bottom-color: var(--hz-line, #a8cfe526);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-theme='nexus'] .planning-task-title-row > h3 { font-size: .95rem; font-weight: 400; line-height: 1.5; }
+html[data-theme='nexus'] .planning-task-description { font-size: var(--hz-body, .875rem); line-height: 1.7; }
+html[data-theme='nexus'] .planning-task-chip { border-radius: var(--hz-radius, 5px); font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .planning-task-more > summary { border-color: var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); }
+html[data-theme='nexus'] .planning-task-empty { border-color: var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); font-size: var(--hz-body, .875rem); }
+@media (max-width: 520px) {
+  html[data-theme='nexus'] .dialog.planning-dialog { border-radius: 0; }
+}

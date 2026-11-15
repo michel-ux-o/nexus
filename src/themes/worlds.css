@@ -1,0 +1,156 @@
+/* Material vocabulary shared by the workspace.  The palette remains in themes.css. */
+:root, :root[data-theme='nexus'] {
+  --world-background: radial-gradient(ellipse at 82% 0%, #30264b 0%, transparent 42%), linear-gradient(145deg, #0b0d18, var(--ui-canvas) 68%);
+  --world-panel: linear-gradient(145deg, #1b1a2b, #111620 70%);
+  --world-panel-raised: linear-gradient(145deg, #252238, #1a202c);
+  --world-line: #514a70;
+  --world-radius: 10px;
+  --world-radius-control: 6px;
+  --world-shadow: inset 0 1px #d4c7ff12, 0 12px 32px #0003;
+  --world-highlight: #c4b3ff;
+  --world-motion: 160ms cubic-bezier(.2, .7, .2, 1);
+}
+:root[data-theme='daylight'] {
+  --world-background: linear-gradient(150deg, #e4f0fb 0%, #f8fbff 42%, #edf4fa 100%);
+  --world-panel: linear-gradient(145deg, #ffffffed, #eff7fcef);
+  --world-panel-raised: linear-gradient(145deg, #fff, #eaf4fc);
+  --world-line: #b7cfe0;
+  --world-radius: 14px;
+  --world-radius-control: 8px;
+  --world-shadow: inset 0 1px #fff, 0 10px 30px #5884a51a;
+  --world-highlight: #7fb2da;
+  --world-motion: 200ms ease-out;
+}
+:root[data-theme='sand'] {
+  --world-background: linear-gradient(135deg, #ede0cc, #faf5ea 48%, #f0e5d2);
+  --world-panel: linear-gradient(145deg, #fffaf0, #f5ead7);
+  --world-panel-raised: linear-gradient(150deg, #fffdf7, #eee0c8);
+  --world-line: #c8b18e;
+  --world-radius: 20px;
+  --world-radius-control: 12px;
+  --world-shadow: inset 0 1px #fffaf0, 0 8px 22px #7257331c;
+  --world-highlight: #b18a46;
+  --world-motion: 220ms ease-out;
+}
+:root[data-theme='aurora'] {
+  --world-background: radial-gradient(ellipse at 85% 0%, #174a484d, transparent 46%), linear-gradient(145deg, #101f20, #091314 75%);
+  --world-panel: linear-gradient(145deg, #173131, #122021 72%);
+  --world-panel-raised: linear-gradient(145deg, #22403e, #1b2c2d);
+  --world-line: #426b66;
+  --world-radius: 18px;
+  --world-radius-control: 11px;
+  --world-shadow: inset 0 1px #9debd31a, 0 12px 32px #0004;
+  --world-highlight: #80dcca;
+  --world-motion: 240ms ease-out;
+}
+
+/* Shell materials are bounded to their own boxes, leaving writing areas quiet. */
+.nexus-app:not(.nexus-menu-mode) { background: var(--world-background); }
+.home-view, .tasks-view, .app-shell { background: var(--world-background); }
+.app-nav {
+  border-color: var(--world-line);
+  border-radius: var(--world-radius);
+  background: var(--world-panel);
+  box-shadow: var(--world-shadow);
+}
+.main-menu .menu-module {
+  border-radius: var(--world-radius);
+  border-color: var(--world-line);
+  background: var(--world-panel);
+  box-shadow: var(--world-shadow);
+}
+.main-menu .menu-module-top, .main-menu .menu-header-actions button,
+.main-menu .menu-motion-controls :is(button, select) { border-radius: var(--world-radius-control); }
+:root[data-theme='nexus'] .main-menu .menu-module { border-radius: 2px 14px 2px 14px; }
+:root[data-theme='sand'] .main-menu .menu-module { border-bottom-width: 3px; }
+:root[data-theme='aurora'] .main-menu .menu-module { border-radius: 24px 12px 24px 12px; }
+.app-nav button, .nexus-workspace-header button, .nexus-header-create summary {
+  border-radius: var(--world-radius-control);
+  transition: background-color var(--world-motion), border-color var(--world-motion), color var(--world-motion), box-shadow var(--world-motion);
+}
+.app-nav .app-nav-brand { border-radius: 0; }
+.app-nav .app-nav-destination.is-current {
+  border-color: color-mix(in srgb, var(--world-highlight) 36%, transparent);
+  background: color-mix(in srgb, var(--world-highlight) 12%, transparent);
+  box-shadow: inset 3px 0 var(--world-highlight);
+}
+.nexus-workspace-header {
+  border-color: var(--world-line);
+  background: var(--world-panel);
+}
+.nexus-header-create-options, .nexus-header-meta-details, .nexus-workspace-dialog {
+  border-color: var(--world-line);
+  border-radius: var(--world-radius);
+  background: var(--world-panel);
+  box-shadow: var(--world-shadow), 0 20px 55px color-mix(in srgb, var(--ui-canvas) 38%, transparent);
+}
+.nexus-workspace-dialog .nexus-dialog-close { border-radius: var(--world-radius-control); }
+
+/* Shared panels keep flat, readable content fields inside their material edge. */
+.area-content .sidebar-pane, .area-content .workspace,
+.tasks-filter-panel, .nexus-calendar-content, .reminders-card, .reminders-empty {
+  border-color: var(--world-line);
+  border-radius: var(--world-radius);
+  background: var(--world-panel);
+  box-shadow: var(--world-shadow);
+}
+.area-content .workspace-topbar { background: transparent; }
+.area-content .note-card, .reminders-card-icon,
+.tasks-search, .nexus-calendar-modes, .reminders-tabs {
+  border-radius: var(--world-radius-control);
+}
+/* Long-form content is reading text, not an accent or a link. */
+.area-content .editor-textarea, .area-content .markdown-preview { color: var(--ui-text); }
+
+/* The material is carried by the panel edge, leaving its contents unadorned. */
+:root[data-theme='nexus'] :is(.home-panel, .tasks-filter-panel, .week-panel, .week-day, .today-panel, .nexus-calendar-content, .area-content .sidebar-pane, .area-content .workspace) {
+  border-radius: 3px 14px 3px 14px;
+  border-left: 2px solid color-mix(in srgb, var(--world-highlight) 64%, var(--world-line));
+}
+:root[data-theme='nexus'] :is(.home-heading, .tasks-heading, .week-heading, .today-header, .nexus-calendar-heading) {
+  border-bottom-color: color-mix(in srgb, var(--world-highlight) 35%, var(--ui-border-soft));
+}
+:root[data-theme='daylight'] :is(.home-heading, .tasks-heading, .week-heading, .today-header, .nexus-calendar-heading) h1 {
+  font-weight: 450;
+  letter-spacing: -.045em;
+}
+:root[data-theme='daylight'] :is(.home-panel, .tasks-filter-panel, .week-panel, .week-day, .today-panel, .nexus-calendar-content, .area-content .sidebar-pane, .area-content .workspace) {
+  border-top-color: #fff;
+  box-shadow: inset 0 1px #fff, 0 10px 28px #5285aa1a;
+}
+:root[data-theme='sand'] :is(.home-heading, .tasks-heading, .week-heading, .today-header, .nexus-calendar-heading) h1,
+:root[data-theme='sand'] :is(.home-panel-heading, .today-section-heading, .week-panel-heading) h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+:root[data-theme='sand'] :is(.home-panel, .tasks-filter-panel, .week-panel, .week-day, .today-panel, .nexus-calendar-content, .area-content .sidebar-pane, .area-content .workspace) {
+  border-bottom-width: 2px;
+  box-shadow: inset 0 1px #fffaf0, 0 5px 16px #7257331a;
+}
+:root[data-theme='aurora'] :is(.home-panel, .tasks-filter-panel, .week-panel, .week-day, .today-panel, .nexus-calendar-content, .area-content .sidebar-pane, .area-content .workspace) {
+  border-radius: 22px 12px 24px 12px;
+  border-top-color: color-mix(in srgb, var(--world-highlight) 50%, var(--world-line));
+  box-shadow: inset 0 1px #a6eadc24, 0 10px 28px #0003;
+}
+/* Retain the current-day marker when the world material is applied. */
+:root[data-theme='daylight'] .week-day.is-today,
+:root[data-theme='sand'] .week-day.is-today,
+:root[data-theme='aurora'] .week-day.is-today {
+  box-shadow: inset 0 3px var(--ui-accent), var(--world-shadow);
+}
+
+/* Each world has a distinct contour, without animation or ornament in editors. */
+:root[data-theme='nexus'] .app-nav .app-nav-destination.is-current { border-left-width: 2px; }
+:root[data-theme='daylight'] .app-nav,
+:root[data-theme='daylight'] .nexus-workspace-header { backdrop-filter: blur(16px); }
+:root[data-theme='daylight'] .app-nav { border-top: 2px solid #ffffff; }
+:root[data-theme='sand'] .app-nav .app-nav-destination.is-current { box-shadow: inset 0 0 0 1px #b18a4626, 0 2px 5px #72573314; }
+:root[data-theme='sand'] .nexus-workspace-header { border-bottom-width: 2px; }
+:root[data-theme='aurora'] .app-nav { border-radius: 22px 12px 22px 12px; }
+:root[data-theme='aurora'] .app-nav .app-nav-destination.is-current { box-shadow: inset 3px 0 var(--world-highlight), inset 0 1px #a8fff01c; }
+:root[data-theme='aurora'] .nexus-workspace-header { box-shadow: inset 0 -1px #7bd8c626; }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-nav button, .nexus-workspace-header button, .nexus-header-create summary { transition: none; }
+}

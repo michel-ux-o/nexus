@@ -1,0 +1,23 @@
+.planning-dialog:has(.task-dialog-inputs) fieldset.planning-inputs { gap: 14px; }
+.planning-dialog:has(.task-dialog-inputs) fieldset.planning-fieldset { gap: 10px; padding: 0; border: 0; border-radius: 0; }
+.planning-dialog:has(.task-dialog-inputs) .planning-fieldset > legend { margin-bottom: 8px; }
+.planning-dialog:has(.task-dialog-inputs) .field input, .planning-dialog:has(.task-dialog-inputs) .field select, .planning-dialog:has(.task-dialog-inputs) .field textarea { font-size: .875rem; }
+.planning-dialog:has(.task-dialog-inputs) .planning-more-body { gap: 12px; }
+.planning-dialog:has(.task-dialog-inputs) .planning-more-options > summary { cursor: pointer; }
+.planning-dialog:has(.task-dialog-inputs) .planning-more-options > summary { font-size: .875rem; }
+.planning-dialog:has(.task-dialog-inputs) .planning-more-options > summary > span { font-size: .75rem; }
+.planning-dialog:has(.task-dialog-inputs) .planning-inputs button { min-height: 44px; }
+@media (max-width: 520px) {
+  .planning-dialog:has(.task-dialog-inputs) fieldset.planning-fieldset { padding: 0; }
+  .planning-dialog:has(.task-dialog-inputs) .planning-dialog-footer > button { flex: 1 1 140px; width: auto; }
+}
+
+html[data-theme='nexus'] .planning-dialog:has(.task-dialog-inputs) .field :is(input, select, textarea),
+html[data-theme='nexus'] .planning-dialog:has(.task-dialog-inputs) .planning-more-options > summary {
+  font-size: var(--hz-body, .875rem);
+}
+html[data-theme='nexus'] .planning-dialog:has(.task-dialog-inputs) .planning-more-options > summary > span { font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) fieldset.planning-inputs { gap: 22px; }
+html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) fieldset.planning-fieldset { gap: 16px; }
+html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) .planning-fieldset > legend { margin-bottom: 12px; }
+html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) .planning-more-body { gap: 22px; }

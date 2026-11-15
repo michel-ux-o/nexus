@@ -1,0 +1,10 @@
+.android-alarm-settings { min-width: 0; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--hz-line, var(--ui-border)); }
+.android-alarm-heading { display: flex; align-items: center; gap: 10px; color: var(--ui-text); }
+.android-alarm-heading > svg { flex: 0 0 auto; color: var(--ui-accent); }
+.android-alarm-heading > h3 { margin: 0; font-size: var(--hz-body, .875rem); font-weight: 600; overflow-wrap: anywhere; }
+.android-alarm-settings > p { max-width: 65ch; margin: 12px 0; font-size: var(--hz-body, .875rem); line-height: 1.6; overflow-wrap: anywhere; }
+.android-alarm-settings > button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; max-width: 100%; white-space: normal; text-align: left; }
+.android-alarm-settings > button > svg { flex: 0 0 auto; }
+.android-alarm-settings > button:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+.android-alarm-settings .android-alarm-error { color: var(--ui-danger, #c75252); }
+@media (max-width: 440px) { .android-alarm-settings > button { width: 100%; } }

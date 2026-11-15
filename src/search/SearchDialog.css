@@ -1,0 +1,49 @@
+.nexus-search-body { padding: 20px 24px; }
+.nexus-search-label { display: block; margin-bottom: 8px; color: var(--ui-text-secondary); font-size: .75rem; }
+.nexus-search-field { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border: 1px solid var(--ui-border); border-radius: 9px; background: var(--ui-canvas); color: var(--ui-text-muted); }
+.nexus-search-field:focus-within { border-color: var(--ui-accent); }
+.nexus-search-field input { width: 100%; min-width: 0; height: 46px; padding: 8px 0; border: 0; background: transparent; color: var(--ui-text); font-size: .875rem; }
+.nexus-search-field input::-webkit-search-cancel-button { display: none; }
+.nexus-search-field button { display: grid; place-items: center; flex: 0 0 auto; width: 44px; height: 44px; margin-right: -10px; border: 0; border-radius: 7px; background: transparent; color: var(--ui-text-secondary); }
+.nexus-search-filters { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.nexus-search-filters button { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 11px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--ui-text-secondary); font-size: .75rem; }
+.nexus-search-filters button[aria-pressed="true"] { border-color: color-mix(in srgb, var(--ui-accent) 26%, transparent); background: color-mix(in srgb, var(--ui-accent) 11%, transparent); color: var(--ui-accent); }
+.nexus-search-filters button span { font: .625rem ui-monospace, monospace; color: var(--ui-text-muted); }
+.nexus-search-status { margin: 13px 0 8px; color: var(--ui-text-muted); font-size: .6875rem; }
+.nexus-search-results { display: grid; gap: 5px; padding: 0; margin: 0; list-style: none; }
+.nexus-search-results li { min-width: 0; }
+.nexus-search-results button { display: flex; align-items: flex-start; gap: 12px; width: 100%; min-height: 64px; padding: 13px 10px; border: 1px solid transparent; border-radius: 9px; background: color-mix(in srgb, var(--ui-surface-hover) 1%, transparent); color: var(--ui-text-secondary); text-align: left; }
+.nexus-search-results button:hover, .nexus-search-results button:focus-visible { border-color: color-mix(in srgb, var(--ui-accent) 19%, transparent); background: color-mix(in srgb, var(--ui-accent) 5%, transparent); }
+.nexus-search-result-icon { display: grid; place-items: center; flex: 0 0 auto; width: 30px; height: 30px; border: 1px solid var(--ui-border); border-radius: 8px; color: var(--ui-accent); }
+.nexus-search-result-text { display: flex; flex: 1; flex-direction: column; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.nexus-search-result-title { color: var(--ui-text); font-size: .8125rem; }
+.nexus-search-result-text small { color: var(--ui-text-muted); font-size: .625rem; }
+.nexus-search-result-preview { color: var(--ui-text-secondary); font-size: .6875rem; }
+.nexus-search-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 33px 16px; color: var(--ui-text-muted); text-align: center; }
+.nexus-search-empty h3 { margin: 0; font-size: .9375rem; color: var(--ui-text-secondary); font-weight: 500; }
+.nexus-search-empty p { max-width: 340px; margin: 0; font-size: .75rem; }
+.nexus-search-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding: 13px 24px; border-top: 1px solid var(--ui-border-soft); color: var(--ui-text-muted); font-size: .625rem; }
+.nexus-search-footer kbd { display: inline-block; padding: 1px 4px; border: 1px solid var(--ui-border); border-radius: 4px; font: inherit; }
+@media (max-width: 480px), (max-height: 500px) { .nexus-search-body { padding: 16px; } .nexus-search-footer { padding-inline: 16px; } .nexus-search-filters button { padding-inline: 9px; } .nexus-search-results button { padding-inline: 6px; gap: 8px; } }
+
+html[data-theme='nexus'] .nexus-search-label { font-size: var(--hz-body, .875rem); font-weight: 400; }
+html[data-theme='nexus'] .nexus-search-field {
+  border-color: var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: #09121ce6;
+}
+html[data-theme='nexus'] .nexus-search-field:focus-within { border-color: var(--ui-accent); }
+html[data-theme='nexus'] .nexus-search-field input { font-size: var(--hz-body, .875rem); }
+html[data-theme='nexus'] .nexus-search-filters button {
+  border-radius: var(--hz-radius, 5px);
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+}
+html[data-theme='nexus'] :is(.nexus-search-filters button span, .nexus-search-status, .nexus-search-result-text small, .nexus-search-footer) { font-size: var(--hz-meta, .75rem); line-height: 1.7; }
+html[data-theme='nexus'] .nexus-search-results button { border-radius: var(--hz-radius, 5px); background: transparent; }
+html[data-theme='nexus'] .nexus-search-result-icon { border-color: var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); background: transparent; }
+html[data-theme='nexus'] .nexus-search-result-title { font-size: .95rem; font-weight: 400; line-height: 1.5; }
+html[data-theme='nexus'] .nexus-search-result-preview { font-size: var(--hz-body, .875rem); line-height: 1.7; }
+html[data-theme='nexus'] .nexus-search-empty h3 { font-size: 1.1rem; font-weight: 400; letter-spacing: -.02em; }
+html[data-theme='nexus'] .nexus-search-empty p { font-size: var(--hz-body, .875rem); line-height: 1.7; }
+html[data-theme='nexus'] .nexus-search-footer { border-color: var(--hz-line, #a8cfe526); }

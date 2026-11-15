@@ -1,0 +1,308 @@
+/* Notes use the same quiet surfaces and type roles as the Nexus start screen.
+   Reading and authored Markdown keep their own comfortable writing scale. */
+html[data-theme='nexus'] .nexus-horizon .nexus-view-enter > .app-shell {
+  grid-template-columns: minmax(260px, .34fr) minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 48px);
+  padding: 12px clamp(20px, 3.5vw, 56px) 28px;
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .app-shell > .sidebar-pane,
+html[data-theme='nexus'] .nexus-horizon .area-content .app-shell > .workspace {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .app-shell > .workspace {
+  border-left: 1px solid var(--hz-line, #a8cfe526);
+  background: var(--hz-window, #0c141eee);
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .sidebar {
+  padding: 6px 0 0;
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .notes-library-heading {
+  gap: 14px;
+  padding: 0 4px 16px;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-library-heading h1 {
+  font-family: inherit;
+  font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem));
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: 1.2;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-library-mark { display: none; }
+html[data-theme='nexus'] .nexus-horizon .horizon-library-count {
+  display: inline;
+  color: var(--ui-info);
+  font-size: var(--hz-meta, .75rem);
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .sidebar .new-note-button {
+  min-height: 44px;
+  margin: 0 4px 14px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-accent);
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .sidebar .new-note-button:hover {
+  color: var(--ui-text);
+  background: color-mix(in srgb, var(--ui-accent) 7%, transparent);
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .sidebar .search-box {
+  margin: 0 4px 10px;
+  padding: 0 12px;
+  border: 1px solid var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: #09121dcc;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .search-input { font-size: var(--hz-body, .875rem); }
+html[data-theme='nexus'] .nexus-horizon .sidebar .search-box:focus-within {
+  border-color: var(--ui-accent);
+  box-shadow: none;
+}
+html[data-theme='nexus'] .nexus-horizon .area-content .sidebar-view-tabs {
+  margin-inline: 4px;
+  margin-bottom: 12px;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .sidebar-view-button {
+  font-size: var(--hz-meta, .75rem);
+  gap: 6px;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .sidebar-filters { gap: 4px 12px; }
+html[data-theme='nexus'] .nexus-horizon .sidebar .filter-button,
+html[data-theme='nexus'] .nexus-horizon .sidebar .sort-select,
+html[data-theme='nexus'] .nexus-horizon .sidebar .tag-filter { font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .nexus-horizon .sidebar :is(.sort-select, .filter-button, .tag-filter) {
+  max-width: 100%;
+  color: var(--ui-text-secondary);
+  border-color: var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar :is(.sidebar-view-button, .filter-button, .tag-filter).active {
+  color: var(--ui-text);
+  border-color: #a8cfe54a;
+  background: #a8cfe50b;
+  box-shadow: none;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .tag-filters {
+  max-height: 112px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar > .sidebar-heading-row { margin-block: 10px 8px; }
+html[data-theme='nexus'] .nexus-horizon .sidebar-heading-row .sidebar-heading {
+  font-size: var(--hz-label, .65rem);
+  font-weight: 550;
+  letter-spacing: var(--hz-tracking, .22em);
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar-heading-row > .note-count { font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-list {
+  min-height: 180px;
+  padding: 0 10px 12px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(109 148 172 / .7) rgb(109 148 172 / .08);
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-list > li { border-color: var(--hz-line, #a8cfe526); }
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card {
+  min-height: 116px;
+  padding: 14px 12px 14px 14px;
+  border-color: transparent;
+  border-radius: var(--hz-radius, 5px);
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card.active {
+  border-color: transparent;
+  background: #a8cfe50b;
+  box-shadow: none;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card.active::before {
+  display: block;
+  top: 10px;
+  bottom: 10px;
+  height: auto;
+  width: 2px;
+  border-radius: 0;
+  background: var(--ui-accent);
+  box-shadow: none;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card-title,
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card.active .note-card-title {
+  color: var(--ui-text);
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+  letter-spacing: -.015em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card-preview { font-size: var(--hz-meta, .75rem); line-height: 1.6; }
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card-meta { gap: 6px 10px; font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .nexus-horizon .sidebar .note-card-tag {
+  padding: 1px 7px;
+  border: 1px solid var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  color: var(--ui-text-secondary);
+  background: transparent;
+  font-size: var(--hz-meta, .75rem);
+}
+html[data-theme='nexus'] .nexus-horizon .workspace .workspace-topbar {
+  min-height: 48px;
+  padding: 0 clamp(20px, 3.3vw, 52px) 8px;
+  gap: 6px 12px;
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .workspace .breadcrumb { font-family: inherit; font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .nexus-horizon .workspace .note-task-links {
+  padding-inline: clamp(20px, 3.3vw, 52px);
+  background: transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor {
+  background: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(109 148 172 / .5) transparent;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-header {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 1100px);
+  padding: 20px clamp(20px, 3.3vw, 52px) 12px;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .title-input {
+  order: 0;
+  min-height: 60px;
+  padding: 0 0 8px;
+  color: var(--ui-text);
+  font-family: inherit;
+  font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem));
+  font-weight: 400;
+  letter-spacing: -.035em;
+  line-height: 1.25;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .tag-editor { order: 1; gap: 6px; margin-top: 4px; }
+html[data-theme='nexus'] .nexus-horizon .notes-editor .tag-chip {
+  gap: 0;
+  padding-left: 12px;
+  border: 1px solid var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  color: var(--ui-text-secondary);
+  background: transparent;
+  font-size: var(--hz-meta, .75rem);
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .tag-chip::before { content: none; }
+html[data-theme='nexus'] .nexus-horizon .notes-editor .tag-input { font-size: var(--hz-meta, .75rem); }
+html[data-theme='nexus'] .nexus-horizon .notes-editor .notes-page-date {
+  order: 2;
+  margin: 10px 0 0;
+  font-family: inherit;
+  font-size: var(--hz-meta, .75rem);
+  line-height: 1.6;
+  letter-spacing: .01em;
+  color: var(--ui-text-muted);
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-header :is(.field-error, #tag-hint) { order: 3; }
+html[data-theme='nexus'] .nexus-horizon .notes-editor :is(.editor-toolbar, .editor-footer, .revision-history) {
+  width: min(calc(100% - clamp(40px, 6.6vw, 104px)), 996px);
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-toolbar {
+  gap: 3px;
+  padding: 8px 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--hz-line, #a8cfe526);
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-toolbar button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-radius: var(--hz-radius, 5px);
+  color: var(--ui-text-secondary);
+  font-size: var(--hz-meta, .75rem);
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-toolbar button:hover:not(:disabled),
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-toolbar button[aria-pressed='true'] {
+  background: #a8cfe50b;
+  color: var(--ui-text);
+  box-shadow: none;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-content {
+  width: min(100%, 1100px);
+  padding: 24px clamp(20px, 3.3vw, 52px) 32px;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor :is(.editor-textarea, .editor-textarea:read-only, .markdown-preview) {
+  color: var(--ui-text);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.85;
+  letter-spacing: .003em;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-textarea {
+  min-height: 320px;
+  caret-color: var(--ui-accent);
+  transition: none;
+  animation: none;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .markdown-preview :is(h1, h2, h3) {
+  font-family: inherit;
+  letter-spacing: -.025em;
+  line-height: 1.35;
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-footer {
+  padding-block: 12px 20px;
+  font-family: inherit;
+  font-size: var(--hz-meta, .75rem);
+}
+html[data-theme='nexus'] .nexus-horizon .notes-editor .revision-history { padding-bottom: 20px; }
+html[data-theme='nexus'] .nexus-horizon .notes-editor .revision-history summary { min-height: 44px; }
+html[data-theme='nexus'] .nexus-horizon :is(.sidebar, .workspace) :is(button, summary, select, input, textarea):focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+html[data-theme='nexus'] .nexus-horizon .workspace .empty-orbit {
+  color: var(--ui-text-muted);
+  border-color: rgb(135 165 186 / .25);
+  box-shadow: none;
+}
+html[data-theme='nexus'] .nexus-horizon .workspace .empty-state h1 {
+  color: var(--ui-text);
+  font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem));
+  font-weight: 400;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .nexus-horizon .workspace :is(.save-error, .trash-banner) {
+  border-color: var(--hz-line, #a8cfe526);
+  border-radius: var(--hz-radius, 5px);
+  background: var(--hz-window, #0c141eee);
+  font-size: var(--hz-body, .875rem);
+}
+@media (max-width: 1050px) and (min-width: 701px) {
+  html[data-theme='nexus'] .nexus-horizon .nexus-view-enter > .app-shell {
+    grid-template-columns: minmax(220px, .38fr) minmax(0, 1fr);
+    gap: 20px;
+    padding-inline: 20px;
+  }
+  html[data-theme='nexus'] .nexus-horizon .workspace .workspace-topbar { padding-inline: 20px; }
+}
+@media (max-width: 700px) {
+  html[data-theme='nexus'] .nexus-horizon .nexus-view-enter > .app-shell {
+    gap: 0;
+    padding: 0;
+    background: var(--hz-window, #0c141eee);
+  }
+  html[data-theme='nexus'] .nexus-horizon .area-content .app-shell > .workspace { border: 0; }
+  html[data-theme='nexus'] .nexus-horizon .area-content .sidebar { padding: 20px 18px 0; }
+  html[data-theme='nexus'] .nexus-horizon .sidebar .note-card { min-height: 116px; }
+  html[data-theme='nexus'] .nexus-horizon .workspace .workspace-topbar { padding: 8px 12px; }
+  html[data-theme='nexus'] .nexus-horizon .workspace .note-task-links { padding-inline: 20px; }
+  html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-header { padding: 20px 20px 12px; }
+  html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-content { padding: 22px 20px 28px; }
+  html[data-theme='nexus'] .nexus-horizon .notes-editor :is(.editor-toolbar, .editor-footer, .revision-history) { width: calc(100% - 40px); }
+  html[data-theme='nexus'] .nexus-horizon .notes-editor :is(.editor-textarea, .markdown-preview) { font-size: 1rem; }
+  html[data-theme='nexus'] .nexus-horizon .notes-editor .editor-textarea { min-height: 280px; }
+}

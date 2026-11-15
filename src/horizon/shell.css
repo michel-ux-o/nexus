@@ -1,0 +1,324 @@
+/* Horizon owns its palette locally. The other three worlds keep their tokens. */
+.nexus-horizon {
+  color-scheme: dark;
+  --ui-canvas: #090d13;
+  --ui-surface: #101923;
+  --ui-surface-raised: #172331;
+  --ui-surface-hover: #243447;
+  --ui-text: #edf2f7;
+  --ui-text-secondary: #c0ccda;
+  --ui-text-muted: #96a9bb;
+  --ui-border: #9ab8d52b;
+  --ui-border-soft: #9ab8d51a;
+  --ui-accent: #9ecde7;
+  --ui-accent-hover: #c3e6f7;
+  --ui-accent-active: #83b5d2;
+  --ui-on-accent: #0b1a26;
+  --ui-accent-tint: #9ecde710;
+  --ui-focus: #c3e6f7;
+  --ui-info: #a5c9e4;
+  --ui-info-tint: #a5c9e414;
+  --ui-success: #a1c9c3;
+  --ui-success-tint: #a1c9c314;
+  --ui-warning: #dfc08d;
+  --ui-warning-tint: #dfc08d14;
+  --ui-danger: #edaaa3;
+  --ui-danger-tint: #edaaa314;
+  --ui-shadow: 0 18px 50px #0004;
+  --ui-overlay: #04080ec9;
+  --ui-glass: #101923e8;
+  --ui-menu-glow: transparent;
+  --ui-artifact-background: #101923;
+  --world-background: transparent;
+  --world-panel: #101923a6;
+  --world-line: #9ab8d526;
+  --world-highlight: #9ecde7;
+  --world-shadow: none;
+  --canvas: var(--ui-canvas);
+  --panel: var(--ui-surface);
+  --panel-raised: var(--ui-surface-raised);
+  --panel-hover: var(--ui-surface-hover);
+  --text: var(--ui-text);
+  --secondary: var(--ui-text-secondary);
+  --muted: var(--ui-text-muted);
+  --text-muted: var(--ui-text-muted);
+  --line: var(--ui-border);
+  --border: var(--ui-border);
+  --line-soft: var(--ui-border-soft);
+  --accent: var(--ui-accent);
+  --accent-hover: var(--ui-accent-hover);
+  --accent-tint: var(--ui-accent-tint);
+  --ice: var(--ui-info);
+  --danger: var(--ui-danger);
+  --success: var(--ui-success);
+  color: var(--ui-text);
+}
+
+html[data-theme='nexus'] .nexus-app.nexus-horizon {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--ui-canvas);
+}
+
+.nexus-horizon aside.settings-backup-reminder { gap: 4px 12px; padding: 3px clamp(20px, 3vw, 44px); border: 0; background: transparent; }
+.nexus-horizon aside.settings-backup-reminder > svg { width: 14px; height: 14px; }
+.nexus-horizon aside.settings-backup-reminder p { flex: 0 1 auto; font-size: .75rem; }
+.nexus-horizon aside.settings-backup-reminder p strong { font-weight: 450; }
+.nexus-horizon aside.settings-backup-reminder p span { display: none; }
+.nexus-horizon aside.settings-backup-reminder .secondary-button { background: transparent; border: 0; padding-inline: 4px; font-size: .75rem; text-decoration: underline; }
+.nexus-horizon aside.settings-backup-reminder .icon-button { margin-left: auto; }
+
+.nexus-horizon > .main-stage {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+.nexus-horizon :is(.area-content, .nexus-view-enter) { min-width: 0; min-height: 0; }
+.nexus-horizon .nexus-view-enter > :is(.home-view, .tasks-view, .today-view, .week-view, .nexus-calendar, .calendar-view, .reminders-view, .planning-ai-page, .app-shell) { background: transparent; }
+
+/* The workspace opens from its part of the landscape while remaining readable
+   and interactive from the first frame. Home owns its own regional openings. */
+.nexus-horizon { --horizon-open-x: 50%; --horizon-open-y: 68%; }
+.nexus-horizon:has(> .horizon-particle-landscape[data-view='tasks']) { --horizon-open-x: 24%; --horizon-open-y: 70%; }
+.nexus-horizon:has(> .horizon-particle-landscape:is([data-view='calendar'], [data-view='today'], [data-view='week'])) { --horizon-open-x: 76%; --horizon-open-y: 34%; }
+.nexus-horizon:has(> .horizon-particle-landscape[data-view='notes']) { --horizon-open-x: 76%; --horizon-open-y: 60%; }
+.nexus-horizon:has(> .horizon-particle-landscape[data-view='reminders']) { --horizon-open-x: 80%; --horizon-open-y: 76%; }
+.nexus-app.nexus-horizon .nexus-view-enter:not(:has(> .horizon-home)) {
+  transform-origin: var(--horizon-open-x) var(--horizon-open-y);
+  animation: horizon-workspace-open 620ms cubic-bezier(.2, .7, .25, 1) both;
+}
+.nexus-app.nexus-horizon .nexus-view-enter > .settings-page,
+.nexus-app.nexus-horizon .nexus-view-enter .week-days { animation: none; }
+@keyframes horizon-workspace-open {
+  from { opacity: .86; transform: translateY(8px) scale(.992); }
+  55% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+
+.nexus-horizon .horizon-header.app-nav {
+  position: relative;
+  z-index: 3;
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 12px 24px;
+  width: 100%;
+  height: auto;
+  min-height: 70px;
+  max-height: none;
+  margin: 0;
+  padding: 12px clamp(20px, 4vw, 64px);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.nexus-horizon .horizon-header button,
+.nexus-horizon .horizon-dock button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ui-text-secondary);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.nexus-horizon .horizon-header button:hover,
+.nexus-horizon .horizon-dock button:hover {
+  border-color: transparent;
+  background: #a5c9e40a;
+  color: var(--ui-text);
+}
+
+.nexus-horizon .horizon-header .horizon-brand {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  padding-inline: 0;
+  text-align: left;
+}
+.nexus-horizon .horizon-brand strong { color: var(--ui-text); font-size: 1.05rem; font-weight: 600; letter-spacing: .27em; }
+.nexus-horizon .horizon-brand span { color: var(--ui-text-muted); font-size: .625rem; letter-spacing: .3em; }
+.nexus-horizon .horizon-header .horizon-brand:hover { background: transparent; }
+.nexus-horizon .horizon-header .horizon-dictate { color: var(--ui-text-muted); }
+
+.nexus-horizon .horizon-dock {
+  position: relative;
+  z-index: 6;
+  grid-column: 1;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2.5vw, 36px);
+  min-width: 0;
+  padding: 12px 20px max(16px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, #090d13b8);
+}
+.nexus-horizon .horizon-dock > button,
+.nexus-horizon .horizon-dock .horizon-areas-toggle { position: relative; flex-direction: column; min-width: 62px; gap: 6px; padding: 8px 10px 12px; font-size: .6875rem; }
+.nexus-horizon .horizon-dock > button[aria-current='page'],
+.nexus-horizon .horizon-dock .horizon-areas-toggle:is(.is-active-area, [aria-expanded='true']) { color: var(--ui-accent); }
+.nexus-horizon .horizon-dock > button[aria-current='page']::after,
+.nexus-horizon .horizon-dock .horizon-areas-toggle.is-active-area::after { position: absolute; bottom: 3px; left: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: var(--ui-accent); content: ''; }
+.nexus-horizon :is(.horizon-header, .horizon-dock) button:focus-visible { outline: 2px solid var(--ui-accent-hover); outline-offset: 3px; }
+
+.nexus-horizon .horizon-dock-areas { min-width: 0; }
+.nexus-horizon .horizon-dock-areas { scroll-margin-block: 12px; }
+.nexus-horizon .horizon-areas-toggle > svg { transition: transform 200ms ease, color 160ms ease; }
+.nexus-horizon .horizon-areas-toggle[aria-expanded='true'] > svg { transform: rotate(45deg); }
+.nexus-horizon .horizon-areas-panel {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  width: min(540px, calc(100vw - 32px));
+  max-height: min(560px, calc(100dvh - 150px));
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid #8aafca40;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #152331, #0b1520);
+  box-shadow: 0 18px 64px #0009, inset 0 1px #d6ecf712;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: horizon-areas-open 200ms cubic-bezier(.2, .7, .25, 1) both;
+}
+.nexus-horizon .horizon-areas-heading { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 12px; padding: 0 0 10px 8px; }
+.nexus-horizon .horizon-areas-heading h2 { margin: 0; color: var(--ui-text-muted); font-size: .6875rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
+.nexus-horizon .horizon-dock .horizon-areas-close { flex: 0 0 auto; width: 44px; min-width: 44px; height: 44px; padding: 8px; }
+.nexus-horizon .horizon-destinations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; min-height: 0; margin: 0; padding: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #789ab555 transparent; }
+/* On exceptionally short visible viewports scroll the heading with the links,
+   so the fixed close row cannot consume the entire available content height. */
+.nexus-horizon .horizon-areas-panel[data-compact='true'] { overflow-y: auto; overscroll-behavior: contain; }
+.nexus-horizon .horizon-areas-panel[data-compact='true'] .horizon-destinations { flex: 0 0 auto; overflow: visible; }
+.nexus-horizon .horizon-dock .horizon-destination { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; justify-content: initial; align-items: center; min-width: 0; min-height: 60px; padding: 12px; border: 1px solid transparent; border-radius: 8px; color: var(--ui-text-secondary); font-size: .8125rem; text-align: left; transition: background 160ms ease, border-color 160ms ease, color 160ms ease; }
+.nexus-horizon .horizon-destination > svg { color: var(--ui-text-muted); }
+.nexus-horizon .horizon-destination > span { min-width: 0; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-destination > small { color: var(--ui-text-muted); opacity: .5; font-size: .5625rem; font-variant-numeric: tabular-nums; }
+.nexus-horizon .horizon-dock .horizon-destination.is-current { color: var(--ui-accent-hover); border-color: #9ecde72e; background: #9ecde70b; }
+.nexus-horizon .horizon-destination.is-current > svg { color: var(--ui-accent); }
+.nexus-horizon .horizon-dock .horizon-destination:hover { border-color: #9ecde733; background: #9ecde70d; }
+@keyframes horizon-areas-open {
+  from { opacity: 0; transform: translate(-50%, 8px) scale(.985); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* Keep the save result visible in both the entry world and the workspaces. */
+.nexus-horizon .main-stage > .app-bottom-status {
+  display: flex;
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 5px clamp(20px, 4vw, 64px);
+  gap: 5px 16px;
+  border: 0;
+  background: #090d1366;
+  color: var(--ui-text-muted);
+  font-size: .6875rem;
+}
+
+/* Readable glass rather than bright or opaque outer cards. */
+.nexus-horizon .area-content :is(.sidebar-pane, .workspace) { border-color: var(--ui-border); background: #101923b3; box-shadow: none; }
+.nexus-horizon :is(.dialog, .nexus-workspace-dialog) {
+  border: 1px solid var(--ui-border);
+  background: #0e1722f5;
+  color: var(--ui-text);
+  box-shadow: 0 24px 72px #0007;
+}
+.nexus-horizon :is(.dialog, .nexus-workspace-dialog)::backdrop { background: var(--ui-overlay); backdrop-filter: blur(5px); }
+.nexus-horizon :is(.dialog-header, .dialog-footer, .planning-dialog-header, .planning-dialog-footer, .nexus-dialog-heading) { border-color: var(--ui-border-soft); background: transparent; }
+.nexus-horizon :is(.dialog, .nexus-workspace-dialog, .settings-page) :is(input:not([type='radio']):not([type='checkbox']), textarea, select) { color: var(--ui-text); border-color: var(--ui-border); background-color: #0c1520e6; }
+.nexus-horizon :is(.dialog, .nexus-workspace-dialog, .settings-page) :is(input, select, textarea)::placeholder { color: var(--ui-text-muted); }
+.nexus-horizon select option { background: #101923; color: var(--ui-text); }
+.nexus-horizon :is(input[type='checkbox'], input[type='radio']) { accent-color: var(--ui-accent); }
+.nexus-horizon :is(.primary-button, .new-note-button, .ai-primary) { background: var(--ui-accent); color: var(--ui-on-accent); box-shadow: none; }
+.nexus-horizon :is(.primary-button, .new-note-button, .ai-primary):hover { background: var(--ui-accent-hover); box-shadow: none; }
+.nexus-horizon :is(.secondary-button, .icon-button) { box-shadow: none; }
+.nexus-horizon .nexus-view-enter > .settings-page { width: min(100%, 1120px); margin-inline: auto; padding: 24px clamp(20px, 4vw, 48px) 32px; background: transparent; }
+.nexus-horizon .settings-atelier { --settings-rule: var(--ui-border); }
+.nexus-horizon .settings-atelier .settings-body > .settings-section { background: transparent; border-color: var(--ui-border); box-shadow: none; }
+.nexus-horizon .settings-atelier .theme-option-card { background: #10192366; border-color: var(--ui-border); box-shadow: none; }
+.nexus-horizon .settings-atelier .theme-option input:checked + .theme-option-card { outline-color: var(--ui-accent); background: #9ecde70b; }
+.nexus-horizon .theme-sample-nexus { --swatch: #090d13; --swatch-2: #172331; --swatch-3: #9ecde7; --swatch-4: #edf2f7; }
+.nexus-horizon .theme-sample-system { --swatch: #090d13; --swatch-2: #9ecde7; }
+.nexus-horizon :is(.settings-muted, .settings-count, .settings-check small, .settings-models dt, .settings-intro) { color: var(--ui-text-muted); }
+.nexus-horizon .settings-atelier .settings-section-heading h3 { color: var(--ui-text); }
+.nexus-horizon .toast { background: #142231f5; color: var(--ui-text); border-color: var(--ui-border); box-shadow: 0 8px 24px #0003; }
+
+@media (max-width: 760px) {
+  html[data-theme='nexus'] .nexus-app.nexus-horizon { display: grid; height: auto; min-height: 100dvh; grid-template-rows: auto minmax(320px, 1fr) auto; overflow: visible; }
+  .nexus-horizon .horizon-header.app-nav { min-height: 64px; padding: 10px 16px; gap: 4px 8px; }
+  .nexus-horizon .horizon-brand strong { font-size: .875rem; letter-spacing: .22em; }
+  .nexus-horizon .horizon-brand span { display: none; }
+  html[data-theme='nexus'] .nexus-app.nexus-horizon > .main-stage { height: auto; min-height: 320px; overflow: visible; }
+  html[data-theme='nexus'] .nexus-horizon :is(.area-content, .nexus-view-enter) { flex: 1 0 auto; min-height: 0; overflow: visible; }
+  .nexus-horizon .nexus-view-enter > .settings-page { padding: 16px 20px 28px; background: transparent; }
+  .nexus-horizon .horizon-dock { position: sticky; bottom: 0; gap: 0; align-self: end; justify-content: space-around; padding: 8px 8px max(10px, env(safe-area-inset-bottom)); background: linear-gradient(180deg, #090d13f2, #090d13); }
+  .nexus-horizon .horizon-dock > button,
+  .nexus-horizon .horizon-dock-areas { flex: 1 1 0; min-width: 0; }
+  .nexus-horizon .horizon-dock > button,
+  .nexus-horizon .horizon-dock .horizon-areas-toggle { width: 100%; min-width: 0; gap: 5px; padding-inline: 2px; font-size: .625rem; overflow-wrap: anywhere; }
+  .nexus-horizon .horizon-dock > button > svg,
+  .nexus-horizon .horizon-areas-toggle > svg { width: 20px; height: 20px; }
+  .nexus-horizon .horizon-areas-panel { max-height: calc(100dvh - 160px); padding: 8px; }
+  .nexus-horizon .horizon-destinations { grid-template-columns: minmax(0, 1fr); }
+  .nexus-horizon .horizon-dock .horizon-destination { min-height: 52px; }
+  .nexus-horizon .main-stage > .app-bottom-status { padding-inline: 20px; }
+}
+
+@media (max-height: 540px) and (min-width: 761px) {
+  html[data-theme='nexus'] .nexus-app.nexus-horizon { height: auto; min-height: 100dvh; grid-template-rows: auto minmax(320px, 1fr) auto; overflow: visible; }
+  .nexus-horizon > .main-stage { min-height: 320px; overflow: visible; }
+  .nexus-horizon :is(.area-content, .nexus-view-enter) { overflow: visible; }
+}
+
+/* At phone widths the named area entrance stays explicit. The surrounding
+   tools use their original icon navigation; labels remain accessible. This
+   also leaves room for 200% text without shrinking the chosen font size. */
+@media (max-width: 480px) {
+  .nexus-horizon .horizon-dock > button { min-width: 44px; min-height: 54px; padding-block: 8px; }
+  .nexus-horizon .horizon-dock > button > span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .nexus-horizon .horizon-dock-areas { flex: 1.8 1 0; min-width: 84px; }
+  .nexus-horizon .horizon-areas-toggle > span { white-space: nowrap; }
+  .nexus-horizon .horizon-areas-panel { max-height: calc(100dvh - 120px); }
+  .nexus-horizon .horizon-dock .horizon-destination { grid-template-columns: 22px minmax(0, 1fr); padding-inline: 8px; }
+  .nexus-horizon .horizon-destination > small { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nexus-horizon :is(.horizon-header, .horizon-dock) *, .nexus-horizon :is(.horizon-header, .horizon-dock) *::after { animation: none; transition: none; }
+  .nexus-app.nexus-horizon .nexus-view-enter:not(:has(> .horizon-home)) { animation: none; transform: none; }
+}
+
+/* Read the renderer's actual static state, which includes the user's Still
+   setting, rather than inventing a separate motion preference for the shell. */
+.nexus-app.nexus-horizon:is([data-power-saving='true'], :has(> .horizon-particle-landscape[data-motion='static'])) .nexus-view-enter:not(:has(> .horizon-home)) { animation: none; transform: none; }
+.nexus-horizon:is([data-power-saving='true'], :has(> .horizon-particle-landscape[data-motion='static'])) :is(.horizon-header, .horizon-dock) *,
+.nexus-horizon:is([data-power-saving='true'], :has(> .horizon-particle-landscape[data-motion='static'])) :is(.horizon-header, .horizon-dock) *::after { animation: none; transition: none; }

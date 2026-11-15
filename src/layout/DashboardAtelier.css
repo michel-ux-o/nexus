@@ -1,0 +1,42 @@
+/* Shared atelier shell for all working areas. */
+:root[data-theme] .nexus-app.nexus-atelier {
+  background: var(--ui-canvas);
+}
+.nexus-atelier .app-bottom-status { display: none; }
+/* Editors share the canvas typography while retaining their modal boundaries. */
+.nexus-app .planning-dialog-header h2,
+.nexus-app .nexus-dialog-heading h2 {
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  font-weight: 450;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+}
+.nexus-app .planning-dialog-header .eyebrow,
+.nexus-app .nexus-dialog-heading p { font-family: ui-monospace, monospace; }
+.nexus-atelier aside.settings-backup-reminder {
+  padding: 2px clamp(16px, 3vw, 48px);
+  gap: 4px 10px;
+  background: transparent;
+  border-bottom: 0;
+  color: var(--ui-text-muted);
+}
+.nexus-atelier aside.settings-backup-reminder > svg { width: 14px; height: 14px; }
+.nexus-atelier aside.settings-backup-reminder p { flex: 0 1 auto; font-size: .75rem; }
+.nexus-atelier aside.settings-backup-reminder p strong { font-weight: 450; }
+.nexus-atelier aside.settings-backup-reminder p span { display: none; }
+.nexus-atelier aside.settings-backup-reminder .secondary-button {
+  padding-inline: 4px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  font-size: .75rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.nexus-atelier aside.settings-backup-reminder .icon-button { margin-left: auto; }
+@media (max-width: 480px) {
+  .nexus-atelier aside.settings-backup-reminder { gap: 0 6px; }
+  .nexus-atelier aside.settings-backup-reminder p { flex-basis: auto; flex-grow: 1; }
+  .nexus-atelier aside.settings-backup-reminder .secondary-button { margin-left: 0; }
+}

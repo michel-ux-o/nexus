@@ -1,0 +1,22 @@
+.note-actions-menu { position: relative; }
+.note-actions-menu > summary {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px; padding: 10px;
+  border: 1px solid transparent; border-radius: 8px;
+  color: var(--ui-text-muted); cursor: pointer; list-style: none;
+}
+.note-actions-menu > summary::-webkit-details-marker { display: none; }
+.note-actions-menu > summary:hover, .note-actions-menu[open] > summary {
+  color: var(--ui-text); background: var(--ui-surface-hover); border-color: var(--ui-border);
+}
+.note-actions-menu-panel {
+  position: absolute; z-index: 20; top: 100%; right: 0;
+  min-width: 190px; padding: 5px; border: 1px solid var(--ui-border);
+  border-radius: 9px; background: var(--ui-surface); box-shadow: 0 8px 24px color-mix(in srgb, var(--ui-canvas) 53%, transparent);
+}
+.note-actions-menu-panel button {
+  display: flex; align-items: center; gap: 9px; width: 100%; min-height: 44px;
+  padding: 9px 12px; border: 0; border-radius: 6px;
+  color: var(--ui-text); background: transparent; text-align: left;
+}
+.note-actions-menu-panel button:hover:not(:disabled) { background: var(--ui-surface-hover); }

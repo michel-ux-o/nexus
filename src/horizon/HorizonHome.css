@@ -1,0 +1,310 @@
+.horizon-home {
+  --home-ice: #b7d9ed;
+  --home-muted: #9eafc0;
+  display: grid;
+  grid-template-columns: minmax(220px, .82fr) minmax(390px, 1.9fr) minmax(260px, 1fr);
+  /* Side areas start at the top; focus keeps its independent viewport offset.
+     Calendar content reserves space before notes and reminders. */
+  grid-template-rows: 0 max-content minmax(180px, .7fr) auto;
+  column-gap: clamp(24px, 3.1vw, 58px);
+  row-gap: 14px;
+  flex: 1 1 auto;
+  width: min(100%, 1720px);
+  height: 100%;
+  min-height: 0;
+  margin-inline: auto;
+  padding: 12px clamp(28px, 4vw, 68px) 22px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #8aa6be60 transparent;
+  color: #edf2f7;
+  background: transparent;
+  font-size: .875rem;
+  text-shadow: 0 1px 8px #050a12a6;
+}
+.horizon-home *, .horizon-focus-dialog * { box-sizing: border-box; }
+.horizon-home > *, .horizon-focus-dialog > * { min-width: 0; }
+.nexus-horizon .nexus-view-enter:has(> .horizon-home) { animation: none; }
+.horizon-home button, .horizon-focus-dialog button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-width: 38px; min-height: 38px; padding: 7px;
+  color: inherit; background: transparent; border: 1px solid transparent; border-radius: 5px; box-shadow: none; cursor: pointer; font: inherit; overflow-wrap: anywhere;
+}
+.horizon-home button:hover, .horizon-focus-dialog button:hover { color: #c6e5f6; background: #a8cfe50b; }
+.horizon-home button:disabled, .horizon-focus-dialog button:disabled { opacity: .4; cursor: default; }
+.horizon-home :is(button, input, textarea):focus-visible, .horizon-focus-dialog :is(button, input, textarea):focus-visible { outline: 2px solid #badcf0; outline-offset: 3px; }
+.horizon-home svg, .horizon-focus-dialog svg { flex: 0 0 auto; }
+.horizon-home-intro { grid-column: 1; grid-row: 1; align-self: start; display: flex; align-items: center; gap: 12px; min-height: 0; }
+.horizon-home-intro .horizon-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.horizon-home .horizon-home-search { justify-content: flex-start; color: var(--home-muted); gap: 8px; padding-left: 1px; font-size: .75rem; }
+.horizon-day-calendar { grid-column: 3; grid-row: 2; align-self: start; min-height: min-content; padding: 5px 0 0; }
+.horizon-day-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 32px; font-size: .8rem; letter-spacing: .035em; color: #d2e0ec; }
+.horizon-day-title time { line-height: 1.6; }
+.horizon-day-title button { font-size: .7rem; color: var(--home-ice); }
+.horizon-calendar-access { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 32px; }
+.horizon-calendar-access > button:first-child { font-size: .75rem; }
+.horizon-calendar-access > button:last-child { color: var(--home-ice); }
+.horizon-day-agenda { list-style: none; margin: 12px 0 0; padding: 0; max-height: 150px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #6b81974d transparent; }
+.horizon-day-agenda li + li { border-top: 1px solid #a8cfe512; }
+.horizon-day-agenda button { width: 100%; justify-content: flex-start; gap: 12px; padding: 9px 3px; text-align: left; }
+.horizon-day-agenda time { color: var(--home-ice); font-size: .69rem; min-width: 48px; }
+.horizon-day-agenda button > span { flex: 1; min-width: 0; font-size: .79rem; overflow-wrap: anywhere; }
+.horizon-day-agenda small { display: block; margin-top: 3px; color: var(--home-muted); font-size: .62rem; }
+.horizon-day-agenda svg { color: var(--home-muted); }
+.horizon-calendar-empty { text-align: right; padding-right: 8px; }
+.horizon-day-tasks { grid-column: 1; grid-row: 2; align-self: start; display: flex; flex-direction: column; min-height: 0; padding-top: 5px; }
+.horizon-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; margin-bottom: 11px; }
+.horizon-section-heading > :first-child { min-width: 0; }
+.horizon-section-heading h2 { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; min-width: 0; margin: 0; color: #c8d9e6; font-size: .65rem; text-transform: uppercase; letter-spacing: .25em; font-weight: 550; overflow-wrap: anywhere; }
+.horizon-section-heading h2 > span { color: #8ba7bf; font-size: .72rem; letter-spacing: .02em; font-weight: 400; font-variant-numeric: tabular-nums; }
+.horizon-section-heading > button { color: var(--home-ice); }
+.horizon-task-summary { display: block; margin-top: 5px; color: var(--home-muted); font-size: .65rem; line-height: 1.5; letter-spacing: .02em; }
+.horizon-task-list { min-height: 0; max-height: min(28dvh, 270px); margin: 0; padding: 0 8px 0 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; scrollbar-width: thin; scrollbar-color: #8aa6be70 transparent; }
+.horizon-task-list > li { position: relative; display: flex; align-items: flex-start; min-width: 0; border-bottom: 1px solid #a8cfe512; transition: border-color 180ms ease, color 180ms ease; }
+.horizon-task-list > li.is-selected { background: transparent; border-bottom-color: #a8cfe54a; }
+.horizon-task-list > li.is-selected::before { content: ''; position: absolute; left: -1px; top: 16px; width: 2px; height: 20px; background: #b7d9ed; pointer-events: none; }
+.horizon-task-check { position: relative; display: flex; flex: 0 0 31px; align-items: center; justify-content: center; min-height: 60px; cursor: pointer; }
+.horizon-task-check input, .horizon-reminder-list label input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.horizon-task-check > span { display: flex; color: #bacbd9; }
+.horizon-task-check:has(input:focus-visible), .horizon-reminder-list label:has(input:focus-visible) { outline: 2px solid #badcf0; outline-offset: -3px; border-radius: 4px; }
+.horizon-task-check input:disabled { cursor: default; }
+.horizon-home .horizon-task-select { display: flex; width: calc(100% - 31px); min-width: 0; justify-content: flex-start; align-items: center; gap: 9px; min-height: 60px; padding: 10px 2px 10px 5px; text-align: left; }
+.horizon-task-index { display: block; align-self: flex-start; padding-top: 3px; color: #91a7bb; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .57rem; line-height: 1.7; letter-spacing: .04em; }
+.horizon-task-copy { display: block; min-width: 0; flex: 1; }
+.horizon-task-copy strong { display: block; font-weight: 400; font-size: .93rem; line-height: 1.45; overflow-wrap: anywhere; }
+.horizon-task-copy small { display: block; margin-top: 4px; color: var(--home-muted); font-size: .65rem; line-height: 1.5; }
+.horizon-task-select > svg { color: var(--home-muted); }
+.horizon-task-list .is-done .horizon-task-copy strong { color: #91a3b4; text-decoration: line-through; text-decoration-color: #91a3b470; }
+.horizon-task-list .is-done .horizon-task-check > span { color: var(--home-ice); }
+.horizon-home .horizon-section-link { justify-content: flex-start; gap: 12px; margin-top: 13px; padding-left: 1px; align-self: start; font-size: .78rem; }
+.horizon-day-aside { grid-column: 3; grid-row: 3 / 5; align-self: start; display: flex; flex-direction: column; gap: 25px; padding-top: 12px; }
+.horizon-day-notes, .horizon-day-reminders { min-width: 0; padding-left: 8px; }
+.horizon-note-list, .horizon-reminder-list { list-style: none; margin: 0; padding: 0; max-height: 180px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #8aa6be60 transparent; }
+.horizon-note-list > li + li { margin-top: 9px; }
+.horizon-note-list button { display: block; width: 100%; padding: 5px 0; text-align: left; }
+.horizon-note-list strong { display: block; color: #dbe7f0; font-size: .95rem; line-height: 1.4; font-weight: 450; overflow-wrap: anywhere; }
+.horizon-note-list span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 5px; color: var(--home-muted); font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
+.horizon-reminder-list > li { display: flex; align-items: flex-start; gap: 5px; min-width: 0; }
+.horizon-reminder-list label { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 28px; min-height: 40px; color: var(--home-muted); }
+.horizon-reminder-list label > span { display: flex; }
+.horizon-reminder-list button { flex: 1; min-width: 0; justify-content: flex-start; align-items: flex-start; gap: 14px; padding: 9px 0; text-align: left; }
+.horizon-reminder-list time { color: var(--home-ice); font-size: .9rem; }
+.horizon-reminder-list button > span { flex: 1; min-width: 0; font-size: .93rem; overflow-wrap: anywhere; line-height: 1.5; }
+.horizon-reminder-list small { display: block; color: var(--home-muted); font-size: .65rem; }
+.horizon-reminder-list .is-done button > span { color: var(--home-muted); text-decoration: line-through; }
+.horizon-empty { color: var(--home-muted); font-size: .75rem; line-height: 1.7; }
+.horizon-tasks-empty { padding: 20px 0; }
+.horizon-home-focus { grid-column: 2; grid-row: 1 / 5; align-self: start; min-width: 0; padding: max(24px, calc(20dvh - 82px)) 0 26px; text-align: center; touch-action: pan-y; }
+.horizon-focus-scene { min-width: 0; width: 100%; margin-inline: auto; }
+.horizon-focus-scene[data-direction='next'] { animation: horizon-focus-arrive-next 280ms cubic-bezier(.2, .65, .3, 1) both; }
+.horizon-focus-scene[data-direction='previous'] { animation: horizon-focus-arrive-previous 280ms cubic-bezier(.2, .65, .3, 1) both; }
+.horizon-focus-kicker { display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap; gap: 9px 18px; color: #b5cddb; font-size: .62rem; text-transform: uppercase; letter-spacing: .35em; line-height: 1.8; }
+.horizon-focus-kicker > span + span { color: #8ca6bc; font-size: .62rem; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.horizon-focus-identity { display: inline-flex; align-items: baseline; gap: 13px; }
+.horizon-focus-index { color: #c2dfef; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .7rem; font-weight: 400; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+.horizon-focus-title { margin: 24px auto 16px; max-width: 22ch; color: #f1f5f9; font-size: clamp(1.9rem, 3.05vw, 3.15rem); font-weight: 350; line-height: 1.19; letter-spacing: -.04em; overflow-wrap: anywhere; text-wrap: balance; }
+.horizon-home .horizon-focus-title { --horizon-title-lines: 4; }
+.horizon-home .horizon-focus-title.is-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--horizon-title-lines); overflow: hidden; }
+.horizon-home .horizon-focus-title-toggle { max-width: 100%; margin: -4px auto 10px; color: var(--home-ice); font-size: .75rem; text-align: center; }
+.horizon-home .horizon-subtasks-toggle, .horizon-focus-dialog .horizon-subtasks-toggle { max-width: 100%; margin: 0 auto 15px; padding: 8px 2px; color: #aabed0; font-size: .75rem; gap: 10px; text-align: center; }
+.horizon-subtasks-toggle > svg { transition: transform 180ms ease; }
+.horizon-focus-dialog .horizon-subtasks-toggle:disabled { opacity: 1; }
+.horizon-subtasks { width: min(100%, 580px); margin-inline: auto; padding: 10px 8px 0; border-top: 1px solid #a8cfe51a; text-align: left; }
+.horizon-subtasks[data-open='true'] { animation: horizon-subtasks-reveal 240ms ease-out both; }
+.horizon-subtasks ul { list-style: none; margin: 0; padding: 0 3px 0 0; max-height: min(25dvh, 260px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #8aa6be60 transparent; }
+.horizon-subtasks li label { display: flex; align-items: flex-start; gap: 13px; min-height: 44px; padding: 10px 2px; cursor: pointer; line-height: 1.6; font-size: .9rem; }
+.horizon-subtasks li label > span { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.horizon-subtasks input[type='checkbox'] { width: 17px; height: 17px; min-width: 17px; margin: 3px 0 0; accent-color: #a8cfe5; cursor: pointer; }
+.horizon-subtasks .is-done { color: #91a7bb; }
+.horizon-subtasks .is-done > .subtask-checklist-copy > span { text-decoration: line-through; text-decoration-color: #91a7bb60; }
+.horizon-subtasks .subtask-checklist-copy { display: flex; flex-direction: column; }
+.horizon-subtasks .subtask-checklist-copy > small { color: var(--home-muted); font-size: .67rem; text-decoration: none; }
+.horizon-subtasks .subtask-checklist-children { max-height: none; overflow: visible; margin-inline-start: 8px; padding-inline-start: 25px; border-inline-start: 1px solid #a8cfe51a; }
+.horizon-subtasks .subtask-checklist-expand { align-self: flex-start; margin-top: 4px; color: var(--home-muted); }
+.horizon-morning-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 18px; margin-top: 10px; }
+.horizon-home .horizon-morning-actions button, .horizon-focus-dialog .horizon-morning-actions button { color: var(--home-muted); font-size: .73rem; }
+.horizon-home .horizon-morning-return, .horizon-focus-dialog .horizon-morning-return { margin-top: 10px; color: var(--home-ice); font-size: .73rem; }
+.horizon-subtask-add { display: flex; gap: 8px; min-width: 0; margin-top: 12px; border-bottom: 1px solid #a8cfe529; }
+.horizon-subtask-add input { width: 100%; min-width: 0; padding: 12px 2px; border: 0; background: transparent; color: #e5edf5; font: inherit; font-size: .78rem; box-shadow: none; }
+.horizon-subtask-add input::placeholder { color: #8fa3b7; }
+.horizon-subtask-add button { color: #a8cfe5; }
+.horizon-focus-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.horizon-home .horizon-enter-focus { gap: 16px; padding-inline: 12px; color: #c4e0f0; font-size: .8rem; letter-spacing: .02em; }
+.horizon-focus-navigation { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; }
+.horizon-focus-navigation > span { min-width: 0; color: var(--home-muted); font-size: .65rem; letter-spacing: .04em; overflow-wrap: anywhere; }
+.horizon-focus-navigation button { color: #a8cfe5; }
+.horizon-focus-empty { margin: 22px auto; color: #a2b1c1; }
+.horizon-focus-empty h2 { font-weight: 400; color: #d5e2ec; font-size: 1.25rem; line-height: 1.5; }
+.horizon-focus-empty p { font-size: .78rem; line-height: 1.8; }
+.horizon-outside-task { margin: 8px auto; color: #a2b1c1; font-size: .74rem; line-height: 1.6; }
+.horizon-outside-task p { margin: 0; }
+.horizon-outside-task button { text-decoration: underline; text-underline-offset: 4px; color: #a8cfe5; }
+.horizon-home-capture { grid-column: 1; grid-row: 3 / 5; align-self: end; min-width: 0; padding-bottom: 18px; }
+.horizon-capture-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px; }
+.horizon-capture-tools > button { color: var(--home-muted); font-size: .72rem; }
+.horizon-capture-tools > div { display: flex; color: var(--home-muted); }
+.horizon-capture-tools > div button { min-width: 32px; padding-inline: 5px; }
+.horizon-home-capture.is-open { padding: 9px 12px 12px; border: 1px solid #9ab8d52b; border-radius: 6px; background: #101a26e8; }
+.horizon-capture-tabs { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
+.horizon-capture-tabs > button { flex: 1; min-width: 0; padding-inline: 7px; font-size: .69rem; }
+.horizon-capture-tabs > button[aria-pressed='true'] { color: var(--home-ice); border-bottom-color: #a8cfe56b; border-radius: 0; }
+.horizon-capture-tabs > .horizon-capture-close { flex: 0 0 26px; padding-inline: 3px; }
+.horizon-capture-label { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; color: #b8c9d7; font-size: .69rem; }
+.horizon-capture-label :is(input, textarea) { width: 100%; min-width: 0; padding: 10px; border: 1px solid #9ab8d52b; border-radius: 4px; background: #09121dcc; box-shadow: none; color: #edf2f7; font: inherit; font-size: .8rem; }
+.horizon-capture-label textarea { resize: vertical; min-height: 80px; max-height: 240px; }
+.horizon-capture-label :is(input, textarea)::placeholder { color: #8fa3b7; }
+.horizon-capture-time { display: grid; grid-template-columns: auto 110px; align-items: center; gap: 6px 12px; }
+.horizon-capture-time small { grid-column: 2; min-width: 0; color: var(--home-muted); font-size: .62rem; overflow-wrap: anywhere; }
+.horizon-capture-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.horizon-capture-footer > span { color: var(--home-muted); font-size: .65rem; }
+.horizon-capture-footer > button { color: var(--home-ice); font-size: .75rem; }
+.horizon-feedback { min-width: 0; margin-top: 8px; font-size: .7rem; line-height: 1.6; text-align: left; }
+.horizon-feedback > p { display: flex; align-items: flex-start; gap: 7px; margin: 7px 0; color: #a9bfd1; overflow-wrap: anywhere; }
+.horizon-feedback svg { margin-top: 3px; }
+.horizon-feedback .horizon-commit { color: #afcfc8; }
+.horizon-error { padding: 8px 0; color: #edb8b1; font-size: .72rem; line-height: 1.7; overflow-wrap: anywhere; }
+.horizon-error p { margin: 0; }
+.horizon-error button { color: #d1e4f1; font-size: .7rem; }
+.horizon-feedback .horizon-draft-warning { color: #d5bf97; font-size: .65rem; }
+.horizon-focus-dialog {
+  --home-ice: #a8cfe5;
+  --home-muted: #a2b1c1;
+  position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 24px clamp(24px, 5vw, 80px) 40px; overflow-y: auto;
+  color: #edf2f7; border: 0; border-radius: 0; background: transparent;
+  box-shadow: none; text-shadow: 0 2px 14px #04080ff2;
+  overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: #8aa6be70 transparent;
+}
+.horizon-focus-dialog[open] { display: grid; grid-template-rows: auto minmax(min-content, 1fr); gap: 18px; }
+.horizon-focus-dialog::backdrop { background: linear-gradient(180deg, #03091078, #06101a36 48%, #03091063); backdrop-filter: none; }
+.horizon-home:has(> .horizon-focus-dialog[open]) > :not(.horizon-focus-dialog) { opacity: 0; }
+/* Hide sibling interfaces without hiding any ancestor of the native dialog. */
+.nexus-horizon:has(.horizon-focus-dialog[open]) > :not(.horizon-particle-landscape):not(.main-stage),
+.nexus-horizon:has(.horizon-focus-dialog[open]) > .main-stage > :not(.area-content),
+.nexus-horizon:has(.horizon-focus-dialog[open]) > .main-stage > .area-content > :not(.nexus-view-enter),
+.nexus-horizon:has(.horizon-focus-dialog[open]) .nexus-view-enter > :not(.horizon-home) { visibility: hidden; }
+.nexus-horizon:has(.horizon-focus-dialog[open]) > .horizon-particle-landscape { visibility: visible; }
+.horizon-focus-dialog-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(100%, 1320px); margin-inline: auto; color: #a2b1c1; font-size: .75rem; }
+.horizon-focus-dialog-top button { color: #a8cfe5; }
+.horizon-focus-dialog-body { position: relative; isolation: isolate; align-self: center; width: min(100%, 840px); margin: 0 auto; padding: 34px 20px 44px; text-align: center; touch-action: pan-y; }
+.horizon-focus-dialog-body::before { position: absolute; z-index: -1; inset: -50px -20px; border-radius: 50%; background: radial-gradient(ellipse, #08131ecc 0%, #08131e8f 43%, #08131e36 63%, transparent 75%); pointer-events: none; content: ''; }
+.horizon-focus-dialog .horizon-focus-title { max-width: 24ch; margin-block: 22px 14px; font-size: clamp(1.8rem, 3.5vw, 3.4rem); }
+.horizon-focus-dialog .horizon-subtasks { width: min(100%, 680px); margin-top: 5px; padding-top: 15px; }
+.horizon-focus-description { color: #aabed0; white-space: pre-wrap; line-height: 1.8; font-size: .86rem; overflow-wrap: anywhere; }
+.horizon-focus-details { display: flex; flex-direction: column; align-items: center; gap: 7px; margin-top: 22px; color: #a2b1c1; font-size: .7rem; line-height: 1.6; }
+.horizon-focus-details button { font-size: .75rem; color: #a8cfe5; max-width: 100%; overflow-wrap: anywhere; }
+.horizon-focus-dialog .horizon-strong-button { border-color: #a8cfe53b; padding-inline: 15px; color: #c9e2f1; background: #a8cfe50c; font-size: .78rem; }
+.horizon-focus-dialog .horizon-text-button { color: #a8cfe5; font-size: .76rem; }
+.horizon-focus-dialog .horizon-subtasks ul { max-height: min(38dvh, 420px); }
+.nexus-horizon:is([data-power-saving='true'], [data-scene-motion='static']) :is(.horizon-home, .horizon-focus-dialog) *,
+.nexus-horizon:has(> .horizon-particle-landscape[data-motion='static']) :is(.horizon-home, .horizon-focus-dialog) * { animation: none !important; transition: none; scroll-behavior: auto; }
+
+@keyframes horizon-focus-arrive-next {
+  from { opacity: .65; transform: translate3d(16px, 4px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes horizon-focus-arrive-previous {
+  from { opacity: .65; transform: translate3d(-16px, 4px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes horizon-subtasks-reveal {
+  from { opacity: .65; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 901px) and (max-height: 850px) {
+  .horizon-home { grid-template-rows: 0 max-content minmax(140px, .6fr) auto; row-gap: 10px; padding-top: 8px; }
+  .horizon-home-focus { padding-top: max(24px, calc(20dvh - 78px)); padding-bottom: 14px; }
+  .horizon-day-calendar { padding-top: 5px; }
+  .horizon-task-list { max-height: min(24dvh, 230px); }
+  .horizon-day-aside { gap: 12px; padding-top: 0; }
+  .horizon-section-heading { margin-bottom: 5px; }
+  .horizon-note-list, .horizon-reminder-list { max-height: 115px; }
+  .horizon-day-agenda { max-height: 86px; margin-top: 4px; }
+  .horizon-home .horizon-focus-title { margin-top: 18px; font-size: clamp(1.8rem, 2.8vw, 2.7rem); }
+  .horizon-home .horizon-subtasks ul { max-height: 155px; }
+  .horizon-home .horizon-focus-actions, .horizon-home .horizon-focus-navigation { margin-top: 12px; }
+}
+@media (max-width: 1150px) and (min-width: 901px) {
+  .horizon-home { grid-template-columns: minmax(200px, .78fr) minmax(320px, 1.5fr) minmax(225px, .9fr); column-gap: 22px; padding-inline: 24px; }
+  .horizon-home .horizon-focus-title { font-size: 1.95rem; }
+  .horizon-day-title { font-size: .75rem; }
+  .horizon-home .horizon-subtasks { padding-inline: 3px; }
+}
+@media (min-width: 901px) {
+  .horizon-home:has(.horizon-home-capture.is-open) { grid-template-rows: 0 max-content minmax(min-content, 1fr) auto; }
+  .horizon-home:has(.horizon-home-capture.is-open) .horizon-day-tasks { min-height: min-content; }
+  .horizon-home-capture.is-open { grid-row: 3; align-self: start; }
+  .horizon-home:has(.horizon-home-capture.is-open) .horizon-task-list { max-height: 230px; }
+}
+@media (max-width: 900px) {
+  .horizon-home { display: flex; flex-direction: column; gap: 18px; padding: 8px 24px 24px; }
+  .horizon-home > * { flex-shrink: 0; }
+  .horizon-home-intro { position: absolute; width: 1px; height: 1px; min-height: 0; overflow: hidden; }
+  .horizon-day-calendar { order: 2; width: 100%; padding: 0; }
+  .horizon-day-title { font-size: .84rem; }
+  .horizon-day-agenda { max-height: 170px; }
+  .horizon-day-tasks { order: 3; padding-top: 0; }
+  .horizon-task-list { max-height: 280px; padding-right: 6px; }
+  .horizon-task-copy strong { font-size: 1rem; }
+  .horizon-home-focus { order: 1; align-self: stretch; padding: 4px 0 6px; }
+  .horizon-home .horizon-focus-title { --horizon-title-lines: 3; max-width: 22ch; margin-block: 16px 12px; font-size: clamp(1.9rem, 5.5vw, 2.6rem); }
+  .horizon-home .horizon-focus-actions, .horizon-home .horizon-focus-navigation { margin-top: 12px; }
+  .horizon-calendar-access { margin-top: 18px; }
+  .horizon-subtasks { padding-inline: 3px; }
+  .horizon-subtasks ul { max-height: 280px; }
+  .horizon-subtasks li label { min-height: 42px; }
+  .horizon-home-capture { order: 4; align-self: stretch; margin-top: -8px; padding-bottom: 0; }
+  .horizon-day-aside { order: 5; align-self: stretch; gap: 18px; padding-top: 0; }
+  .horizon-note-list, .horizon-reminder-list { max-height: 220px; }
+  .horizon-section-heading { margin-bottom: 5px; }
+  .horizon-section-heading h2 { font-size: .68rem; }
+  .horizon-day-notes, .horizon-day-reminders { padding-left: 0; }
+  .horizon-home button { min-height: 42px; }
+  .horizon-capture-tabs > button { font-size: .72rem; }
+}
+/* A portrait tablet keeps two usable columns below the full-width focus.
+   Desktop retains its independent 20dvh focus position. */
+@media (min-width: 761px) and (max-width: 900px) {
+  .horizon-home { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto auto; align-content: start; gap: 18px 28px; }
+  .horizon-home-focus { grid-column: 1 / -1; grid-row: 1; }
+  .horizon-day-tasks { grid-column: 1; grid-row: 2; }
+  .horizon-day-calendar { grid-column: 2; grid-row: 2; }
+  .horizon-home-capture { grid-column: 1; grid-row: 3; margin-top: 0; }
+  .horizon-day-aside { grid-column: 2; grid-row: 3; }
+  .horizon-home:has(.horizon-home-capture.is-open) .horizon-home-capture { grid-row: 3; }
+}
+@media (max-width: 760px) {
+  .horizon-home { height: auto; min-height: 0; overflow: visible; padding-inline: 20px; }
+  .horizon-focus-dialog { padding: 14px 20px 24px; }
+  .horizon-focus-dialog-top { font-size: .71rem; }
+  .horizon-focus-dialog-body { padding: 20px 0 30px; }
+  .horizon-focus-dialog-body::before { inset: -30px -20px; }
+  .horizon-focus-dialog .horizon-focus-title { font-size: 1.9rem; }
+  .horizon-focus-dialog .horizon-subtasks { padding-inline: 0; }
+  .horizon-focus-dialog button { min-height: 42px; }
+  .horizon-capture-time { grid-template-columns: minmax(0, 1fr) minmax(0, 110px); }
+  .horizon-capture-footer { flex-wrap: wrap; }
+}
+@media (max-width: 360px) {
+  .horizon-home { padding-inline: 16px; }
+  .horizon-home .horizon-focus-title, .horizon-focus-dialog .horizon-focus-title { font-size: 1.65rem; }
+  .horizon-focus-dialog { padding-inline: 16px; }
+  .horizon-focus-dialog-body::before { inset-inline: -16px; }
+  .horizon-capture-tools { flex-wrap: wrap; }
+  .horizon-capture-time small { overflow-wrap: anywhere; }
+}
+@media (max-height: 540px) {
+  .horizon-focus-dialog { padding-top: 10px; padding-bottom: 16px; }
+  .horizon-focus-dialog[open] { gap: 4px; }
+  .horizon-focus-dialog-body { align-self: start; padding-top: 12px; }
+  .horizon-focus-dialog .horizon-subtasks ul { max-height: 180px; }
+}
+@media (pointer: coarse), (hover: none) {
+  .horizon-home button, .horizon-focus-dialog button, .horizon-subtasks li label { min-height: 44px; }
+  .horizon-task-check, .horizon-reminder-list label { flex-basis: 44px; min-height: 44px; }
+  .horizon-home .horizon-task-select { width: calc(100% - 44px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .horizon-home *, .horizon-focus-dialog * { scroll-behavior: auto; animation: none !important; transition: none; }
+}

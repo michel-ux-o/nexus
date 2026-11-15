@@ -1,0 +1,478 @@
+.dialog.settings-dialog { position: fixed; inset: 0 0 0 auto; width: min(720px, 100vw); max-width: 100vw; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; margin: 0 0 0 auto; border-radius: 16px 0 0 16px; }
+.dialog.settings-dialog[open] { display: flex; flex-direction: column; }
+.settings-dialog .dialog-body { flex: 1 1 auto; overflow-x: hidden; }
+.settings-dialog .dialog-header, .settings-dialog .dialog-footer { flex: 0 0 auto; }
+.settings-dialog button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.settings-dialog code { overflow-wrap: anywhere; }
+.settings-body { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.settings-intro { margin: 0; color: var(--ui-text-muted); }
+.settings-section { min-width: 0; padding-top: 24px; border-top: 1px solid var(--ui-border); }
+.settings-section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: var(--ui-accent); }
+.settings-section-heading h3 { margin: 0; color: var(--ui-text); font-size: 1rem; }
+.settings-section p { margin: 0 0 14px; line-height: 1.65; }
+.settings-section button { gap: 8px; }
+.settings-count, .settings-muted { color: var(--ui-text-muted); font-size: .8125rem; }
+.settings-error, .settings-warning, .settings-progress { padding: 12px 14px; border-radius: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.settings-error { margin: 0; border: 1px solid color-mix(in srgb, var(--ui-danger) 30%, transparent); background: color-mix(in srgb, var(--ui-danger) 6%, transparent); color: var(--ui-danger); }
+.settings-warning { border: 1px solid color-mix(in srgb, var(--ui-warning) 25%, transparent); background: color-mix(in srgb, var(--ui-warning) 4%, transparent); color: var(--ui-warning); font-size: .875rem; }
+.settings-progress { margin: 0; color: var(--ui-accent); background: color-mix(in srgb, var(--ui-accent) 5%, transparent); }
+.settings-file { display: flex; flex-direction: column; gap: 10px; }
+.settings-file > span { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: .875rem; }
+.settings-file input { width: 100%; min-width: 0; font-size: .875rem; }
+.settings-file input::file-selector-button { margin-right: 12px; padding: 10px 12px; min-height: 44px; border: 1px solid var(--ui-border); border-radius: 8px; background: color-mix(in srgb, var(--ui-surface-hover) 3%, transparent); color: inherit; cursor: pointer; font: inherit; }
+.settings-import-preview { margin-top: 18px; padding: 18px; border: 1px solid color-mix(in srgb, var(--ui-accent) 30%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--ui-accent) 2%, transparent); min-width: 0; }
+.settings-import-preview h4 { margin: 0 0 8px; font-size: 1rem; }
+.settings-filename { overflow-wrap: anywhere; font-size: .875rem; }
+.settings-import-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+.settings-import-counts dt { color: var(--ui-text-muted); font-size: .75rem; line-height: 1.5; }
+.settings-import-counts dd { margin: 4px 0 0; font-size: 1.375rem; font-variant-numeric: tabular-nums; }
+.settings-import-details { margin-bottom: 20px; }
+.settings-import-details summary { min-height: 44px; padding: 10px 0; cursor: pointer; font-size: .875rem; }
+.settings-import-notes { max-height: 210px; margin: 4px 0 0; padding: 0 12px 0 22px; overflow: auto; overscroll-behavior: contain; }
+.settings-import-notes li { padding: 7px 0; overflow-wrap: anywhere; font-size: .875rem; }
+.settings-import-notes small { display: block; margin-top: 3px; color: var(--ui-text-muted); font-size: .75rem; }
+.settings-import-mode { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; padding: 0; border: 0; min-width: 0; }
+.settings-import-mode legend { margin-bottom: 12px; font-size: .875rem; font-weight: 600; }
+.settings-import-mode label, .settings-confirm { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; cursor: pointer; min-height: 44px; }
+.settings-import-mode input, .settings-confirm input { flex: 0 0 auto; width: 18px; height: 18px; min-height: 0; margin: 3px 0 0; accent-color: var(--ui-accent); }
+.settings-import-mode strong { display: block; font-size: .875rem; }
+.settings-import-mode small { display: block; margin-top: 5px; color: var(--ui-text-muted); font-size: .8125rem; line-height: 1.6; }
+.settings-confirm { font-size: .875rem; line-height: 1.6; }
+.settings-import-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.settings-storage-info p { font-size: .875rem; color: var(--ui-text-muted); }
+.settings-storage-info p:last-child { margin-bottom: 0; }
+.settings-dialog .dialog-footer { flex-wrap: wrap; gap: 12px; }
+.settings-dialog .settings-preferences { display: flex; flex-direction: column; gap: 16px; padding: 0; border: 0; min-width: 0; }
+.settings-dialog .settings-preferences legend { padding: 0; margin-bottom: 12px; }
+.settings-dialog .settings-preferences .field { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-width: 0; padding: 0; }
+.settings-preferences .field > span { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.settings-preferences .field > span svg { flex: 0 0 auto; }
+.settings-preferences-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 16px; }
+.settings-dialog .settings-preferences .settings-check { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; min-height: 44px; }
+.settings-check input { margin-top: 5px !important; }
+.settings-check > span { min-width: 0; }
+.settings-check strong { display: block; font-size: .875rem; line-height: 1.6; font-weight: 550; }
+.settings-check small { display: block; margin-top: 5px; color: var(--ui-text-muted); font-size: .8125rem; line-height: 1.7; }
+.settings-dialog .settings-save-state { margin-top: 16px; }
+.settings-dialog .settings-preferences p { margin: 0; }
+.settings-dialog .settings-import-counts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); }
+.settings-models { display: flex; flex-direction: column; gap: 12px; margin: 0 0 16px; }
+.settings-models > div { min-width: 0; }
+.settings-models dt { color: var(--ui-text-muted); font-size: .75rem; }
+.settings-models dd { margin: 4px 0 0; font-size: .875rem; overflow-wrap: anywhere; }
+.settings-dialog .settings-backend-state { font-weight: 550; }
+.settings-page { width: min(100%, 1080px); min-width: 0; margin: 0 auto; border: 0; color: var(--ui-text); }
+.settings-page > .dialog-header { padding: 4px 0 24px; border-bottom: 0; }
+.settings-page > .settings-body { padding: 0; overflow: visible; }
+.settings-page > .dialog-footer { margin-top: 24px; padding: 20px 0 0; }
+.settings-page .settings-section { padding: 24px; border: 1px solid var(--ui-border); border-radius: 16px; background: linear-gradient(140deg, color-mix(in srgb, var(--ui-surface-hover) 1%, transparent), transparent 75%), var(--ui-surface); }
+.settings-dialog .settings-subheading { margin: 12px 0 0; padding-top: 20px; border-top: 1px solid var(--ui-border); font-size: .875rem; font-weight: 600; }
+.settings-dialog .settings-preferences small { color: var(--ui-text-muted); font-size: .75rem; line-height: 1.6; }
+.settings-dialog .settings-preferences input:not([type=checkbox]), .settings-dialog .settings-preferences select, .settings-reset-confirmation input:not([type=checkbox]) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--ui-border); border-radius: 8px; padding: 10px 12px; background: var(--ui-canvas); color: var(--ui-text); font: inherit; font-size: .875rem; }
+.settings-dialog .settings-preferences input[type=checkbox] { width: 18px; height: 18px; min-height: 18px; accent-color: var(--ui-accent); flex: 0 0 auto; }
+.settings-dialog :is(input, select, button, summary):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+.settings-dialog :is(input, select, button):disabled { opacity: .5; }
+.settings-windows { display: flex; flex-direction: column; gap: 10px; }
+.settings-windows-inactive { opacity: .65; }
+.settings-window { display: grid; grid-template-columns: minmax(7.5rem, 1fr) repeat(2, minmax(0, 1fr)); gap: 12px; align-items: end; padding: 12px 0; border-bottom: 1px solid var(--ui-border); }
+.settings-window-day { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: .875rem; }
+.settings-window-day input { margin: 0; }
+.settings-permission-button { align-self: flex-start; }
+.settings-rule-list { display: flex; flex-direction: column; gap: 12px; padding: 0; margin: 0; list-style: none; }
+.settings-rule-list li { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-width: 0; padding: 14px; border: 1px solid var(--ui-border); border-radius: 10px; }
+.settings-rule-list li > div { min-width: 0; overflow-wrap: anywhere; }
+.settings-rule-list strong { font-size: .875rem; }
+.settings-rule-list small { display: block; margin-top: 5px; color: var(--ui-text-muted); font-size: .75rem; line-height: 1.6; }
+.settings-rule-list button { flex: 0 0 auto; }
+.settings-dialog .settings-backup-due { margin-top: 16px; }
+.settings-export-history { margin: 16px 0 0; }
+.settings-export-history ol { display: flex; flex-direction: column; gap: 12px; max-height: 240px; margin: 0; padding-left: 20px; overflow-y: auto; }
+.settings-export-history li { font-size: .8125rem; line-height: 1.6; }
+.settings-export-history li span { display: block; color: var(--ui-text-muted); font-size: .75rem; }
+.settings-migration-backup { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.settings-migration-backup p { margin: 0; }
+.settings-persistent-storage { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--ui-border); }
+.settings-dialog .settings-danger { border-color: color-mix(in srgb, var(--ui-danger) 22%, transparent); }
+.settings-danger .settings-section-heading { color: var(--ui-danger); }
+.settings-reset-confirmation .field { display: flex; flex-direction: column; gap: 10px; min-width: 0; font-size: .875rem; line-height: 1.6; }
+.settings-dialog .settings-reset-button { border-color: color-mix(in srgb, var(--ui-danger) 44%, transparent); color: var(--ui-danger); }
+.settings-backup-reminder { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; min-width: 0; padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--ui-accent) 23%, transparent); border-radius: 12px; background: var(--ui-surface); color: var(--ui-text); }
+.settings-backup-reminder > svg { flex: 0 0 auto; color: var(--ui-accent); }
+.settings-backup-reminder p { flex: 1 1 200px; margin: 0; font-size: .8125rem; line-height: 1.6; }
+.settings-backup-reminder p span { display: block; color: var(--ui-text-muted); font-size: .75rem; }
+.settings-backup-reminder button { min-height: 44px; }
+@media (max-width: 440px) {
+  .dialog.settings-dialog { width: 100vw; border-radius: 0; }
+  .settings-import-preview { padding: 14px; }
+  .settings-import-counts { gap: 8px; }
+  .settings-import-counts dt { font-size: .6875rem; }
+  .settings-import-actions > button { flex: 1 1 100%; }
+  .settings-section > button { width: 100%; }
+  .settings-page .settings-section { padding: 18px 14px; }
+  .settings-window { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+  .settings-window-day { grid-column: 1 / -1; }
+  .settings-rule-list li { flex-wrap: wrap; }
+  .settings-rule-list li > div { flex-basis: 100%; }
+}
+@media (max-height: 540px) {
+  .dialog.settings-dialog[open] { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  .settings-dialog .dialog-body { overflow: visible; }
+  .settings-dialog .dialog-header, .settings-dialog .dialog-footer { position: static; }
+}
+
+/* The dialog body is the single scroll region; topic buttons lead to its sections. */
+.settings-dialog .dialog-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.settings-page > .settings-body { overflow: visible; }
+.settings-topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.settings-topics button { min-height: 44px; padding: 10px 14px; border: 1px solid var(--ui-border); border-radius: 9px; background: var(--ui-surface); color: var(--ui-text); font: inherit; font-size: .875rem; cursor: pointer; }
+.settings-topics button:hover { border-color: var(--ui-accent); }
+.settings-dialog :is(.settings-section, .settings-subheading) { scroll-margin-top: 16px; }
+.settings-dialog .settings-section { font-size: .875rem; }
+.settings-dialog :is(.settings-muted, .settings-count, .settings-check small, .settings-preferences small, .settings-import-mode small) { font-size: .875rem; }
+.settings-dialog :is(.settings-models dt, .settings-rule-list small, .settings-import-counts dt, .settings-import-notes small, .settings-export-history li span) { font-size: .75rem; }
+.settings-help { margin: 0 0 14px; color: var(--ui-text-muted); }
+.settings-help summary { min-height: 44px; padding: 10px 0; cursor: pointer; color: var(--ui-text); }
+.settings-dialog button { min-height: 44px; }
+@media (max-height: 540px) {
+  .dialog.settings-dialog[open] { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  .dialog.settings-dialog .dialog-body { overflow: visible; }
+}
+
+.settings-dialog { overflow-wrap: anywhere; }
+
+/* The settings page shares the atelier's open canvas; the dialog carries the
+   same hierarchy when opened from the writing area. */
+.settings-atelier {
+  --settings-rule: color-mix(in srgb, var(--ui-accent) 18%, var(--ui-border));
+  background: var(--ui-canvas);
+}
+.dialog.settings-atelier { border-radius: 3px 0 0 3px; }
+.settings-atelier > .dialog-header {
+  align-items: flex-start;
+  gap: 20px;
+  padding-block: 26px 24px;
+  border-bottom: 1px solid var(--settings-rule);
+}
+.settings-atelier > .dialog-header .eyebrow {
+  margin: 0 0 12px;
+  font-family: Consolas, 'Liberation Mono', monospace;
+  font-size: .625rem;
+  font-weight: 400;
+  letter-spacing: .13em;
+}
+.settings-atelier > .dialog-header h2 {
+  margin: 0;
+  font-family: 'Bahnschrift', 'Aptos Display', 'Segoe UI', sans-serif;
+  font-size: clamp(2.1rem, 4.8vw, 3.6rem);
+  font-weight: 400;
+  letter-spacing: -.06em;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+.settings-title-mark { color: var(--ui-accent); }
+.settings-atelier > .settings-body { gap: 0; counter-reset: settings-section; }
+.settings-atelier .settings-topics {
+  padding: 12px 0 20px;
+  gap: 0 22px;
+  border-bottom: 1px solid var(--settings-rule);
+}
+.settings-atelier .settings-topics button {
+  position: relative;
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ui-text-secondary);
+  font-size: .8125rem;
+  text-align: left;
+}
+.settings-atelier .settings-topics button::after {
+  position: absolute;
+  inset: auto 0 3px;
+  height: 1px;
+  background: var(--ui-accent);
+  opacity: 0;
+  content: '';
+}
+.settings-atelier .settings-topics button:hover { color: var(--ui-accent); }
+.settings-atelier .settings-topics button:hover::after,
+.settings-atelier .settings-topics button:focus-visible::after { opacity: 1; }
+.settings-atelier .settings-body > .settings-section {
+  position: relative;
+  margin: 0;
+  padding: 30px 0 30px 58px;
+  border: 0;
+  border-bottom: 1px solid var(--settings-rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  counter-increment: settings-section;
+}
+.settings-atelier .settings-body > .settings-section::before {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  color: var(--ui-accent);
+  content: counter(settings-section, decimal-leading-zero);
+  font-family: Consolas, 'Liberation Mono', monospace;
+  font-size: .6875rem;
+  line-height: 1.8;
+}
+.settings-atelier .settings-section-heading { margin-bottom: 18px; gap: 12px; }
+.settings-atelier .settings-section-heading > svg { width: 16px; height: 16px; }
+.settings-atelier .settings-section-heading h3,
+.settings-atelier .backup-panel > h3 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 1.0625rem;
+  font-weight: 450;
+  letter-spacing: -.02em;
+  line-height: 1.5;
+}
+.settings-atelier .backup-panel > h3 { margin-bottom: 18px; }
+.settings-atelier .settings-section > p { max-width: 75ch; }
+.settings-atelier .settings-preferences { gap: 16px; }
+.settings-atelier .settings-preferences .field > span { color: var(--ui-text-secondary); font-weight: 450; }
+.settings-atelier .settings-subheading {
+  position: relative;
+  margin: 16px 0 2px;
+  padding: 20px 0 0;
+  border-color: var(--settings-rule);
+  font-size: .8125rem;
+  font-weight: 550;
+}
+.settings-atelier .settings-preferences :is(input:not([type=checkbox]):not([type=radio]), select),
+.settings-atelier .settings-reset-confirmation input:not([type=checkbox]) {
+  border-color: var(--ui-border);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ui-surface) 55%, transparent);
+}
+.settings-atelier .settings-check strong { font-weight: 450; }
+.settings-atelier .settings-check small { max-width: 70ch; }
+.settings-atelier .settings-window { padding-block: 10px; }
+.settings-atelier .settings-window-day { font-family: Consolas, 'Liberation Mono', monospace; font-size: .75rem; }
+.settings-atelier .settings-rule-list { gap: 0; }
+.settings-atelier .settings-rule-list li { padding: 16px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; }
+.settings-atelier .settings-rule-list strong { font-weight: 450; }
+.settings-atelier .settings-import-preview { border-radius: 3px; background: color-mix(in srgb, var(--ui-accent) 3%, transparent); }
+.settings-atelier .settings-import-counts dd { font-family: 'Bahnschrift', 'Segoe UI', sans-serif; font-size: 1.75rem; font-weight: 400; letter-spacing: -.05em; }
+.settings-atelier .settings-help { border-bottom: 1px solid var(--ui-border); }
+.settings-atelier .settings-help summary { color: var(--ui-text-secondary); font-size: .8125rem; }
+.settings-atelier :is(.settings-error, .settings-warning, .settings-progress) { border-radius: 3px; }
+.settings-atelier .settings-body > :is(.settings-error, .settings-warning, .settings-progress, .info-box) { margin: 10px 0; }
+.settings-atelier .settings-save-state { color: var(--ui-text-muted); font-family: Consolas, 'Liberation Mono', monospace; font-size: .6875rem; }
+.settings-atelier .settings-danger::before,
+.settings-atelier .settings-danger .settings-section-heading > svg { color: var(--ui-danger) !important; }
+.settings-atelier > .dialog-footer { justify-content: flex-end; border-top: 0; }
+:root[data-theme='sand'] .settings-atelier > .dialog-header h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; letter-spacing: -.05em; }
+:root[data-theme='aurora'] .settings-atelier .settings-import-preview { border-radius: 10px 3px 10px 3px; }
+@media (min-width: 1000px) {
+  .settings-page.settings-atelier .settings-preferences-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 26px; }
+  .settings-page.settings-atelier .settings-models { flex-direction: row; gap: 40px; }
+}
+@media (max-width: 600px) {
+  .settings-atelier > .dialog-header { padding-block: 20px; }
+  .settings-atelier .settings-body > .settings-section { padding: 26px 0; }
+  .settings-atelier .settings-body > .settings-section::before { position: static; display: block; margin-bottom: 10px; }
+  .settings-atelier .settings-topics { gap: 0 16px; padding-bottom: 12px; }
+  .settings-atelier .settings-section-heading { gap: 10px; }
+  .settings-atelier .settings-import-actions { justify-content: stretch; }
+  .settings-atelier .settings-import-actions > button { flex: 1 1 180px; }
+}
+
+/* Nexus uses the same quiet type roles and open sections as the start view. */
+html[data-theme='nexus'] .settings-atelier {
+  --settings-rule: var(--hz-line, #a8cfe526);
+  color: var(--ui-text);
+  background: transparent;
+  font-size: var(--hz-body, .875rem);
+  line-height: 1.6;
+}
+html[data-theme='nexus'] .dialog.settings-atelier {
+  background: var(--hz-window, #0c141eee);
+  border-color: var(--settings-rule);
+  border-radius: var(--hz-radius, 5px) 0 0 var(--hz-radius, 5px);
+  box-shadow: -18px 0 70px #02060d66;
+}
+html[data-theme='nexus'] .settings-atelier > .dialog-header {
+  padding-block: 24px;
+  border-bottom-color: var(--settings-rule);
+}
+html[data-theme='nexus'] .settings-atelier > .dialog-header .eyebrow {
+  color: var(--ui-text-muted);
+  font-family: inherit;
+  font-size: var(--hz-label, .65rem);
+  line-height: 1.7;
+  letter-spacing: var(--hz-tracking, .22em);
+  text-transform: uppercase;
+}
+html[data-theme='nexus'] .settings-atelier > .dialog-header h2 {
+  font-family: inherit;
+  font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem));
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .settings-title-mark { display: none; }
+html[data-theme='nexus'] .settings-atelier .settings-topics {
+  gap: 0 20px;
+  padding-block: 10px 16px;
+}
+html[data-theme='nexus'] .settings-atelier .settings-topics button {
+  font-size: var(--hz-meta, .75rem);
+  font-weight: 400;
+}
+html[data-theme='nexus'] .settings-atelier .settings-body > .settings-section {
+  padding: 26px 0;
+  border-color: var(--settings-rule);
+  background: transparent;
+}
+html[data-theme='nexus'] .settings-atelier .settings-body > .settings-section::before { content: none; }
+html[data-theme='nexus'] .settings-atelier .settings-section-heading { gap: 10px; margin-bottom: 18px; }
+html[data-theme='nexus'] .settings-atelier .settings-section-heading > svg { width: 15px; height: 15px; color: var(--ui-text-muted); }
+html[data-theme='nexus'] .settings-atelier .settings-section-heading h3,
+html[data-theme='nexus'] .settings-atelier .backup-panel > h3 {
+  color: var(--ui-text-secondary);
+  font-size: var(--hz-label, .65rem);
+  font-weight: 550;
+  line-height: 1.8;
+  letter-spacing: var(--hz-tracking, .22em);
+  text-transform: uppercase;
+}
+html[data-theme='nexus'] .settings-atelier :is(.settings-section, .settings-check strong, .settings-preferences .field > span, .settings-import-mode strong, .settings-confirm) {
+  font-size: var(--hz-body, .875rem);
+  font-weight: 400;
+}
+html[data-theme='nexus'] .settings-atelier :is(.settings-muted, .settings-count, .settings-check small, .settings-preferences small, .settings-import-mode small, .settings-help summary, .settings-storage-info p) {
+  color: var(--ui-text-muted);
+  font-size: var(--hz-meta, .75rem);
+  line-height: 1.7;
+}
+html[data-theme='nexus'] .settings-atelier :is(.settings-subheading, .settings-import-preview h4) {
+  font-size: var(--hz-meta, .75rem);
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: .02em;
+}
+html[data-theme='nexus'] .settings-atelier .settings-preferences :is(input:not([type=checkbox]):not([type=radio]), select),
+html[data-theme='nexus'] .settings-atelier .settings-reset-confirmation input:not([type=checkbox]) {
+  border-color: var(--settings-rule);
+  border-radius: var(--hz-radius, 5px);
+  background: #101b2766;
+  font-size: var(--hz-body, .875rem);
+}
+html[data-theme='nexus'] .settings-atelier .settings-file input::file-selector-button {
+  border-color: var(--settings-rule);
+  border-radius: var(--hz-radius, 5px);
+  background: #a8cfe50b;
+}
+html[data-theme='nexus'] .settings-atelier :is(.settings-window, .settings-rule-list li, .settings-help, .settings-persistent-storage) { border-color: var(--settings-rule); }
+html[data-theme='nexus'] .settings-atelier :is(.settings-window-day, .settings-models dt, .settings-rule-list small, .settings-import-counts dt, .settings-import-notes small, .settings-export-history li span, .settings-save-state) {
+  font-family: inherit;
+  font-size: var(--hz-meta, .75rem);
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme='nexus'] .settings-atelier .settings-import-preview {
+  border-color: var(--settings-rule);
+  border-radius: var(--hz-radius, 5px);
+  background: #a8cfe505;
+}
+html[data-theme='nexus'] .settings-atelier .settings-import-counts dd {
+  font-family: inherit;
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: -.035em;
+}
+html[data-theme='nexus'] .settings-atelier :is(.settings-error, .settings-warning, .settings-progress) {
+  border-radius: var(--hz-radius, 5px);
+  font-size: var(--hz-body, .875rem);
+}
+html[data-theme='nexus'] .settings-atelier > .dialog-footer { gap: 10px; padding-top: 20px; border-top: 1px solid var(--settings-rule); }
+@media (max-width: 600px) {
+  html[data-theme='nexus'] .settings-atelier > .dialog-header { padding-block: 20px; }
+  html[data-theme='nexus'] .settings-atelier .settings-body > .settings-section { padding-block: 22px; }
+  html[data-theme='nexus'] .settings-atelier .settings-topics { gap: 0 16px; }
+}
+@media (max-width: 440px) {
+  html[data-theme='nexus'] .dialog.settings-atelier { border-radius: 0; }
+}
+
+/* Categories keep a single shared draft while showing one working area. */
+.settings-dialog [hidden] { display: none !important; }
+.settings-category-layout { display: grid; grid-template-columns: minmax(175px, .32fr) minmax(0, 1fr); gap: 28px; min-width: 0; align-items: start; }
+.settings-atelier .settings-category-layout > .settings-topics {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0;
+  min-width: 0;
+  padding: 0 22px 0 0;
+  border: 0;
+  border-right: 1px solid var(--settings-rule);
+}
+.settings-atelier .settings-topics button {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 15px 0;
+  line-height: 1.5;
+}
+.settings-topics button > svg { flex: 0 0 auto; margin-top: 2px; color: var(--ui-text-muted); }
+.settings-topics button > span { flex: 1 1 auto; min-width: 0; }
+.settings-topics button strong { display: block; font: inherit; font-weight: 500; }
+.settings-topics button small { display: block; margin-top: 5px; color: var(--ui-text-muted); font-size: .6875rem; font-weight: 400; line-height: 1.6; }
+.settings-topics .settings-topic-chevron { display: none; }
+.settings-atelier .settings-topics button[aria-current='page'] { color: var(--ui-accent); }
+.settings-atelier .settings-topics button[aria-current='page']::after { opacity: .7; }
+.settings-category-content { min-width: 0; }
+.settings-category-title { margin: 0 0 22px; color: var(--ui-text); font-size: 1.25rem; font-weight: 400; line-height: 1.4; letter-spacing: -.025em; }
+.settings-category-title:focus { outline: none; }
+.settings-dialog .settings-categories-back { display: none; }
+.settings-atelier .settings-category-content > .settings-section,
+.settings-atelier .settings-folder-backup > .settings-section {
+  min-width: 0;
+  margin: 0;
+  padding: 22px 0;
+  border: 0;
+  border-bottom: 1px solid var(--settings-rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.settings-atelier .settings-category-content > .settings-personal { padding-top: 0; }
+.settings-atelier .settings-preference-group { display: flex; min-width: 0; flex-direction: column; gap: 16px; }
+.settings-atelier .settings-capacity-details { margin: 0; }
+.settings-capacity-details > summary { padding-top: 0; }
+.settings-capacity-details > :not(summary) { margin-block: 12px; }
+.settings-data-topics { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: -8px 0 22px; padding-bottom: 12px; border-bottom: 1px solid var(--settings-rule); }
+.settings-data-topics button { padding: 8px 0; border: 0; background: transparent; color: var(--ui-text-muted); font: inherit; font-size: .75rem; text-align: left; cursor: pointer; }
+.settings-data-topics button[aria-current='page'] { color: var(--ui-accent); text-decoration: underline; text-underline-offset: 7px; }
+.settings-account-state { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-block: 24px; padding-block: 16px; border-block: 1px solid var(--settings-rule); font-size: .8125rem; }
+.settings-account-state strong { font-weight: 500; color: var(--ui-text-muted); }
+.settings-persistent-actions { display: flex; flex-direction: column; align-items: stretch; }
+.settings-persistent-actions .settings-save-state { margin: 0; }
+.settings-action-state { min-width: 0; }
+.settings-action-state .settings-muted { margin: 4px 0 0; }
+.settings-persistent-actions .settings-import-actions { margin-top: 0; }
+.settings-persistent-actions .settings-close-action { margin-left: auto; }
+.settings-category-content .settings-section-heading h4 { margin: 0; font-size: .875rem; font-weight: 500; }
+@media (min-width: 701px) {
+  .dialog.settings-dialog { width: min(920px, 94vw); }
+}
+@media (max-width: 700px) {
+  .settings-category-layout { display: block; }
+  .settings-atelier .settings-category-layout > .settings-topics { padding: 0; border: 0; }
+  .settings-atelier .settings-topics button { width: 100%; padding: 18px 0; border-bottom: 1px solid var(--settings-rule); }
+  .settings-topics button small { font-size: .75rem; }
+  .settings-topics .settings-topic-chevron { display: block; align-self: center; }
+  .settings-atelier[data-settings-detail='false'] .settings-category-content { display: none; }
+  .settings-atelier[data-settings-detail='true'] .settings-topics { display: none; }
+  .settings-dialog .settings-categories-back { display: inline-flex; gap: 8px; margin: 0 0 22px; }
+  .settings-persistent-actions .settings-import-actions { justify-content: stretch; }
+  .settings-persistent-actions .settings-import-actions > button { flex: 1 1 170px; margin-left: 0; }
+  .settings-persistent-actions .settings-close-action { display: none; }
+}
+@media (max-height: 650px) {
+  .settings-dialog.settings-atelier > .settings-persistent-actions { position: static; }
+}

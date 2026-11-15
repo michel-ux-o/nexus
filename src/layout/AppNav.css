@@ -1,0 +1,132 @@
+.app-nav { display: flex; flex-direction: column; gap: 16px; min-width: 0; min-height: 0; height: calc(100% - 20px); margin: 10px; padding: 18px 6px 14px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--ui-border); border-radius: 17px; background: linear-gradient(155deg, var(--ui-surface), var(--ui-surface) 72%); }
+.app-nav button { border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--ui-text-secondary); }
+.app-nav button:hover { color: var(--ui-text); background: color-mix(in srgb, var(--ui-surface-hover) 2%, transparent); border-color: color-mix(in srgb, var(--ui-border) 5%, transparent); }
+.app-nav button:focus-visible { outline: 2px solid var(--ui-accent-hover); outline-offset: 2px; }
+.app-nav .app-nav-brand { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 2px 8px 16px; border-bottom: 1px solid var(--ui-border-soft); border-radius: 0; text-align: left; }
+.app-nav .app-nav-brand:hover { border-color: transparent transparent var(--ui-border-soft); background: transparent; }
+.app-nav-brand svg { width: 27px; height: 33px; color: var(--ui-accent); }
+.app-nav-brand > span { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.app-nav-brand strong { color: var(--ui-text); font-size: .875rem; font-weight: 650; letter-spacing: .16em; line-height: 1.4; }
+.app-nav-brand span span { color: var(--ui-text-muted); font-size: .625rem; line-height: 1.5; }
+.app-nav-destinations { display: grid; gap: 0; }
+.app-nav .app-nav-destination { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 6px; text-align: left; font-size: .6875rem; }
+.app-nav-destination > svg { width: 16px; height: 16px; }
+.app-nav-destination > span:not(.app-nav-current-dot) { flex: 1; min-width: 0; overflow-wrap: normal; hyphens: auto; }
+.app-nav .app-nav-destination.is-current { border-color: color-mix(in srgb, var(--ui-accent) 19%, transparent); background: linear-gradient(100deg, color-mix(in srgb, var(--ui-accent) 9%, transparent), color-mix(in srgb, var(--ui-accent) 3%, transparent)); color: var(--ui-accent); box-shadow: inset 2px 0 var(--ui-accent); }
+.app-nav-current-dot { width: 4px; height: 4px; flex: 0 0 auto; border-radius: 50%; background: currentColor; opacity: 0; }
+.app-nav-destination.is-current .app-nav-current-dot { opacity: 1; }
+.app-nav-capture { display: grid; gap: 5px; padding-top: 2px; }
+.app-nav-section-label { margin: 0 10px 5px; color: var(--ui-text-muted); font-family: ui-monospace, monospace; font-size: .5625rem; letter-spacing: .12em; }
+.app-nav-capture button, .app-nav-tools button, .app-nav .app-nav-search { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 9px 10px; text-align: left; font-size: .6875rem; overflow-wrap: anywhere; }
+.app-nav .app-nav-new-note, .app-nav .app-nav-quick { border-color: color-mix(in srgb, var(--ui-accent) 21%, transparent); background: color-mix(in srgb, var(--ui-accent) 5%, transparent); color: var(--ui-accent); }
+.app-nav .app-nav-new-note:hover, .app-nav .app-nav-quick:hover { border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent); background: color-mix(in srgb, var(--ui-accent) 11%, transparent); }
+.app-nav .app-nav-new-task { border-color: var(--ui-border); }
+.app-nav .app-nav-dictate { color: var(--ui-info); }
+.app-nav .app-nav-search { border-color: var(--ui-border); margin-block: -10px; }
+.app-nav-search span { flex: 1; }
+.app-nav-search kbd { font: .5625rem ui-monospace, monospace; color: var(--ui-text-muted); white-space: nowrap; }
+.app-nav-tools { display: grid; gap: 2px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--ui-border-soft); }
+.app-nav-tools .app-nav-ai { color: var(--ui-accent); }
+.app-nav-local { display: flex; align-items: center; gap: 7px; margin: 12px 10px 1px; color: var(--ui-text-muted); font-size: .5625rem; line-height: 1.5; }
+.app-nav-local > span { width: 4px; height: 4px; flex: 0 0 auto; border-radius: 50%; background: var(--ui-surface-hover); }
+.app-nav-mobile-tools { display: none; }
+@media (max-width: 1050px) and (min-width: 761px) {
+  .app-nav { margin: 10px 8px; height: calc(100% - 20px); padding-inline: 8px; }
+  .app-nav .app-nav-brand { padding-inline: 3px; gap: 7px; }
+  .app-nav .app-nav-destination { gap: 8px; padding-inline: 8px; }
+  .app-nav-capture button, .app-nav-tools button { padding-inline: 8px; gap: 7px; }
+}
+@media (max-width: 760px) {
+  .app-nav { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; height: auto; max-height: none; margin: 8px; padding: 9px 10px 10px; overflow: visible; border-radius: 12px; }
+  .app-nav-brand-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+  .app-nav .app-nav-brand { width: auto; min-height: 44px; padding: 0; gap: 8px; border: 0; }
+  .app-nav-brand svg { width: 27px; height: 32px; }
+  .app-nav-brand strong { font-size: .8125rem; }
+  .app-nav-mobile-tools { display: flex; flex: 0 0 auto; gap: 2px; }
+  .app-nav-mobile-tools button { display: grid; place-items: center; width: 44px; height: 44px; padding: 8px; }
+  .app-nav-destinations { display: flex; gap: 5px; min-width: 0; overflow-x: auto; padding: 3px 2px 6px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+  .app-nav .app-nav-destination { flex: 0 0 auto; justify-content: center; gap: 6px; min-height: 44px; padding: 9px 11px; font-size: .6875rem; scroll-snap-align: start; }
+  .app-nav-destination > svg { width: 16px; height: 16px; }
+  .app-nav-current-dot { display: none; }
+  .app-nav-capture { display: flex; flex-wrap: wrap; gap: 5px; padding: 0; }
+  .app-nav-capture button { flex: 1 1 105px; justify-content: center; gap: 5px; min-height: 44px; padding: 7px; font-size: .625rem; line-height: 1.4; text-align: center; }
+  .app-nav-capture button svg { width: 15px; height: 15px; }
+  .app-nav-section-label, .app-nav-tools { display: none; }
+  .app-nav .app-nav-search { margin: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .app-nav *, .app-nav *::before, .app-nav *::after { transition: none; animation: none; scroll-behavior: auto; } }
+/* Keep navigation and direct capture readable without duplicate tool rows. */
+.app-nav { gap: 12px; }
+.app-nav .app-nav-destination, .app-nav-capture button { min-height: max(44px, var(--ui-control-height, 40px)); font-size: .875rem; }
+.app-nav-brand span span, .app-nav-section-label { font-size: .75rem; }
+.app-nav .app-nav-new-task { border-color: transparent; }
+@media (max-width: 760px) {
+  .app-nav { gap: 6px; }
+  .app-nav .app-nav-destination, .app-nav-capture button { font-size: .875rem; }
+  .app-nav-capture { flex-wrap: wrap; }
+  .app-nav-capture button { flex-basis: 9rem; overflow-wrap: normal; }
+}
+
+.app-nav-body { display: contents; }
+.app-nav-mobile-toggle, .app-nav-atelier-label { display: none; }
+
+/* The reference dashboard uses a quiet rail on the shared working canvas. */
+.nexus-app.nexus-atelier .app-nav.app-nav--atelier {
+  height: 100%; margin: 0; padding: 27px 22px 24px 25px; gap: 37px;
+  border: 0; border-right: 1px solid color-mix(in srgb, var(--ui-text) 9%, transparent);
+  border-radius: 0; background: transparent; box-shadow: none;
+}
+.nexus-atelier .app-nav--atelier .app-nav-brand {
+  min-height: 48px; padding: 0; gap: 12px; border: 0; border-radius: 0;
+}
+.nexus-atelier .app-nav--atelier .app-nav-brand:hover { background: transparent; border: 0; }
+.nexus-atelier .app-nav--atelier .app-nav-brand svg { width: 37px; height: 40px; flex: 0 0 auto; }
+.nexus-atelier .app-nav--atelier .app-nav-brand strong { font-size: .8125rem; font-weight: 600; letter-spacing: .2em; }
+.nexus-atelier .app-nav--atelier .app-nav-brand span span { font-size: .6875rem; letter-spacing: .01em; }
+.nexus-atelier .app-nav--atelier .app-nav-body { display: flex; flex: 1; flex-direction: column; min-height: 0; gap: 15px; }
+.nexus-atelier .app-nav--atelier .app-nav-atelier-label { display: block; margin: 0 0 0 1px; color: var(--ui-text-muted); font: .625rem/1.6 ui-monospace, monospace; letter-spacing: .15em; }
+.nexus-atelier .app-nav--atelier .app-nav-destinations { display: grid; gap: 5px; }
+.nexus-atelier .app-nav--atelier .app-nav-destination {
+  position: relative; min-height: 45px; padding: 9px 0; gap: 12px; border: 0;
+  border-radius: 0; font-size: .8125rem; line-height: 1.5; color: var(--ui-text-secondary);
+  background: transparent; box-shadow: none; text-align: left;
+}
+.nexus-atelier .app-nav--atelier .app-nav-destination > svg { display: none; }
+.nexus-atelier .app-nav--atelier .app-nav-destination > .app-nav-coordinate { flex: 0 0 21px; color: var(--ui-text-muted); font: .625rem/1.6 ui-monospace, monospace; letter-spacing: .03em; }
+.nexus-atelier .app-nav--atelier .app-nav-destination:hover { color: var(--ui-text); background: transparent; }
+.nexus-app.nexus-atelier .app-nav--atelier .app-nav-destination.is-current {
+  color: var(--ui-text); border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+.nexus-atelier .app-nav--atelier .app-nav-destination.is-current .app-nav-coordinate { color: var(--ui-accent); }
+:root[data-theme] .nexus-app.nexus-atelier .app-nav--atelier .app-nav-destination.is-current { box-shadow: none; border: 0; }
+.nexus-atelier .app-nav--atelier .app-nav-current-dot { width: 5px; height: 5px; margin-right: 1px; color: var(--ui-accent); border-radius: 0; transform: rotate(45deg); }
+.nexus-atelier .app-nav--atelier .app-nav-capture { margin-top: auto; padding-top: 28px; gap: 3px; border-top: 1px solid color-mix(in srgb, var(--ui-text) 9%, transparent); }
+.nexus-atelier .app-nav--atelier .app-nav-section-label { margin: 0 0 9px; font-size: .625rem; letter-spacing: .13em; }
+.nexus-atelier .app-nav--atelier .app-nav-capture button { min-height: 44px; padding: 8px 0; gap: 10px; font-size: .8125rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.nexus-atelier .app-nav--atelier .app-nav-capture button:hover { background: transparent; color: var(--ui-text); }
+.nexus-atelier .app-nav--atelier .app-nav-capture button > svg { width: 16px; height: 16px; flex: 0 0 auto; }
+@media (max-width: 1050px) and (min-width: 761px) {
+  .nexus-app.nexus-atelier .app-nav.app-nav--atelier { padding-inline: 16px; }
+  .nexus-atelier .app-nav--atelier .app-nav-brand { gap: 8px; }
+}
+@media (max-width: 760px) {
+  .nexus-app.nexus-atelier .app-nav.app-nav--atelier { display: block; height: auto; padding: 12px 20px; margin: 0; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--ui-text) 9%, transparent); }
+  .nexus-atelier .app-nav--atelier .app-nav-brand-row { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .nexus-atelier .app-nav--atelier .app-nav-brand { flex: 1 1 auto; width: auto; min-width: 0; max-width: 100%; gap: 9px; }
+  .nexus-atelier .app-nav--atelier .app-nav-brand svg { width: 28px; height: 32px; }
+  .nexus-atelier .app-nav--atelier .app-nav-brand strong { font-size: .75rem; }
+  .nexus-atelier .app-nav--atelier .app-nav-brand span span { display: none; }
+  .nexus-atelier .app-nav--atelier .app-nav-mobile-toggle { display: flex; flex: 0 1 auto; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 7px 0 7px 10px; border: 0; border-radius: 0; font-size: .75rem; color: var(--ui-text-secondary); background: transparent; }
+  .nexus-atelier .app-nav--atelier .app-nav-mobile-toggle svg { flex: 0 0 auto; transition: transform 160ms ease; }
+  .nexus-atelier .app-nav--atelier.is-mobile-open .app-nav-mobile-toggle svg { transform: rotate(180deg); }
+  .nexus-atelier .app-nav--atelier .app-nav-body { display: none; }
+  .nexus-atelier .app-nav--atelier.is-mobile-open .app-nav-body { display: flex; gap: 14px; max-height: 70dvh; overflow-y: auto; overscroll-behavior: contain; margin-top: 14px; padding: 10px 2px 14px; }
+  .nexus-atelier .app-nav--atelier .app-nav-atelier-label { display: none; }
+  .nexus-atelier .app-nav--atelier .app-nav-destinations { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 2px 18px; padding: 0; overflow: visible; }
+  .nexus-atelier .app-nav--atelier .app-nav-destination { justify-content: flex-start; min-width: 0; padding: 9px 0; font-size: .875rem; }
+  .nexus-atelier .app-nav--atelier .app-nav-current-dot { display: block; }
+  .nexus-atelier .app-nav--atelier .app-nav-capture { display: flex; flex-wrap: wrap; padding-top: 12px; margin: 0; gap: 0 18px; }
+  .nexus-atelier .app-nav--atelier .app-nav-capture button { flex: 1 1 10rem; justify-content: flex-start; text-align: left; font-size: .875rem; }
+  .nexus-atelier .app-nav--atelier .app-nav-section-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .nexus-atelier .app-nav--atelier .app-nav-mobile-toggle svg { transition: none; } }

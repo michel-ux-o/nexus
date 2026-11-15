@@ -1,0 +1,35 @@
+.backup-panel-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.backup-panel { min-width: 0; overflow-wrap: anywhere; }
+.backup-panel input[type="file"] { min-width: 0; max-width: 100%; }
+.backup-panel-actions button { min-height: 44px; }
+.backup-panel-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+.backup-panel-list li { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--ui-border); border-radius: 8px; overflow-wrap: anywhere; }
+.backup-panel-list small { display: block; margin-top: 4px; }
+.backup-panel-result { margin-top: 12px; padding: 12px; border: 1px solid var(--ui-border); border-radius: 8px; overflow-wrap: anywhere; }
+.backup-panel .settings-file { margin-top: 16px; }
+
+.settings-atelier .backup-panel-actions { gap: 8px 12px; }
+.settings-atelier .backup-panel-list { gap: 0; margin-block: 0 20px; }
+.settings-atelier .backup-panel-list li { gap: 12px; padding: 18px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; }
+.settings-atelier .backup-panel-list strong { font-weight: 450; font-size: .8125rem; }
+.settings-atelier .backup-panel-list small { color: var(--ui-text-muted); font-family: Consolas, 'Liberation Mono', monospace; font-size: .6875rem; line-height: 1.7; }
+.settings-atelier .backup-panel-list .backup-panel-actions button { padding-block: 6px; font-size: .75rem; }
+.settings-atelier .backup-panel-result { padding: 16px 0 16px 16px; border: 0; border-left: 2px solid var(--ui-accent); border-radius: 0; background: color-mix(in srgb, var(--ui-accent) 4%, transparent); }
+.settings-atelier .backup-panel-result strong { font-weight: 500; }
+.settings-atelier .backup-panel h4 { margin-block: 24px 8px; font-size: .8125rem; font-weight: 500; }
+@media (max-width: 440px) { .settings-atelier .backup-panel-actions > button { flex: 1 1 100%; } }
+
+html[data-theme='nexus'] .settings-atelier .backup-panel-list li { border-color: var(--hz-line, #a8cfe526); }
+html[data-theme='nexus'] .settings-atelier .backup-panel-list strong { font-size: var(--hz-body, .875rem); font-weight: 450; }
+html[data-theme='nexus'] .settings-atelier .backup-panel-list small {
+  font-family: inherit;
+  font-size: var(--hz-meta, .75rem);
+  font-variant-numeric: tabular-nums;
+}
+html[data-theme='nexus'] .settings-atelier .backup-panel h4 { font-size: var(--hz-meta, .75rem); font-weight: 500; }
+html[data-theme='nexus'] .settings-atelier .backup-panel-result {
+  border-left-width: 1px;
+  background: #a8cfe506;
+  font-size: var(--hz-body, .875rem);
+}
+html[data-theme='nexus'] .settings-atelier .backup-panel-result strong { font-weight: 500; }

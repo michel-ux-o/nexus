@@ -1,0 +1,16 @@
+.subtask-checklist, .subtask-checklist ul { list-style: none; margin: 0; padding: 0; }
+.subtask-checklist { display: grid; gap: 3px; min-width: 0; }
+.subtask-checklist-item { min-width: 0; }
+.subtask-checklist-row { display: flex; align-items: flex-start; min-width: 0; }
+.subtask-checklist-label { display: flex; flex: 1; min-width: 0; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 2px; cursor: pointer; line-height: 1.55; }
+.subtask-checklist input[type='checkbox'] { flex: 0 0 17px; width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--ui-accent, #a8cfe5); cursor: pointer; }
+.subtask-checklist-copy { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.subtask-checklist-copy small { color: var(--ui-muted, #91a7bb); font-size: .75rem; }
+.subtask-checklist-label.is-done > .subtask-checklist-copy > span { color: var(--ui-muted, #91a7bb); text-decoration: line-through; }
+.subtask-checklist-expand { flex: 0 0 44px; width: 44px; min-height: 44px; padding: 10px; }
+.subtask-checklist-expand svg { transition: transform 160ms ease; }
+.subtask-checklist-expand[aria-expanded='true'] svg { transform: rotate(180deg); }
+.subtask-checklist .subtask-checklist-children { margin: 0 0 6px 8px; padding: 0 0 0 21px; border-left: 1px solid var(--ui-border, #a8cfe529); }
+.subtask-checklist .subtask-checklist-children[hidden] { display: none; }
+.subtask-checklist input:disabled { cursor: wait; }
+@media (prefers-reduced-motion: reduce) { .subtask-checklist-expand svg { transition: none; } }

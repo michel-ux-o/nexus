@@ -1,0 +1,141 @@
+/* Shared visual vocabulary. Module layouts retain their own sizing and typography. */
+:root {
+  --ui-canvas: #07090f;
+  --ui-surface: #111620;
+  --ui-surface-raised: #1a202c;
+  --ui-surface-hover: #252d3b;
+  --ui-text: #f0f2f7;
+  --ui-text-secondary: #c2c9d5;
+  --ui-text-muted: #a0aabc;
+  --ui-border: #343e4e;
+  --ui-border-soft: #252d3a;
+  --ui-accent: #b4a7e8;
+  --ui-accent-hover: #d0c6f5;
+  --ui-accent-tint: #b4a7e819;
+  --ui-danger: #f1aab5;
+  --ui-focus: #d2c7ff;
+  --ui-font-control: .875rem;
+  --ui-font-body: 1rem;
+  --ui-font-meta: .75rem;
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-6: 24px;
+  --ui-space-8: 32px;
+  --ui-radius-sm: 6px;
+  --ui-radius-md: 10px;
+  --ui-radius-lg: 14px;
+  --ui-control-height: 40px;
+
+  /* Existing components can adopt the palette without changing their markup. */
+  --canvas: var(--ui-canvas);
+  --panel: var(--ui-surface);
+  --panel-raised: var(--ui-surface-raised);
+  --panel-hover: var(--ui-surface-hover);
+  --text: var(--ui-text);
+  --secondary: var(--ui-text-secondary);
+  --muted: var(--ui-text-muted);
+  --text-muted: var(--ui-text-muted);
+  --line: var(--ui-border);
+  --border: var(--ui-border);
+  --line-soft: var(--ui-border-soft);
+  --accent: var(--ui-accent);
+  --accent-hover: var(--ui-accent-hover);
+  --accent-tint: var(--ui-accent-tint);
+  --danger: var(--ui-danger);
+}
+
+@media (pointer: coarse) {
+  :root { --ui-control-height: 44px; }
+}
+
+/* Roles shared by notes, settings, AI and planning dialogs. */
+:is(.primary-button, .secondary-button, .danger-button, .ghost-button, .planning-primary, .planning-secondary, .planning-danger) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+  min-height: var(--ui-control-height);
+  max-width: 100%;
+  height: auto;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-md);
+  font-size: var(--ui-font-control);
+  font-weight: 550;
+  line-height: 1.4;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+:is(.primary-button, .planning-primary) {
+  color: var(--ui-on-accent);
+  background: var(--ui-accent);
+  box-shadow: none;
+}
+:is(.primary-button, .planning-primary):hover:not(:disabled) {
+  color: var(--ui-on-accent);
+  background: var(--ui-accent-hover);
+  border-color: transparent;
+}
+:is(.primary-button, .planning-primary):active:not(:disabled) { background: var(--ui-accent-active); }
+:is(.secondary-button, .planning-secondary) {
+  color: var(--ui-text-secondary);
+  background: var(--ui-surface-raised);
+  border-color: transparent;
+}
+:is(.secondary-button, .planning-secondary):hover:not(:disabled) {
+  color: var(--ui-text);
+  background: var(--ui-surface-hover);
+  border-color: transparent;
+}
+:is(.ghost-button, .icon-button) {
+  color: var(--ui-text-secondary);
+  background: transparent;
+  border-color: transparent;
+}
+:is(.ghost-button, .icon-button):hover:not(:disabled) {
+  color: var(--ui-text);
+  background: var(--ui-surface-hover);
+  border-color: transparent;
+}
+.icon-button {
+  min-width: var(--ui-control-height);
+  min-height: var(--ui-control-height);
+  border-radius: var(--ui-radius-md);
+}
+:is(.danger-button, .planning-danger, .secondary-button.danger) {
+  color: var(--ui-danger);
+  background: color-mix(in srgb, var(--ui-danger) 6%, transparent);
+  border-color: transparent;
+}
+:is(.danger-button, .planning-danger, .secondary-button.danger):hover:not(:disabled) {
+  color: var(--ui-danger);
+  background: color-mix(in srgb, var(--ui-danger) 15%, transparent);
+  border-color: transparent;
+}
+:is(.primary-button, .secondary-button, .danger-button, .ghost-button, .icon-button, .planning-primary, .planning-secondary, .planning-danger):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+:is(.primary-button, .secondary-button, .danger-button, .ghost-button, .icon-button, .planning-primary, .planning-secondary, .planning-danger):disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+:is(.primary-button, .secondary-button, .danger-button, .ghost-button, .planning-primary, .planning-secondary, .planning-danger) > svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* The compact week card previously reduced action labels below readable size. */
+.week-day .planning-task-actions .secondary-button { font-size: var(--ui-font-control); }
+
+/* Secondary writing/navigation labels stay readable without oversized boxes. */
+.nexus-app .app-bottom-status, .sidebar-footer-copy, .note-count,
+.editor-header > .eyebrow, .editor-footer, .sidebar-heading-row,
+.nexus-app .empty-state .eyebrow { font-size: var(--ui-font-meta); }
+.nexus-app .editor-mode-switch button, .nexus-app .new-note-button,
+.nexus-app .note-task-links .text-button { font-size: var(--ui-font-control); }
+.sidebar-heading-row, .editor-header > .eyebrow { letter-spacing: .025em; }

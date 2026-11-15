@@ -1,0 +1,25 @@
+.subtask-editor { display: grid; min-width: 0; gap: 12px; margin: 0; padding: 0; border: 0; }
+.subtask-editor > legend { margin-bottom: 10px; color: var(--ui-text, #e5edf5); font-size: .875rem; }
+.subtask-editor-list, .subtask-editor-children { list-style: none; padding: 0; margin: 0; min-width: 0; }
+.subtask-editor-list { display: grid; gap: 18px; }
+.subtask-editor-item { min-width: 0; padding: 10px 0 15px; border-bottom: 1px solid var(--ui-border, #a8cfe529); }
+.subtask-editor-heading { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; justify-content: space-between; min-width: 0; color: var(--ui-muted, #91a7bb); font-size: .75rem; }
+.subtask-editor-actions { display: flex; gap: 2px; margin-left: auto; }
+.subtask-editor .subtask-editor-actions button { width: 44px; min-height: 44px; padding: 10px; }
+.subtask-editor-main { display: flex; gap: 12px; align-items: flex-end; min-width: 0; }
+.subtask-editor-main > .field { flex: 1; min-width: 0; }
+.subtask-editor .subtask-editor-done { display: flex; flex: 0 0 30px; min-height: 44px; align-items: center; justify-content: flex-start; margin: 0; }
+.subtask-editor-done input { margin: 0; }
+.subtask-editor-options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; }
+.subtask-editor-options .planning-check { min-height: 44px; }
+.subtask-editor .subtask-editor-collapse { gap: 8px; padding-inline: 6px; font-size: .75rem; }
+.subtask-editor-collapse svg { transition: transform 160ms ease; }
+.subtask-editor-collapse[aria-expanded='true'] svg { transform: rotate(180deg); }
+.subtask-editor .subtask-editor-children { display: grid; gap: 16px; margin: 4px 0 12px 9px; padding-left: 20px; border-left: 1px solid var(--ui-border, #a8cfe529); }
+.subtask-editor .subtask-editor-children[hidden] { display: none; }
+.subtask-editor-children > li { min-width: 0; }
+.subtask-editor-add-child { margin-top: 8px; max-width: 100%; white-space: normal; }
+.subtask-editor .field input { min-width: 0; width: 100%; }
+.subtask-editor button { min-height: 44px; overflow-wrap: anywhere; }
+@media (max-width: 420px) { .subtask-editor .subtask-editor-children { margin-left: 3px; padding-left: 10px; } .subtask-editor-main { gap: 5px; } }
+@media (prefers-reduced-motion: reduce) { .subtask-editor-collapse svg { transition: none; } }

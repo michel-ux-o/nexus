@@ -1,0 +1,44 @@
+﻿/* Palette tokens live on the same root as the legacy aliases. */
+:root, :root[data-theme='nexus'] {
+  --ui-canvas: #07090f; --ui-surface: #111620; --ui-surface-raised: #1a202c; --ui-surface-hover: #252d3b;
+  --ui-text: #f0f2f7; --ui-text-secondary: #c2c9d5; --ui-text-muted: #a0aabc;
+  --ui-border: #343e4e; --ui-border-soft: #252d3a;
+  --ui-accent: #b4a7e8; --ui-accent-hover: #d0c6f5; --ui-accent-active: #9889d5; --ui-on-accent: #17132b; --ui-accent-tint: #b4a7e819;
+  --ui-danger: #f1aab5; --ui-danger-tint: #f1aab51f; --ui-focus: #d2c7ff;
+  --ui-success: #9bd7b0; --ui-success-tint: #9bd7b01f; --ui-warning: #edce83; --ui-warning-tint: #edce831f; --ui-info: #a5c9f4; --ui-info-tint: #a5c9f41f;
+  --ui-shadow: 0 20px 60px #0009; --ui-overlay: #05070cbd; --ui-glass: #111620e8; --ui-menu-glow: #b4a7e833; --ui-artifact-background: #101520;
+}
+:root[data-theme='daylight'] {
+  --ui-canvas: #f4f7fb; --ui-surface: #ffffff; --ui-surface-raised: #edf3fa; --ui-surface-hover: #dce8f5;
+  --ui-text: #14243a; --ui-text-secondary: #354c67; --ui-text-muted: #536b84;
+  --ui-border: #aebfd1; --ui-border-soft: #d2deea;
+  --ui-accent: #245fac; --ui-accent-hover: #174b8d; --ui-accent-active: #123e76; --ui-on-accent: #ffffff; --ui-accent-tint: #245fac1a;
+  --ui-danger: #a52d42; --ui-danger-tint: #a52d421a; --ui-focus: #245fac;
+  --ui-success: #246b45; --ui-success-tint: #246b451a; --ui-warning: #855c00; --ui-warning-tint: #855c001a; --ui-info: #245fac; --ui-info-tint: #245fac1a;
+  --ui-shadow: 0 20px 60px #203a5926; --ui-overlay: #17283d80; --ui-glass: #fffffff0; --ui-menu-glow: #245fac26; --ui-artifact-background: #e9f1fa;
+}
+:root[data-theme='sand'] {
+  --ui-canvas: #f6f1e7; --ui-surface: #fffaf1; --ui-surface-raised: #f2e8d6; --ui-surface-hover: #e8d9bf;
+  --ui-text: #30271b; --ui-text-secondary: #584936; --ui-text-muted: #71604a;
+  --ui-border: #c4b398; --ui-border-soft: #e0d3be;
+  --ui-accent: #805a12; --ui-accent-hover: #65460b; --ui-accent-active: #503708; --ui-on-accent: #ffffff; --ui-accent-tint: #805a121a;
+  --ui-danger: #a23735; --ui-danger-tint: #a237351a; --ui-focus: #805a12;
+  --ui-success: #436c3d; --ui-success-tint: #436c3d1a; --ui-warning: #805a12; --ui-warning-tint: #805a121a; --ui-info: #3d6680; --ui-info-tint: #3d66801a;
+  --ui-shadow: 0 20px 60px #55432726; --ui-overlay: #30271b80; --ui-glass: #fffaf1f0; --ui-menu-glow: #b2822929; --ui-artifact-background: #efe4d1;
+}
+:root[data-theme='aurora'] {
+  --ui-canvas: #0a1112; --ui-surface: #122021; --ui-surface-raised: #1b2c2d; --ui-surface-hover: #283d3e;
+  --ui-text: #eaf5f2; --ui-text-secondary: #c1d8d3; --ui-text-muted: #9ab9b3;
+  --ui-border: #385452; --ui-border-soft: #293f3e;
+  --ui-accent: #7bd8c6; --ui-accent-hover: #a6eadc; --ui-accent-active: #56bbaa; --ui-on-accent: #092521; --ui-accent-tint: #7bd8c61c;
+  --ui-danger: #f1aab5; --ui-danger-tint: #f1aab51f; --ui-focus: #a6eadc;
+  --ui-success: #9bdfac; --ui-success-tint: #9bdfac1f; --ui-warning: #e8cc87; --ui-warning-tint: #e8cc871f; --ui-info: #9bcde4; --ui-info-tint: #9bcde41f;
+  --ui-shadow: 0 20px 60px #0009; --ui-overlay: #030b0bbd; --ui-glass: #122021e8; --ui-menu-glow: #7bd8c633; --ui-artifact-background: #102020;
+}
+:root {
+  --canvas: var(--ui-canvas); --panel: var(--ui-surface); --panel-raised: var(--ui-surface-raised); --panel-hover: var(--ui-surface-hover);
+  --text: var(--ui-text); --secondary: var(--ui-text-secondary); --muted: var(--ui-text-muted); --text-muted: var(--ui-text-muted);
+  --line: var(--ui-border); --border: var(--ui-border); --line-soft: var(--ui-border-soft);
+  --accent: var(--ui-accent); --accent-hover: var(--ui-accent-hover); --accent-tint: var(--ui-accent-tint); --ice: var(--ui-info); --danger: var(--ui-danger); --success: var(--ui-success);
+}
+

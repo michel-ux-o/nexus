@@ -1,0 +1,28 @@
+.horizon-particle-landscape {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background:
+    radial-gradient(ellipse at 49% 77%, rgb(24 43 59 / 17%), transparent 47%),
+    radial-gradient(ellipse at 88% 40%, rgb(17 37 53 / 12%), transparent 49%),
+    #070b11;
+  contain: strict;
+}
+
+.horizon-particle-landscape__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.horizon-particle-landscape__canvas[hidden] { display: none; }
+
+.horizon-particle-landscape::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(5 8 12 / 12%), transparent 21%, transparent 88%, rgb(5 8 12 / 25%));
+}
