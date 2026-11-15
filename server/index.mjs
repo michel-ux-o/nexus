@@ -209,7 +209,11 @@ export function createAppServer(options = {}) {
       if (url.pathname === '/api/account/config' && !cloud) { json(res, 200, { enabled: false, registrationOpen: false }); return; }
       if (cloud && await account.handle(req, res, url)) return;
       if (!isApi) { await serveStatic(req, res, url.pathname, options.distDir ?? resolve(projectRoot, 'dist')); return; }
-      if (cloud && !await account.authorize(req, res)) { json(res, 401, { error: 'Bitte melde dich an.', code: 'AUTH_REQUIRED' }); return; }
+      const verifiedAccount = cloud ? await account.authorize(req, res) : null;
+      if (cloud && !verifiedAccount) { json(res, 401, { error: 'Bitte melde dich an.', code: 'AUTH_REQUIRED' }); return; }
+      // Only the provider-verified identity scopes private responses. A caller's
+      // operation ID or account headers must never share results across accounts.
+      const cacheScope = verifiedAccount ? `${verifiedAccount.id}\0` : '';
       if (req.method === 'OPTIONS') {
         const requestedHeaders = (req.headers['access-control-request-headers'] ?? '').toLowerCase().split(',').map(value => value.trim()).filter(Boolean);
         if (!req.headers.origin || !['GET', 'POST'].includes(req.headers['access-control-request-method']) || requestedHeaders.some(header => !['content-type', 'x-nexus-client'].includes(header))) throw new ApiError(403, 'PREFLIGHT_DENIED', 'Diese Browseranfrage ist nicht erlaubt.');
@@ -226,11 +230,11 @@ export function createAppServer(options = {}) {
       let result;
       if (stage === 'transcribe') {
         let input = await readAudio(req, controller.signal, maxAudioBytes);
-        try { result = await cache.run(stage, input.context.operationId, hash(JSON.stringify({ ...input.context, digest: input.digest, type: input.audio.type })), () => client.transcribe(input.audio, controller.signal)); } finally { input = null; }
+        try { result = await cache.run(stage, `${cacheScope}${input.context.operationId}`, hash(JSON.stringify({ ...input.context, digest: input.digest, type: input.audio.type })), () => client.transcribe(input.audio, controller.signal)); } finally { input = null; }
       } else {
         const value = await readJson(req, controller.signal, maxJsonBytes);
         const input = stage === 'interpret' ? interpretationInput(value) : assistanceInput(value);
-        result = await cache.run(stage, input.operationId, hash(JSON.stringify(input)), () => client[stage](input, controller.signal));
+        result = await cache.run(stage, `${cacheScope}${input.operationId}`, hash(JSON.stringify(input)), () => client[stage](input, controller.signal));
       }
       controller.signal.throwIfAborted();
       json(res, 200, result);

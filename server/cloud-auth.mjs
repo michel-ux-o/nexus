@@ -1,4 +1,4 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { createHash } from 'node:crypto';
 
 const PREFIX = '/api/account/';
 const ACCESS_COOKIE = '__Host-nexus-access';
@@ -6,6 +6,7 @@ const REFRESH_COOKIE = '__Host-nexus-refresh';
 const BODY_LIMIT = 16 * 1024;
 const ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RESET_MESSAGE = 'Wenn diese Adresse zu deinem Konto gehört, erhältst du eine E-Mail mit den nächsten Schritten.';
+const REGISTER_MESSAGE = 'Wenn dein Konto neu angelegt werden kann, erhältst du eine E-Mail zur Bestätigung. Bestätige den Link und melde dich anschließend an. Falls du bereits ein Konto hast, nutze die Anmeldung oder „Passwort vergessen“.';
 
 class AccountError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -101,21 +102,17 @@ async function readJson(req) {
 }
 
 function checkedUser(value) {
-  if (!value || !ID_PATTERN.test(value.id ?? '') || typeof value.email !== 'string' || !value.email_confirmed_at) return null;
-  return { id: value.id, email: value.email.trim().toLowerCase() };
+  if (!value || value.is_anonymous === true || typeof value.id !== 'string' || !ID_PATTERN.test(value.id) || typeof value.email !== 'string' || typeof value.email_confirmed_at !== 'string' || !Number.isFinite(Date.parse(value.email_confirmed_at))) return null;
+  try { return { id: value.id, email: emailValue(value.email) }; } catch { return null; }
 }
 
-/** Server-only Supabase authentication. Tokens and privileged keys never enter response JSON. */
+/** Server-only Supabase authentication. Tokens never enter response JSON. */
 export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
   const enabled = env.NEXUS_CLOUD_MODE === '1';
   const origin = originValue(env.APP_ORIGIN);
   const supabase = originValue(env.SUPABASE_URL);
   const anonKey = env.SUPABASE_ANON_KEY;
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-  const setupCode = env.NEXUS_SETUP_CODE;
-  const configured = Boolean(origin && supabase && anonKey && serviceKey);
-  const setupEnabled = typeof setupCode === 'string' && setupCode.length >= 24;
-  const setupDigest = createHash('sha256').update(typeof setupCode === 'string' ? setupCode : '').digest();
+  const configured = Boolean(origin && supabase && anonKey);
   const limits = new Map();
   const refreshing = new Map();
 
@@ -153,13 +150,12 @@ export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
     rateLimit(`email:${action}:${digest}`, action === 'login' ? 20 : 5);
   }
 
-  async function request(path, { method = 'GET', body, privileged = false, token, allowFailure = false } = {}) {
-    const key = privileged ? serviceKey : anonKey;
+  async function request(path, { method = 'GET', body, token, allowFailure = false } = {}) {
     let response;
     try {
       response = await fetchImpl(`${supabase}${path}`, {
         method,
-        headers: { apikey: key, Authorization: `Bearer ${token ?? key}`, ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
+        headers: { apikey: anonKey, Authorization: `Bearer ${token ?? anonKey}`, ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
         ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
         signal: AbortSignal.timeout(10000), redirect: 'error',
       });
@@ -168,24 +164,6 @@ export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
     try { data = await response.json(); } catch { /* Never echo an upstream body. */ }
     if (!response.ok && !allowFailure) throw new AccountError(503, 'Der Kontodienst konnte die Anfrage nicht abschließen. Bitte versuche es erneut.');
     return { ok: response.ok, status: response.status, data };
-  }
-
-  async function owner() {
-    const { data } = await request('/rest/v1/rpc/nexus_get_owner', { method: 'POST', body: {}, privileged: true });
-    if (data === null) return null;
-    if (!data || typeof data !== 'object' || typeof data.email !== 'string' || (data.user_id !== null && !ID_PATTERN.test(data.user_id ?? ''))) throw new AccountError(503, 'Die private Kontofreigabe ist noch nicht bereit.');
-    return { email: data.email.toLowerCase(), userId: data.user_id };
-  }
-
-  async function matchesOwner(user, bind = false) {
-    let current = await owner();
-    if (!current || current.email !== user.email) return false;
-    if (!current.userId && bind) {
-      const { data } = await request('/rest/v1/rpc/nexus_bind_owner', { method: 'POST', privileged: true, body: { p_email: user.email, p_user_id: user.id } });
-      if (data !== true) return false;
-      current = await owner();
-    }
-    return current?.userId === user.id;
   }
 
   async function userForToken(token) {
@@ -231,7 +209,7 @@ export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
       token = session?.access_token;
       user = token ? await userForToken(token) : null;
     }
-    if (!user || !await matchesOwner(user)) {
+    if (!user) {
       if (stored.size) setCookies(res, null);
       return null;
     }
@@ -250,8 +228,7 @@ export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
       if (endpoint === 'config') {
         if (!enabled) { reply(res, 200, { enabled: false, registrationOpen: false }); return true; }
         requireConfigured();
-        const current = await owner();
-        reply(res, 200, { enabled: true, registrationOpen: setupEnabled && !current?.userId });
+        reply(res, 200, { enabled: true, registrationOpen: true });
         return true;
       }
       requireConfigured();
@@ -284,58 +261,37 @@ export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
         }
         if (!tokenValue(result.data?.access_token) || !tokenValue(result.data?.refresh_token)) throw new AccountError(503, 'Der Kontodienst hat keine gültige Sitzung geliefert.');
         const user = await userForToken(result.data.access_token);
-        if (!user || !await matchesOwner(user, true)) {
+        if (!user || user.email !== email) {
           try { await request('/auth/v1/logout?scope=local', { method: 'POST', token: result.data.access_token, allowFailure: true }); } catch { /* Authorization remains denied. */ }
-          throw new AccountError(403, 'Dieses Konto ist für diesen privaten Arbeitsbereich nicht freigegeben.');
+          throw new AccountError(403, 'Die Anmeldung konnte nicht bestätigt werden. Bestätige zuerst deine E-Mail-Adresse und melde dich erneut an.');
         }
         setCookies(res, result.data);
         reply(res, 200, { authenticated: true, email: user.email, userId: user.id });
         return true;
       }
       if (endpoint === 'register') {
-        const supplied = typeof input.setupCode === 'string' && input.setupCode.length <= 1024 ? input.setupCode : '';
-        const digest = createHash('sha256').update(supplied).digest();
-        if (!setupEnabled || !timingSafeEqual(digest, setupDigest)) throw new AccountError(403, 'Der Einrichtungscode ist ungültig.');
         const email = emailValue(input.email);
+        rateLimitEmail(endpoint, email);
         const password = passwordValue(input.password, true);
-        let reserved;
-        try {
-          ({ data: reserved } = await request('/rest/v1/rpc/nexus_reserve_owner', { method: 'POST', privileged: true, body: { p_email: email } }));
-        } catch {
-          throw new AccountError(503, 'Ob deine Adresse für den privaten Zugang reserviert wurde, konnte nicht bestätigt werden. Versuche die Einrichtung später mit derselben Adresse erneut. Eine bereits reservierte, falsch eingegebene Adresse muss die Administration kontrolliert korrigieren.');
+        const result = await request(`/auth/v1/signup?redirect_to=${encodeURIComponent(`${origin}/?account=confirmed`)}`, { method: 'POST', body: { email, password }, allowFailure: true });
+        if (!result.ok) {
+          if (result.status >= 500 || result.status === 429) throw new AccountError(503, 'Die Registrierung ist gerade nicht verfügbar. Bitte versuche es später erneut.');
+          // The same public response also covers an already existing account.
+          // Never reveal provider internals or update credentials via admin APIs.
+          throw new AccountError(400, 'Die Registrierung konnte nicht abgeschlossen werden. Prüfe deine Eingaben. Falls du bereits ein Konto hast, nutze die Anmeldung oder „Passwort vergessen“.');
         }
-        if (reserved !== true) throw new AccountError(409, 'Der private Zugang ist bereits eingerichtet oder für eine andere Adresse reserviert.');
-        let invitation;
-        try {
-          invitation = await request(`/auth/v1/invite?redirect_to=${encodeURIComponent(`${origin}/?account=confirmed`)}`, { method: 'POST', privileged: true, body: { email }, allowFailure: true });
-        } catch {
-          // A timeout can happen after the provider has created the account or
-          // requested mail. Never release its reservation or replace its user.
-          throw new AccountError(503, 'Deine Adresse bleibt für den privaten Zugang reserviert. Ob die Bestätigungs-E-Mail angefordert wurde, konnte nicht bestätigt werden. Falls sie ankommt, bestätige den Link und nutze anschließend „Passwort vergessen“. Bei einer falsch eingegebenen Adresse ist eine kontrollierte Korrektur durch die Administration nötig.');
-        }
-        if (!invitation.ok) throw new AccountError(invitation.status >= 500 || invitation.status === 429 ? 503 : 409, 'Deine Adresse bleibt für den privaten Zugang reserviert. Die Registrierung konnte nicht abgeschlossen werden. Falls du eine Bestätigungs-E-Mail erhalten hast, bestätige den Link und nutze anschließend „Passwort vergessen“. Falls der Dienst vorübergehend nicht erreichbar ist, versuche die Einrichtung später mit derselben Adresse erneut. Eine falsch eingegebene Adresse muss die Administration kontrolliert korrigieren.');
-        const invited = invitation.data?.user ?? invitation.data;
-        if (!ID_PATTERN.test(invited?.id ?? '') || typeof invited?.email !== 'string' || invited.email.toLowerCase() !== email) throw new AccountError(503, 'Deine Adresse bleibt für den privaten Zugang reserviert. Der Kontodienst hat die Einrichtung nicht eindeutig bestätigt. Falls eine Bestätigungs-E-Mail ankommt, bestätige den Link und nutze anschließend „Passwort vergessen“.');
-        if (invited.email_confirmed_at) throw new AccountError(409, 'Der Zugang besteht bereits. Bitte melde dich an oder setze dein Passwort zurück.');
-        try {
-          await request(`/auth/v1/admin/users/${invited.id}`, { method: 'PUT', privileged: true, body: { password } });
-        } catch {
-          // The mail request already succeeded, but a network failure may leave
-          // the password update's outcome unknown. Keep the reserved owner and
-          // offer recovery instead of inviting or overwriting another account.
-          throw new AccountError(503, 'Die Bestätigungs-E-Mail wurde angefordert. Die Speicherung deines Passworts konnte noch nicht bestätigt werden. Falls die E-Mail ankommt, bestätige den Link und nutze anschließend „Passwort vergessen“.');
-        }
-        reply(res, 202, { authenticated: false, pendingConfirmation: true, message: 'Bitte bestätige deine E-Mail-Adresse über den zugesandten Link. Danach kannst du dich hier anmelden.' });
+        const registered = result.data?.user ?? result.data;
+        if (!ID_PATTERN.test(registered?.id ?? '') || typeof registered?.email !== 'string' || registered.email.trim().toLowerCase() !== email) throw new AccountError(503, 'Der Kontodienst hat die Registrierung nicht eindeutig bestätigt. Bitte versuche es später erneut.');
+        // Even if the provider returns a session, registration never signs in.
+        // The regular login verifies the current confirmed identity separately.
+        reply(res, 202, { authenticated: false, pendingConfirmation: true, message: REGISTER_MESSAGE });
         return true;
       }
       if (endpoint === 'reset') {
         const email = emailValue(input.email);
         rateLimitEmail(endpoint, email);
-        const current = await owner();
-        if (current?.email === email) {
-          const result = await request(`/auth/v1/recover?redirect_to=${encodeURIComponent(`${origin}/?account=recovery`)}`, { method: 'POST', body: { email }, allowFailure: true });
-          if (result.status >= 500 || result.status === 429) throw new AccountError(503, 'Die E-Mail konnte gerade nicht angefordert werden. Bitte versuche es später erneut.');
-        }
+        const result = await request(`/auth/v1/recover?redirect_to=${encodeURIComponent(`${origin}/?account=recovery`)}`, { method: 'POST', body: { email }, allowFailure: true });
+        if (result.status >= 500 || result.status === 429) throw new AccountError(503, 'Die E-Mail konnte gerade nicht angefordert werden. Bitte versuche es später erneut.');
         reply(res, 200, { message: RESET_MESSAGE });
         return true;
       }
@@ -344,7 +300,7 @@ export function createCloudAuth({ env = process.env, fetchImpl = fetch } = {}) {
       const recoveryToken = tokenValue(input.recoveryToken);
       const password = passwordValue(input.password, true);
       const user = recoveryToken ? await userForToken(recoveryToken) : null;
-      if (!user || !await matchesOwner(user, true)) throw new AccountError(401, 'Der Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.');
+      if (!user) throw new AccountError(401, 'Der Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.');
       const updated = await request('/auth/v1/user', { method: 'PUT', token: recoveryToken, body: { password }, allowFailure: true });
       if (!updated.ok) throw new AccountError(400, 'Das Passwort konnte nicht geändert werden. Bitte verwende ein neues Passwort oder fordere einen neuen Link an.');
       try { await request('/auth/v1/logout?scope=local', { method: 'POST', token: recoveryToken, allowFailure: true }); } catch { /* Password was changed; require fresh login. */ }

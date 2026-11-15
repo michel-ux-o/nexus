@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { ArrowRight, Eye, EyeOff, LockKeyhole } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Pause, Play } from 'lucide-react';
+import { ParticleLandscape } from '../horizon/ParticleLandscape';
 import './LoginScreen.css';
 
 type LoginMode = 'login' | 'register' | 'reset';
@@ -13,7 +14,7 @@ export interface LoginScreenProps {
   registrationOpen: boolean;
   recovery?: boolean;
   onLogin: (email: string, password: string) => Promise<void>;
-  onRegister: (email: string, password: string, setupCode: string) => Promise<void>;
+  onRegister: (email: string, password: string) => Promise<void>;
   onReset: (email: string) => Promise<void>;
   onPasswordChange?: (password: string) => Promise<void>;
 }
@@ -32,7 +33,7 @@ export function LoginScreen({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
-  const [setupCode, setSetupCode] = useState('');
+  const [landscapePaused, setLandscapePaused] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -52,7 +53,6 @@ export function LoginScreen({
     setActiveMode(next);
     setPassword('');
     setConfirmation('');
-    setSetupCode('');
     setPasswordVisible(false);
     setLocalError(null);
     setShowFeedback(false);
@@ -72,7 +72,7 @@ export function LoginScreen({
     }
     if (!recovery && activeMode === 'register') {
       if (!registrationOpen) {
-        setLocalError('Die Einrichtung ist bereits abgeschlossen. Melde dich mit deinem Konto an.');
+        setLocalError('Die Registrierung ist gerade nicht verfügbar. Bitte versuche es später erneut.');
         return;
       }
     }
@@ -85,7 +85,7 @@ export function LoginScreen({
     setSubmitting(true);
     try {
       if (recovery) await onPasswordChange!(password);
-      else if (activeMode === 'register') await onRegister(email.trim(), password, setupCode.trim());
+      else if (activeMode === 'register') await onRegister(email.trim(), password);
       else if (activeMode === 'reset') await onReset(email.trim());
       else await onLogin(email.trim(), password);
     } catch {
@@ -96,22 +96,21 @@ export function LoginScreen({
     }
   }
 
-  return <main className="nexus-login">
-    <div className="nexus-login-atmosphere" aria-hidden="true"><div /><div /></div>
+  return <main className="nexus-login" data-mode={recovery ? 'recovery' : activeMode}>
+    <ParticleLandscape view="home" still={landscapePaused} particleColor="#8ebed4" />
+    <div className="nexus-login-atmosphere" aria-hidden="true" />
     <div className="nexus-login-layout">
       <header className="nexus-login-brand">
-        <span className="nexus-login-symbol" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none"><path d="M8 15 24 6l16 9v18l-16 9-16-9V15Z M8 15l16 9 16-9M24 24v18M16 19.5v-9M32 19.5v-9M16 19.5 24 15l8 4.5v9L24 33l-8-4.5v-9Z" /></svg>
-        </span>
-        <div><p className="nexus-login-wordmark">NEXUS</p><p className="nexus-login-subtitle">Notizen &amp; Planung</p></div>
+        <span className="nexus-login-brand-index" aria-hidden="true">N / 01</span>
+        <div className="nexus-login-brand-copy"><p className="nexus-login-wordmark">NEXUS</p><p className="nexus-login-subtitle">Notizen <span aria-hidden="true">/</span> Planung</p></div>
       </header>
 
-      <section className="nexus-login-panel" aria-labelledby={`${fieldPrefix}-heading`}>
+      <section className="nexus-login-panel" aria-labelledby={`${fieldPrefix}-heading`} data-scene-region="home">
         <div className="nexus-login-panel-heading">
           <p className="nexus-login-eyebrow"><LockKeyhole size={13} aria-hidden="true" /> Persönlicher Arbeitsbereich</p>
           <h1 id={`${fieldPrefix}-heading`}>{recovery ? 'Neues Passwort festlegen' : headings[activeMode]}</h1>
           {!recovery && activeMode === 'reset' && <p className="nexus-login-description">Wir senden dir einen Link, mit dem du ein neues Passwort festlegen kannst.</p>}
-          {!recovery && activeMode === 'register' && <p className="nexus-login-description">Für dein erstes Konto benötigst du den privaten Einrichtungscode.</p>}
+          {!recovery && activeMode === 'register' && <p className="nexus-login-description">Erstelle dein Konto und bestätige anschließend deine E-Mail-Adresse.</p>}
         </div>
 
         <form onSubmit={submit} className="nexus-login-form" aria-busy={pending}>
@@ -135,10 +134,6 @@ export function LoginScreen({
                 <span>Passwort wiederholen</span>
                 <input id={`${fieldPrefix}-confirmation`} name="passwordConfirmation" type={passwordVisible ? 'text' : 'password'} autoComplete="new-password" required minLength={12} value={confirmation} onChange={event => setConfirmation(event.target.value)} />
               </label>
-              {!recovery && <label className="nexus-login-field" htmlFor={`${fieldPrefix}-setup`}>
-                <span>Einrichtungscode</span>
-                <input id={`${fieldPrefix}-setup`} name="setupCode" type="password" autoComplete="off" autoCapitalize="none" spellCheck={false} required value={setupCode} onChange={event => setSetupCode(event.target.value)} />
-              </label>}
             </>}
           </fieldset>
 
@@ -159,7 +154,13 @@ export function LoginScreen({
         </nav>
       </section>
 
-      <footer className="nexus-login-footer">Deine Inhalte sind nach der Anmeldung zugänglich.</footer>
+      <footer className="nexus-login-footer">
+        <span><LockKeyhole size={12} aria-hidden="true" /> Deine Inhalte sind nach der Anmeldung zugänglich.</span>
+        <button type="button" className="nexus-login-motion" aria-pressed={landscapePaused} onClick={() => setLandscapePaused(value => !value)}>
+          {landscapePaused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
+          <span>{landscapePaused ? 'Bewegung fortsetzen' : 'Bewegung pausieren'}</span>
+        </button>
+      </footer>
     </div>
   </main>;
 }

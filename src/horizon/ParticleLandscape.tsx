@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { animateParticlePoint, depressScreenPoint, makePoints, PARTICLE_ROTATION_SECONDS } from './particleGeometry'
 import { listenHorizonScene, observeHorizonInteraction } from './sceneEvents'
 import type { SceneEvent, SceneRegion } from './sceneEvents'
@@ -460,6 +460,8 @@ function sampleContent(root: Element, viewport: DOMRect): ContentSample[] {
   // The transparent area chooser is a non-modal popover. It needs the same
   // moving-cloud hollow and glyph protection as the content still visible below.
   add(root.querySelector('.horizon-areas-panel'), 'areas', 'home')
+  add(root.querySelector('.nexus-login-panel'), 'login', 'home')
+  add(root.querySelector('.nexus-login-brand'), 'login-brand', 'home')
   const home = root.querySelector('.horizon-home')
   if (home) {
     for (const [selector, id, region] of [
@@ -725,7 +727,7 @@ export function ParticleLandscape({ view, focus = false, powerSaving = false, st
       container.dataset.anchorRevision = String(++contentRevision)
       container.dataset.anchors = JSON.stringify(contentSamples.map(sample => ({ kind: sample.kind, region: sample.region, item: sample.item,
         dom: [sample.bounds.x, sample.bounds.y, sample.bounds.width, sample.bounds.height].map(rounded) })))
-      const layoutElements = new Set(sceneRoot.querySelectorAll('.horizon-home, .horizon-day-tasks, .horizon-task-list, .horizon-day-calendar, .horizon-day-notes, .horizon-day-reminders, .horizon-day-strip-scroll, .horizon-day-aside, .horizon-focus-scene, .horizon-subtasks, .horizon-home-capture, .horizon-focus-dialog, .horizon-task-detail, .horizon-task-collection, .reminders-detail, .today-panel, .week-board, .sidebar, .editor'))
+      const layoutElements = new Set(sceneRoot.querySelectorAll('.nexus-login-panel, .nexus-login-brand, .horizon-home, .horizon-day-tasks, .horizon-task-list, .horizon-day-calendar, .horizon-day-notes, .horizon-day-reminders, .horizon-day-strip-scroll, .horizon-day-aside, .horizon-focus-scene, .horizon-subtasks, .horizon-home-capture, .horizon-focus-dialog, .horizon-task-detail, .horizon-task-collection, .reminders-detail, .today-panel, .week-board, .sidebar, .editor'))
       for (const element of observedLayout) if (!layoutElements.has(element)) { layoutObserver.unobserve(element); observedLayout.delete(element) }
       for (const element of layoutElements) if (!observedLayout.has(element)) { layoutObserver.observe(element); observedLayout.add(element) }
       contentDirty = false

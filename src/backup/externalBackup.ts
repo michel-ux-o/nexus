@@ -1,5 +1,6 @@
 ﻿import { MAX_WORKSPACE_BACKUP_BYTES, parseWorkspaceBackup } from '../data/workspaceBackup';
 import type { WorkspaceBackup } from '../planning/types';
+import { getWorkspaceScope } from '../auth/workspaceScope';
 
 type Permission = 'granted' | 'denied' | 'prompt';
 interface BackupFileHandle {
@@ -14,7 +15,6 @@ interface BackupDirectoryHandle {
   values(): AsyncIterableIterator<{ kind: string; name: string }>;
 }
 type PickerWindow = Window & { showDirectoryPicker?: (options: { mode: 'readwrite' }) => Promise<BackupDirectoryHandle> };
-const dbName = 'nexus-backup-access';
 const storeName = 'handles';
 const handleKey = 'directory';
 const prefix = 'nexus-workspace-';
@@ -25,7 +25,7 @@ function supported(): boolean {
 }
 function openAccess(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 1);
+    const request = indexedDB.open(getWorkspaceScope().backupDatabaseName, 1);
     request.onupgradeneeded = () => request.result.createObjectStore(storeName);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(new Error('Der lokale Ordnerzugriff konnte nicht geöffnet werden.', { cause: request.error }));

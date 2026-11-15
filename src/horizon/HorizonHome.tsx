@@ -1,3 +1,4 @@
+import { getWorkspaceScope } from '../auth/workspaceScope';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type TouchEvent } from 'react';
 import { ArrowRight, ArrowUpRight, Bell, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, Expand, Focus, LoaderCircle, Mic, Plus, RotateCcw, X } from 'lucide-react';
 import type { Planner, Reminder, Subtask, Task, WorkspaceViewProps } from '../planning/types';
@@ -40,7 +41,10 @@ interface HomeOperation {
 
 // Session drafts survive route unmounts. Replacing the workspace invalidates identities,
 // including task-specific subtask drafts, without discarding free-standing draft text.
-const DRAFT_KEY = 'nexus.horizon.day-drafts.v1';
+function draftStorageKey() {
+  const scope = getWorkspaceScope();
+  return scope.userId ? 'nexus.horizon.day-drafts.v1:' + scope.userId : 'nexus.horizon.day-drafts.v1';
+}
 let draftEpoch: number | undefined;
 let draftBook: HorizonDraftBook | undefined;
 let storageUnavailable = false;
@@ -50,21 +54,21 @@ function readDraftBook(epoch: number): HorizonDraftBook {
     let serialized: string | null = null;
     let storedEpoch = 0;
     try {
-      serialized = sessionStorage.getItem(DRAFT_KEY);
+      serialized = sessionStorage.getItem(draftStorageKey());
       const source = serialized ? JSON.parse(serialized) : null;
       if (typeof source?.workspaceEpoch === 'number') storedEpoch = source.workspaceEpoch;
     } catch { storageUnavailable = true; }
     draftBook = parseHorizonDrafts(serialized);
     if (storedEpoch !== epoch) {
       draftBook = horizonDraftsForWorkspace(draftBook);
-      try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draftBook, workspaceEpoch: epoch })); }
+      try { sessionStorage.setItem(draftStorageKey(), JSON.stringify({ ...draftBook, workspaceEpoch: epoch })); }
       catch { storageUnavailable = true; }
     }
     draftEpoch = epoch;
   } else if (draftEpoch !== epoch) {
     draftBook = horizonDraftsForWorkspace(draftBook);
     draftEpoch = epoch;
-    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draftBook, workspaceEpoch: epoch })); }
+    try { sessionStorage.setItem(draftStorageKey(), JSON.stringify({ ...draftBook, workspaceEpoch: epoch })); }
     catch { storageUnavailable = true; }
   }
   return draftBook;
@@ -72,7 +76,7 @@ function readDraftBook(epoch: number): HorizonDraftBook {
 function writeDraftBook(epoch: number, update: (book: HorizonDraftBook) => HorizonDraftBook) {
   if (draftEpoch !== epoch || !draftBook) return;
   draftBook = update(draftBook);
-  try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draftBook, workspaceEpoch: epoch })); storageUnavailable = false; }
+  try { sessionStorage.setItem(draftStorageKey(), JSON.stringify({ ...draftBook, workspaceEpoch: epoch })); storageUnavailable = false; }
   catch { storageUnavailable = true; }
   draftListeners.forEach(listener => listener());
 }
@@ -82,11 +86,11 @@ function subscribeDrafts(listener: () => void) { draftListeners.add(listener); r
 export function resetHorizonDraftIdentities() {
   let book = draftBook;
   if (!book) {
-    try { book = parseHorizonDrafts(sessionStorage.getItem(DRAFT_KEY)); }
+    try { book = parseHorizonDrafts(sessionStorage.getItem(draftStorageKey())); }
     catch { storageUnavailable = true; book = parseHorizonDrafts(null); }
   }
   draftBook = horizonDraftsForWorkspace(book);
-  try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draftBook, workspaceEpoch: draftEpoch ?? 0 })); }
+  try { sessionStorage.setItem(draftStorageKey(), JSON.stringify({ ...draftBook, workspaceEpoch: draftEpoch ?? 0 })); }
   catch { storageUnavailable = true; }
   draftListeners.forEach(listener => listener());
 }

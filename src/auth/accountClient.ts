@@ -93,8 +93,8 @@ export async function loginAccount(email: string, password: string): Promise<Acc
   return parseSession(await request('login', { email: email.trim(), password }));
 }
 
-export async function registerAccount(email: string, password: string, setupCode: string): Promise<AccountSession> {
-  return parseSession(await request('register', { email: email.trim(), password, setupCode: setupCode.trim() }));
+export async function registerAccount(email: string, password: string): Promise<AccountSession> {
+  return parseSession(await request('register', { email: email.trim(), password }));
 }
 
 export async function resetAccount(email: string): Promise<void> {

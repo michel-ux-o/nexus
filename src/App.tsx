@@ -92,6 +92,13 @@ export default function App() {
   const note = store.activeNote;
   if (!store.loading && !store.loadError && !planner.loading && !planner.loadError) initialized.current = true;
 
+  useEffect(() => account?.registerLeaveGuard(async () => {
+    if (overlay || confirmDelete || settingsGuard.current || area === 'settings' || busy ||
+        importing.current || actionLock.current || store.loading || planner.loading ||
+        store.loadError || planner.loadError) return false;
+    return flushAll();
+  }));
+
   useAndroidMorningRequest(async () => {
     if (importing.current || actionLock.current || overlay || busy || store.loading || planner.loading ||
         store.loadError || planner.loadError || !planner.data.settings.onboardingDone) return false;

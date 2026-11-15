@@ -1,9 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { getWorkspaceScope } from './auth/workspaceScope';
 
 // Serialize mount/unmount requests in this document, including StrictMode replays.
 let previousRequest: Promise<unknown> = Promise.resolve();
 
-/** One writer per origin. Storage adapters remain independent of browser locking. */
+/** One writer per account. Storage adapters remain independent of browser locking. */
 export function InstanceBoundary({ children }: { children: ReactNode }) {
   const [state, setState] = useState<'waiting' | 'ready' | 'locked' | 'unsupported'>('waiting');
   useEffect(() => {
@@ -12,7 +13,7 @@ export function InstanceBoundary({ children }: { children: ReactNode }) {
     let release: (() => void) | undefined;
     const request = previousRequest.catch(() => undefined).then(() => {
       if (cancelled) return;
-      return navigator.locks.request('nexus-notes-writer', { ifAvailable: true }, async lock => {
+      return navigator.locks.request(getWorkspaceScope().writerLockName, { ifAvailable: true }, async lock => {
         if (cancelled) return;
         if (!lock) { setState('locked'); return; }
         setState('ready');

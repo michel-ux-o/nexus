@@ -4,8 +4,8 @@ import { emptyPlanning } from '../planning/types';
 import { BACKUP_LIMITS, makeBackup, parseBackup } from './backup';
 import { makeWorkspaceBackup, parseWorkspaceBackup } from './workspaceBackup';
 import { mergeWorkspaces } from './workspaceMerge';
+import { getWorkspaceScope } from '../auth/workspaceScope';
 
-const DATABASE_NAME = 'nexus-notes';
 // The version bump also blocks older clients whose validator would discard
 // nested steps and morning routine receipts when writing a planning snapshot.
 const DATABASE_VERSION = 4;
@@ -112,8 +112,9 @@ function mergeNotes(current: Note[], incoming: Note[]): Note[] {
   });
 }
 
-export function createRepository(databaseName: string) {
+export function createRepository(databaseName: string | (() => string)) {
   let connection: Promise<IDBDatabase> | undefined;
+  let resolvedDatabaseName: string | undefined;
 
 function openDatabase(): Promise<IDBDatabase> {
   if (connection) return connection;
@@ -125,7 +126,8 @@ function openDatabase(): Promise<IDBDatabase> {
     }
     let request: IDBOpenDBRequest;
     try {
-      request = indexedDB.open(databaseName, DATABASE_VERSION);
+      resolvedDatabaseName ??= typeof databaseName === 'function' ? databaseName() : databaseName;
+      request = indexedDB.open(resolvedDatabaseName, DATABASE_VERSION);
     } catch (error) {
       reject(storageError(error));
       return;
@@ -404,4 +406,5 @@ async function transaction<T>(
   };
 }
 
-export const repository = createRepository(DATABASE_NAME);
+// Resolve only after AccountBoundary has verified and selected an identity.
+export const repository = createRepository(() => getWorkspaceScope().databaseName);
