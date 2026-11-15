@@ -97,10 +97,12 @@ export default function App() {
         store.loadError || planner.loadError || !planner.data.settings.onboardingDone) return false;
     // Never interrupt an open settings draft with repeated discard prompts.
     if (area === 'settings' || settingsGuard.current) return false;
-    if (!await flushAll()) return false;
+    const morningNavigation = navigation.current;
+    if (!await flushAll() || morningNavigation !== navigation.current || importing.current) return false;
     const current = todayInZone(planner.data.settings.timeZone);
     try {
       await planner.materializeMorningRoutine(current);
+      if (morningNavigation !== navigation.current || importing.current) return false;
       setDate(current);
       setFocusTaskId(undefined);
       remember('home');
@@ -238,9 +240,11 @@ export default function App() {
     if (importing.current) throw new Error('Der Arbeitsbereich wird gerade importiert.');
     await store.captureNote(operationId ?? crypto.randomUUID(), title, content, `tag:${chosenDate}`);
   }
-  function saveWorkspaceDraft() {
-    downloadText('nexus-entwurf.json', JSON.stringify({ format: 'nexus-workspace', version: 4, exportedAt: new Date().toISOString(), notes: store.notes, planning: planner.data }), 'application/json');
-    setToast('Der aktuelle Entwurf wurde als JSON zum Download bereitgestellt.');
+  async function saveWorkspaceDraft() {
+    try {
+      await downloadText('nexus-entwurf.json', JSON.stringify({ format: 'nexus-workspace', version: 4, exportedAt: new Date().toISOString(), notes: store.notes, planning: planner.data }), 'application/json');
+      setToast('Der aktuelle Entwurf wurde als JSON zur Dateisicherung übergeben.');
+    } catch (error) { setActionError(error instanceof Error ? error.message : String(error)); }
   }
 
   function create() {
@@ -314,10 +318,12 @@ export default function App() {
     catch (error) { store.setBlocked(false); planner.setBlocked(false); importing.current = false; throw error; }
     try { await finishImport(); } catch (error) { setDemoNeedsReload(true); setActionError('Die Beispiele wurden gespeichert, konnten aber nicht vollständig geladen werden. Bitte den Arbeitsbereich erneut laden.'); throw error; }
   }
-  function saveDraft() {
+  async function saveDraft() {
     if (!note) return;
-    downloadText(`${(note.title || 'Unbenannte Notiz').replace(/[<>:"/\\|?*]/g, '_')}.txt`, `${note.title}\n\n${note.content}\n\nTags: ${note.tags.join(', ')}`, 'text/plain;charset=utf-8');
-    setToast('Text-Sicherung wurde zum Download bereitgestellt.');
+    try {
+      await downloadText(`${(note.title || 'Unbenannte Notiz').replace(/[<>:"/\\|?*]/g, '_')}.txt`, `${note.title}\n\n${note.content}\n\nTags: ${note.tags.join(', ')}`, 'text/plain;charset=utf-8');
+      setToast('Text-Sicherung wurde zur Dateisicherung übergeben.');
+    } catch (error) { setActionError(error instanceof Error ? error.message : String(error)); }
   }
 
   if ((store.loading || planner.loading) && !initialized.current) return <main className="startup-state" aria-live="polite"><LoaderCircle className="spin" /><h1>NEXUS</h1><p>Dein Arbeitsbereich wird geladen …</p></main>;

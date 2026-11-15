@@ -1,4 +1,4 @@
-﻿import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { ArchiveRestore, ArrowLeft, Bell, CalendarDays, ChevronRight, Download, FileJson, Globe2, HardDrive, Monitor, Pause, ShieldCheck, Sparkles, Sunrise, Trash2, Upload, UserRound, X } from 'lucide-react';
 import { MAX_WORKSPACE_BACKUP_BYTES, parseWorkspaceBackup } from '../data/workspaceBackup';
 import { repository } from '../data/repository';
@@ -44,8 +44,8 @@ const COMMON_ZONES = ['Europe/Berlin', 'Europe/Vienna', 'Europe/Zurich', 'Europe
 function describeError(error: unknown): string {
   return error instanceof Error ? error.message : 'Bitte versuche es erneut.';
 }
-function downloadBackup(backup: WorkspaceBackup, prefix = 'nexus-workspace'): void {
-  downloadText(`${prefix}-${backup.exportedAt.replace(/[:.]/g, '-')}.json`, JSON.stringify(backup), 'application/json;charset=utf-8');
+async function downloadBackup(backup: WorkspaceBackup, prefix = 'nexus-workspace'): Promise<void> {
+  await downloadText(`${prefix}-${backup.exportedAt.replace(/[:.]/g, '-')}.json`, JSON.stringify(backup), 'application/json;charset=utf-8');
 }
 function formatDate(value: string, timeZone: string): string {
   return new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short', hourCycle: 'h23', timeZone }).format(new Date(value));
@@ -273,7 +273,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
       if (!await onFlush()) throw new Error('Aktuelle Änderungen konnten nicht gespeichert werden. Deine Eingaben bleiben erhalten. Schließe den Dialog und versuche das Speichern erneut.');
       // Read after flush; props may still belong to an earlier React render.
       const backup = await repository.exportWorkspace();
-      downloadBackup(backup);
+      await downloadBackup(backup);
       handedOff = true;
       planner.updateSettings({ exportHistory: appendExportHistory(backup.planning.settings.exportHistory) });
       if (!await planner.flush()) throw new Error('Der Download wurde angestoßen, sein Eintrag in der Exporthistorie konnte aber noch nicht gespeichert werden.');
@@ -318,7 +318,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
         setError('Der Import wurde angehalten, weil aktuelle Änderungen nicht gespeichert werden konnten. Deine Daten wurden nicht ersetzt oder ergänzt. Schließe den Dialog und versuche das Speichern erneut.');
         return;
       }
-      if (importMode === 'replace') downloadBackup(await repository.exportWorkspace(), 'nexus-workspace-vor-import');
+      if (importMode === 'replace') await downloadBackup(await repository.exportWorkspace(), 'nexus-workspace-vor-import');
       // App synchronously blocks both stores and invalidates old async callbacks.
       lockStarted = true;
       reloadContextRef.current = { committed: false, legacy: incoming.legacy };
@@ -359,7 +359,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
       const backup = await repository.getLastWorkspaceBackup();
       setLastBackup(backup);
       if (!backup) throw new Error('Es gibt noch keine lokale Sicherung vor einem Import.');
-      downloadBackup(backup, 'nexus-workspace-wiederherstellung');
+      await downloadBackup(backup, 'nexus-workspace-wiederherstellung');
       setBackupError(null);
       setMessage('Die vorherige Sicherung wurde als Download bereitgestellt. Um sie wiederherzustellen, wähle diese Datei im Import aus und bestätige „Ersetzen“.');
     } catch (cause) {
@@ -420,7 +420,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
       const backup = await repository.getLastMigrationBackup();
       setMigrationBackup(backup);
       if (!backup) throw new Error('Es ist keine Sicherung vor einer Datenmigration vorhanden.');
-      downloadBackup(backup, 'nexus-workspace-vor-migration');
+      await downloadBackup(backup, 'nexus-workspace-vor-migration');
       setMigrationError(null);
       setMessage('Die Sicherung vor der Datenmigration wurde dem Browser als Download übergeben. Zum Wiederherstellen wähle die Datei im Import aus.');
     } catch (cause) { setError(`Die Migrationssicherung konnte nicht exportiert werden. ${describeError(cause)}`); }
@@ -433,7 +433,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
     try {
       if (!await onFlush()) throw new Error('Aktuelle Änderungen konnten nicht gespeichert werden. Der Arbeitsbereich wurde nicht zurückgesetzt.');
       const current = await repository.exportWorkspace();
-      downloadBackup(current, 'nexus-workspace-vor-reset');
+      await downloadBackup(current, 'nexus-workspace-vor-reset');
       const planning = emptyPlanning();
       planning.settings.onboardingDone = true;
       const empty: WorkspaceBackup = { format: 'nexus-workspace', version: 4, exportedAt: new Date().toISOString(), notes: [], planning };

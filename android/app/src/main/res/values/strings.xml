@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nexus</string>
+    <string name="native_alarm">Wecker</string>
+    <string name="reload">Neu laden</string>
+    <string name="connection_error">Nexus ist gerade nicht erreichbar. Prüfe die Verbindung und versuche es erneut. Dein Wecker ist weiterhin verfügbar.</string>
+    <string name="configuration_error">Für diese App wurde keine Nexus-Adresse hinterlegt. Der native Wecker ist verfügbar.</string>
+    <string name="webview_error">Die Android-Webansicht konnte nicht gestartet werden. Aktualisiere Android System WebView. Dein Wecker bleibt verfügbar.</string>
+    <string name="external_link_unavailable">Für diesen Link ist keine passende App verfügbar.</string>
+</resources>

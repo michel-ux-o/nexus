@@ -1,7 +1,8 @@
 import {
   ALARM_BRIDGE_VERSION, ALARM_CHANNEL, encodeAlarmRequest, isRecord, parseAlarmMessage,
-  readAlarmCapabilities, readMorningRequest,
-  type AlarmMethod, type AndroidAlarmCapabilities, type AndroidMorningRequest,
+  readAlarmCapabilities, readMorningRequest, readDocumentSaveResult,
+  type AlarmMethod, type AlarmRequestParams, type AndroidAlarmCapabilities, type AndroidMorningRequest,
+  type AndroidTextDocument, type AndroidDocumentSaveResult,
 } from './protocol';
 
 export type AndroidAlarmSnapshot =
@@ -97,6 +98,16 @@ export class AndroidAlarmClient {
     return result.acknowledged;
   }
 
+  /** Resolves after the system picker is cancelled or the selected stream is closed successfully. */
+  async saveTextDocument(document: AndroidTextDocument): Promise<AndroidDocumentSaveResult> {
+    if (this.snapshot.status !== 'ready' || this.snapshot.capabilities.textDocuments !== true) {
+      throw new Error('Dateien können nur in der verbundenen aktuellen Android-Version gespeichert werden.');
+    }
+    // Choosing a storage provider can take longer than a normal bridge request.
+    // Never retry automatically: a second attempt could create a duplicate file.
+    return readDocumentSaveResult(await this.request('saveTextDocument', document, 10 * 60_000));
+  }
+
   private setSnapshot(snapshot: AndroidAlarmSnapshot): void {
     this.snapshot = snapshot;
     this.listeners.forEach(listener => listener());
@@ -137,11 +148,11 @@ export class AndroidAlarmClient {
     if (message.ok === true && Object.hasOwn(message, 'result') && !Object.hasOwn(message, 'error')) waiting.resolve(message.result);
     else if (message.ok === false && isRecord(message.error) && typeof message.error.code === 'string' && typeof message.error.message === 'string') {
       // Do not expose arbitrary native detail or raw data in the web interface.
-      waiting.reject(new Error('Die Android-App konnte die Weckeranfrage nicht ausführen. Bitte erneut versuchen.'));
+      waiting.reject(new Error('Die Android-App konnte die Anfrage nicht ausführen. Bitte erneut versuchen.'));
     } else waiting.reject(new Error('Die Android-App hat eine ungültige Antwort gesendet.'));
   };
 
-  private request(method: AlarmMethod, params?: { requestId: string }): Promise<unknown> {
+  private request(method: AlarmMethod, params?: AlarmRequestParams, timeoutMs = this.timeoutMs): Promise<unknown> {
     const id = `web-${Date.now()}-${++this.counter}`;
     let message: string;
     try { message = encodeAlarmRequest(id, method, params); }
@@ -154,7 +165,7 @@ export class AndroidAlarmClient {
       const timer = setTimeout(() => {
         this.pending.delete(id);
         reject(new Error('Die Android-App antwortet nicht. Bitte erneut versuchen.'));
-      }, this.timeoutMs);
+      }, timeoutMs);
       this.pending.set(id, { resolve, reject, timer });
       try { port.postMessage(message); }
       catch {
