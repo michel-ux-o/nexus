@@ -7,7 +7,7 @@ import { conflictsForDay } from '../selectors';
 import { clipToTimeline, ENTRY_DRAG_TYPE, GRID_MINUTES, positionIntervals, snapMinute, TASK_DRAG_TYPE, timelineRange, timelineTicks } from './layout';
 import './Timeline.css';
 
-export type TimelineProps = Pick<PlannerViewProps, 'planner' | 'onEditAppointment' | 'onEditBlock'> & { date: string };
+export type TimelineProps = Pick<PlannerViewProps, 'planner' | 'onEditAppointment' | 'onEditBlock'> & { date: string; pageScroll?: boolean };
 type Entry = { kind: 'appointment'; item: Appointment; title: string } | { kind: 'block'; item: TimeBlock; title: string };
 type Attempt = { kind: 'appointment'; item: Appointment; title: string } | { kind: 'block'; item: TimeBlock; title: string };
 type ResizeDraft = { block: TimeBlock; title: string; startY: number; initialDuration: number; duration: number; pointerId: number };
@@ -17,13 +17,15 @@ function message(error: unknown): string {
   return error instanceof Error ? error.message : 'Die Änderung konnte nicht gespeichert werden. Bitte erneut versuchen.';
 }
 
-export function Timeline({ planner, date, onEditAppointment, onEditBlock }: TimelineProps) {
+export function Timeline({ planner, date, onEditAppointment, onEditBlock, pageScroll = false }: TimelineProps) {
   const id = useId();
   const zone = planner.data.settings.timeZone;
   const range = useMemo(() => timelineRange(date, zone), [date, zone]);
   const ticks = useMemo(() => timelineTicks(range, zone), [range, zone]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const nowRef = useRef<HTMLDivElement>(null);
+  const firstEntryRef = useRef<HTMLButtonElement>(null);
   const busyRef = useRef(false);
   const resizeRef = useRef<ResizeDraft | null>(null);
   const suppressResizeClick = useRef(false);
@@ -64,10 +66,10 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
 
   useEffect(() => {
     const morning = ticks.find(tick => tick.label === '07:00')?.minute ?? 0;
-    if (scrollRef.current) scrollRef.current.scrollTop = morning * PIXELS_PER_MINUTE;
+    if (!pageScroll && scrollRef.current) scrollRef.current.scrollTop = morning * PIXELS_PER_MINUTE;
     setHoverMinute(null); setSelectedMinute(null); setResizeBlockId(''); setStatus('');
     resizeRef.current = null; setResize(null);
-  }, [date, ticks]);
+  }, [date, ticks, pageScroll]);
 
   useEffect(() => {
     if (!failed || busy || planner.status !== 'saved') return;
@@ -191,7 +193,14 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
     <header className="nexus-timeline-heading">
       <div><p className="nexus-timeline-eyebrow">ZEITRAUM / {zone}</p><h2 id={`${id}-title`}>Dein Tagesverlauf</h2></div>
       <div className="nexus-timeline-actions">
-        {isCurrentDay && <button type="button" className="nexus-timeline-button" onClick={() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, nowMinute * PIXELS_PER_MINUTE - 100); }}><Clock3 size={15} aria-hidden="true" /> Jetzt</button>}
+        {isCurrentDay && <button type="button" className="nexus-timeline-button" onClick={() => {
+          if (pageScroll) nowRef.current?.scrollIntoView({ block: 'center' });
+          else if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, nowMinute * PIXELS_PER_MINUTE - 100);
+        }}><Clock3 size={15} aria-hidden="true" /> Jetzt</button>}
+        {pageScroll && entries.length > 0 && <button type="button" className="nexus-timeline-button" disabled={busy} onClick={() => {
+          firstEntryRef.current?.scrollIntoView({ block: 'center' });
+          firstEntryRef.current?.focus({ preventScroll: true });
+        }}><Clock3 size={15} aria-hidden="true" /> Erste feste Zeit</button>}
         <button type="button" className="nexus-timeline-button" onClick={() => onEditAppointment(undefined, date)}><Plus size={15} aria-hidden="true" /> Termin</button>
         <button type="button" className="nexus-timeline-button" onClick={() => onEditBlock(undefined, { date })}><Plus size={15} aria-hidden="true" /> Zeitblock</button>
       </div>
@@ -199,6 +208,8 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
 
     {allDay.length > 0 && <div className="nexus-timeline-allday"><h3><CalendarDays size={14} aria-hidden="true" /> Ganztägig</h3><ul>{allDay.map(item => <li key={item.id}><button type="button" onClick={() => onEditAppointment(item)}><strong>{item.title}</strong><span>{formatDate(item.allDay!.startDate, { day: 'numeric', month: 'short' })}{addDays(item.allDay!.endDate, -1) !== item.allDay!.startDate ? ` – ${formatDate(addDays(item.allDay!.endDate, -1), { day: 'numeric', month: 'short' })}` : ''} · ohne Zeitbelegung</span></button></li>)}</ul></div>}
 
+    <details className="nexus-timeline-quick-create" key={date}>
+    <summary><Plus size={14} aria-hidden="true" /> Zeitblock direkt einfügen</summary>
     <form className="nexus-timeline-create" onSubmit={event => {
       event.preventDefault(); if (disabled) return;
       try {
@@ -217,6 +228,7 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
       <button className="nexus-timeline-button" type="submit" disabled={!selectedTask || disabled}><Plus size={14} aria-hidden="true" /> Zeitblock einfügen</button>
       {range.minutes !== 1440 && <label className="nexus-timeline-dst"><span>Zeitumstellung · doppelte Uhrzeit</span><select value={clockChoice} disabled={disabled} onChange={event => setClockChoice(event.target.value as typeof clockChoice)}><option value="">Bei Bedarf auswählen</option><option value="earlier">Frühere Uhrzeit</option><option value="later">Spätere Uhrzeit</option></select></label>}
     </form>
+    </details>
 
     {selectedMinute !== null && <div className="nexus-timeline-selected" role="group" aria-label="Eintrag an gewählter Uhrzeit erstellen"><strong>{formatTime(new Date(range.start + selectedMinute * 60_000).toISOString(), zone)} Uhr</strong><div className="nexus-timeline-actions">
       <button type="button" className="nexus-timeline-button" onClick={() => onEditAppointment(undefined, date, { startAt: new Date(range.start + selectedMinute * 60_000).toISOString(), durationMinutes: 60 })}>Termin hier erstellen</button>
@@ -244,7 +256,7 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
       </>}
     </div>
 
-    <div className="nexus-timeline-scroll" ref={scrollRef} tabIndex={0} role="region" aria-label={`Stundenraster für ${formatDate(date)} in ${zone}`} aria-describedby={`${id}-help`}>
+    <div className="nexus-timeline-scroll" ref={scrollRef} tabIndex={pageScroll ? undefined : 0} role="region" aria-label={`Stundenraster für ${formatDate(date)} in ${zone}`} aria-describedby={`${id}-help`}>
       <div className="nexus-timeline-canvas" ref={canvasRef} style={{ height: Math.max(1, range.minutes) * PIXELS_PER_MINUTE }}
         onClick={event => { if ((event.target as HTMLElement).closest('button') || disabled) return; chooseTime(minuteAt(event.clientY)); }}
         onDragOver={event => { if (!disabled && acceptsDrop(event)) { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; setHoverMinute(minuteAt(event.clientY)); } }}
@@ -252,14 +264,14 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
         <div className="nexus-timeline-minutes" aria-hidden="true" />
         {ticks.map(tick => <div className="nexus-timeline-hour" key={tick.minute} style={{ top: tick.minute * PIXELS_PER_MINUTE }}><button type="button" disabled={disabled} aria-label={`Eintrag um ${tick.label} erstellen`} onClick={() => chooseTime(tick.minute)}>{tick.label}</button></div>)}
         <div className="nexus-timeline-events">
-          {entries.map(entry => {
+          {entries.map((entry, index) => {
             const position = positions.get(`${entry.kind}-${entry.item.id}`)!;
             const hasConflict = conflictIds.has(entry.item.id);
             const done = entry.kind === 'block' && tasksById.get(entry.item.taskId)?.status === 'done';
             const short = position.end - position.start < 45;
             return <div key={`${entry.kind}-${entry.item.id}`} className={`nexus-timeline-entry is-${entry.kind}${hasConflict ? ' has-conflict' : ''}${done ? ' is-done' : ''}${short ? ' is-short' : ''}`}
               style={{ top: position.start * PIXELS_PER_MINUTE, height: Math.max(23, (position.end - position.start) * PIXELS_PER_MINUTE - 2), left: `${position.column / position.columns * 100}%`, width: `calc(${100 / position.columns}% - 4px)` }}>
-              <button type="button" className="nexus-timeline-entry-edit" disabled={busy} draggable={!disabled && !resize} onDragStart={event => {
+              <button type="button" className="nexus-timeline-entry-edit" ref={index === 0 ? firstEntryRef : undefined} disabled={busy} draggable={!disabled && !resize} onDragStart={event => {
                 if (disabled || resize) { event.preventDefault(); return; }
                 event.dataTransfer.setData(ENTRY_DRAG_TYPE, JSON.stringify({ kind: entry.kind, id: entry.item.id })); event.dataTransfer.effectAllowed = 'move';
               }} onDragEnd={() => setHoverMinute(null)} onClick={() => openEntry(entry)} onKeyDown={event => moveWithKey(event, entry)} aria-describedby={`${id}-help`}
@@ -278,12 +290,12 @@ export function Timeline({ planner, date, onEditAppointment, onEditBlock }: Time
             </div>;
           })}
         </div>
-        {isCurrentDay && <div className="nexus-timeline-now" style={{ top: nowMinute * PIXELS_PER_MINUTE }}><span>Jetzt {formatTime(new Date(now).toISOString(), zone)}</span></div>}
+        {isCurrentDay && <div className="nexus-timeline-now" ref={nowRef} style={{ top: nowMinute * PIXELS_PER_MINUTE }}><span>Jetzt {formatTime(new Date(now).toISOString(), zone)}</span></div>}
         {hoverMinute !== null && <div className="nexus-timeline-drop" style={{ top: hoverMinute * PIXELS_PER_MINUTE }}><span>{formatTime(new Date(range.start + hoverMinute * 60_000).toISOString(), zone)}</span></div>}
       </div>
     </div>
     <p id={`${id}-help`} className="nexus-timeline-help">Aufgaben oder Blöcke auf eine Uhrzeit ziehen · Raster 15 Min. Am unteren Blockrand ziehen, um die Dauer zu ändern. Klick öffnet das Formular. Tastatur: Alt + ↑/↓ verschiebt; am Dauerrand ↑/↓ ändert die Dauer, mit Umschalt jeweils 60 Min.</p>
     {range.minutes !== 1440 && <p className="nexus-timeline-help">Zeitumstellung: Dieser Tag hat {range.minutes / 60} Stunden. Doppelte Stunden sind mit ihrem UTC-Versatz gekennzeichnet.</p>}
-    <details className="nexus-timeline-agenda"><summary>Termine & Zeitblöcke als Liste <span>{entries.length}</span></summary>{entries.length ? <ol>{entries.map(entry => <li key={`${entry.kind}-${entry.item.id}`}><button type="button" onClick={() => openEntry(entry)}><time dateTime={entry.item.startAt}>{intervalLabel(entry)}</time><strong>{entry.title}</strong><span>{entry.kind === 'appointment' ? 'Termin' : 'Zeitblock'} · {entry.item.durationMinutes} Min.{conflictIds.has(entry.item.id) ? ' · Überschneidung' : ''}</span></button></li>)}</ol> : <p>Keine festen Zeiten an diesem Tag.</p>}</details>
+    {!pageScroll && <details className="nexus-timeline-agenda"><summary>Termine & Zeitblöcke als Liste <span>{entries.length}</span></summary>{entries.length ? <ol>{entries.map(entry => <li key={`${entry.kind}-${entry.item.id}`}><button type="button" onClick={() => openEntry(entry)}><time dateTime={entry.item.startAt}>{intervalLabel(entry)}</time><strong>{entry.title}</strong><span>{entry.kind === 'appointment' ? 'Termin' : 'Zeitblock'} · {entry.item.durationMinutes} Min.{conflictIds.has(entry.item.id) ? ' · Überschneidung' : ''}</span></button></li>)}</ol> : <p>Keine festen Zeiten an diesem Tag.</p>}</details>}
   </section>;
 }

@@ -1,27 +1,27 @@
 .morning-routine-settings { min-width: 0; }
 .morning-routine-settings .routine-weekdays { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr)); gap: 4px 10px; margin: 18px 0 24px; }
 .morning-routine-settings .routine-weekday { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; min-width: 0; min-height: 62px; padding: 10px 6px; border: 0; border-bottom: 1px solid var(--hz-line, var(--ui-border)); border-radius: 0; background: transparent; color: var(--ui-text-secondary, var(--ui-text)); font: inherit; text-align: left; cursor: pointer; }
-.morning-routine-settings .routine-weekday span { font-size: var(--hz-body, .875rem); overflow-wrap: anywhere; }
-.morning-routine-settings .routine-weekday small { color: var(--ui-text-muted); font-size: var(--hz-meta, .75rem); }
+.morning-routine-settings .routine-weekday span { font-size: var(--settings-text-size); font-weight: 500; overflow-wrap: anywhere; }
+.morning-routine-settings .routine-weekday small { color: var(--ui-text-secondary); font-size: var(--settings-context-size); }
 .morning-routine-settings .routine-weekday[aria-pressed='true'] { border-bottom-color: var(--ui-accent); color: var(--ui-accent); background: color-mix(in srgb, var(--ui-accent) 5%, transparent); }
 .morning-routine-settings .routine-weekday:hover { color: var(--ui-text); }
 .morning-routine-settings .routine-day { margin: 0; padding: 0; border: 0; min-width: 0; }
-.morning-routine-settings .routine-day > legend { margin-bottom: 12px; padding: 0; font-size: var(--hz-section, 1rem); font-weight: 500; }
-.morning-routine-settings .routine-enabled { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 12px; font-size: var(--hz-body, .875rem); }
+.morning-routine-settings .routine-day > legend { margin-bottom: 12px; padding: 0; font-size: var(--settings-heading-size); font-weight: 550; }
+.morning-routine-settings .routine-enabled { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 12px; font-size: var(--settings-text-size); }
 .morning-routine-settings input[type='checkbox'] { flex: 0 0 auto; width: 18px; height: 18px; min-height: 18px; margin: 0; accent-color: var(--ui-accent); }
 .morning-routine-settings .routine-empty { margin: 0 0 12px; }
 .morning-routine-settings .routine-future { margin-top: 16px; }
 .morning-routine-settings .routine-copy { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--hz-line, var(--ui-border)); }
-.morning-routine-settings .routine-copy > summary { display: list-item; min-height: 44px; padding: 10px 0; color: var(--ui-text-secondary, var(--ui-text)); font-size: var(--hz-body, .875rem); cursor: pointer; }
+.morning-routine-settings .routine-copy > summary { display: list-item; min-height: 44px; padding: 10px 0; color: var(--ui-text); font-size: var(--settings-text-size); font-weight: 500; cursor: pointer; }
 .morning-routine-settings .routine-copy-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 0 14px; margin: 6px 0 12px; padding: 0; border: 0; min-width: 0; }
-.morning-routine-settings .routine-copy-days > legend { margin-bottom: 8px; padding: 0; color: var(--ui-text-muted); font-size: var(--hz-meta, .75rem); }
-.morning-routine-settings .routine-copy-days label { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: var(--hz-body, .875rem); }
+.morning-routine-settings .routine-copy-days > legend { margin-bottom: 8px; padding: 0; color: var(--ui-text-secondary); font-size: var(--settings-context-size); }
+.morning-routine-settings .routine-copy-days label { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: var(--settings-text-size); }
 .morning-routine-settings .routine-copy-status { margin: 12px 0 0; }
 .morning-routine-settings .routine-copy-status:empty { display: none; }
 .morning-routine-settings :is(button, input, summary):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
 .morning-routine-settings button:disabled { opacity: .5; cursor: default; }
 @media (max-width: 440px) {
-  .morning-routine-settings .routine-weekdays { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .morning-routine-settings .routine-weekdays { grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); }
   .morning-routine-settings .routine-copy-days { grid-template-columns: minmax(0, 1fr); }
   .morning-routine-settings .routine-copy > button { width: 100%; min-height: 44px; }
 }

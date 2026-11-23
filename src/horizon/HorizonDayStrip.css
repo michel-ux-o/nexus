@@ -55,7 +55,7 @@
   gap: 4px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  padding: 21px 2px 16px;
+  padding: 18px 2px 14px;
   perspective: 680px;
   perspective-origin: 50% 35%;
   scroll-snap-type: x proximity;
@@ -152,11 +152,11 @@
   transition: transform 240ms cubic-bezier(.2, .65, .3, 1);
 }
 
-.horizon-day-strip-weekday { font-size: .72rem; line-height: 1.2; }
+.horizon-day-strip-navigation .horizon-day-strip-face :is(.horizon-day-strip-weekday, .horizon-day-strip-marker) { font-size: var(--hz-meta, .875rem); line-height: 1.2; }
 .horizon-day-strip-face strong { font-size: 1.4rem; font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.horizon-day-strip-marker { min-height: 12px; font-size: .6rem; line-height: 1.2; }
+.horizon-day-strip-marker { min-height: 1.05rem; }
 .horizon-day-strip-day[aria-current='date'] .horizon-day-strip-marker { color: var(--home-ice, #a8cfe5); }
-.horizon-day-strip-day[aria-pressed='true'] .horizon-day-strip-face strong { text-shadow: 0 0 17px #abd9f333; }
+.horizon-day-strip-day[aria-pressed='true'] .horizon-day-strip-face strong { font-weight: 550; text-shadow: 0 0 17px #abd9f333; }
 .horizon-day-strip-face[data-movement='next'] { animation: horizon-day-arrive-next 220ms ease-out; }
 .horizon-day-strip-face[data-movement='previous'] { animation: horizon-day-arrive-previous 220ms ease-out; }
 
@@ -184,6 +184,6 @@
 }
 
 @media (max-width: 640px) {
-  .horizon-day-strip-scroll { padding-top: 19px; padding-bottom: 14px; }
+  .horizon-day-strip-scroll { padding-top: 16px; padding-bottom: 12px; }
   .horizon-day-strip-orbit { bottom: 1px; }
 }

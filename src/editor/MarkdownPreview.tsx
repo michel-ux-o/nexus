@@ -1,8 +1,11 @@
 import { createElement, type ReactNode } from 'react';
+import { PencilLine } from 'lucide-react';
+import { markdownTableStart, tableCells } from './markdownTable';
 
 interface MarkdownPreviewProps {
   content: string;
   onToggleTask?: (lineIndex: number, checked: boolean) => void;
+  onEditCell?: (lineIndex: number, start: number, end: number) => void;
 }
 
 // Only these links become anchors. All other source content stays React text.
@@ -45,7 +48,7 @@ function inline(source: string, depth = 0): ReactNode[] {
 const listLine = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const isSpecialLine = (line: string) => /^(?:#{1,6}\s|\s*```|>\s?|\s*[-*+]\s|\s*\d+[.)]\s|(?:---+|\*\*\*+)\s*$)/.test(line);
 
-function blocks(source: string, depth = 0, onToggleTask?: MarkdownPreviewProps['onToggleTask'], lineOffset = 0): ReactNode[] {
+function blocks(source: string, depth = 0, onToggleTask?: MarkdownPreviewProps['onToggleTask'], lineOffset = 0, onEditCell?: MarkdownPreviewProps['onEditCell']): ReactNode[] {
   const lines = source.replace(/\r\n?/g, '\n').split('\n');
   const result: ReactNode[] = [];
   let index = 0;
@@ -82,6 +85,31 @@ function blocks(source: string, depth = 0, onToggleTask?: MarkdownPreviewProps['
       result.push(<blockquote key={key}>{depth < 12 ? blocks(quote.join('\n'), depth + 1, onToggleTask, lineOffset + key) : <p>{quote.join('\n')}</p>}</blockquote>);
       continue;
     }
+    const headers = markdownTableStart(lines, index);
+    if (headers) {
+      const rows: ReactNode[] = [];
+      index += 2;
+      while (index < lines.length && lines[index].trim() && !isSpecialLine(lines[index])) {
+        const cells = tableCells(lines[index]);
+        if (!cells.length) break;
+        const rowIndex = index;
+        const rowLabel = cells[0].text || `Zeile ${rows.length + 1}`;
+        rows.push(<tr key={rowIndex}>{headers.map((header, column) => {
+          const cell = cells[column];
+          return <td key={column}><div className="note-table-cell">
+            <span>{cell?.text ? inline(cell.text) : <span className="note-table-empty" aria-label="Leer">—</span>}</span>
+            {cell && onEditCell && <button type="button" className="note-table-edit" aria-label={`${header.text || `Spalte ${column + 1}`} für ${rowLabel} bearbeiten`} onClick={() => onEditCell(rowIndex, cell.start, cell.end)}><PencilLine size={15} aria-hidden="true" /></button>}
+          </div></td>;
+        })}</tr>);
+        index += 1;
+      }
+      // Cells only create React text and the same allow-listed links as other Markdown.
+      result.push(<div className="note-table-wrap" key={key} role="region" aria-label="Notiztabelle" tabIndex={0}><table>
+        <thead><tr>{headers.map((cell, column) => <th key={column} scope="col">{inline(cell.text)}</th>)}</tr></thead>
+        <tbody>{rows}</tbody>
+      </table></div>);
+      continue;
+    }
     const list = listLine.exec(line);
     if (list) {
       const ordered = /^\d/.test(list[2]);
@@ -100,15 +128,15 @@ function blocks(source: string, depth = 0, onToggleTask?: MarkdownPreviewProps['
     }
     const paragraph: string[] = [line];
     index += 1;
-    while (index < lines.length && lines[index].trim() && !isSpecialLine(lines[index])) paragraph.push(lines[index++]);
+    while (index < lines.length && lines[index].trim() && !isSpecialLine(lines[index]) && !markdownTableStart(lines, index)) paragraph.push(lines[index++]);
     result.push(<p key={key}>{paragraph.map((text, lineIndex) => <span key={lineIndex}>{lineIndex > 0 && <br />}{inline(text)}</span>)}</p>);
   }
 
   return result;
 }
 
-export function MarkdownPreview({ content, onToggleTask }: MarkdownPreviewProps) {
+export function MarkdownPreview({ content, onToggleTask, onEditCell }: MarkdownPreviewProps) {
   return <article className="markdown-preview" aria-label="Markdown-Vorschau">
-    {content.trim() ? blocks(content, 0, onToggleTask) : <p className="editor-empty-preview">Deine Vorschau erscheint hier, sobald du etwas schreibst.</p>}
+    {content.trim() ? blocks(content, 0, onToggleTask, 0, onEditCell) : <p className="editor-empty-preview">Deine Vorschau erscheint hier, sobald du etwas schreibst.</p>}
   </article>;
 }

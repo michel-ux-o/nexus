@@ -4,6 +4,7 @@ import { NotebookPen, Pin, Plus, Search, Settings2, Trash2, X } from 'lucide-rea
 import type { Note } from '../types';
 import { collectTags, filterNotes, type NoteSort, type NoteView } from './filterNotes';
 import { dateInZone, todayInZone } from '../planning/dates';
+import { noteTagLabel } from '../editor/noteTags';
 
 export interface SidebarProps {
   notes: Note[];
@@ -170,12 +171,12 @@ export function Sidebar({ notes, activeId, onSelect, onCreate, onSettings, view,
               aria-pressed={selectedTag === tag}
               onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
             >
-              #{tag}
+              {noteTagLabel(tag, '#')}
             </button>
           ))}
           {selectedTag !== null && !tags.includes(selectedTag) && (
             <button className="tag-filter active" type="button" aria-pressed="true" onClick={() => setSelectedTag(null)}>
-              #{selectedTag} <X size={12} aria-hidden="true" />
+              {noteTagLabel(selectedTag, '#')} <X size={12} aria-hidden="true" />
             </button>
           )}
         </div>
@@ -213,8 +214,8 @@ export function Sidebar({ notes, activeId, onSelect, onCreate, onSettings, view,
                   <span className="note-card-meta">
                     <time dateTime={timestamp} title={date.full}>{view === 'trash' && 'Gelöscht: '}{date.short}</time>
                     {note.tags.length > 0 && (
-                      <span className="note-card-tags" aria-label={`Tags: ${note.tags.join(', ')}`}>
-                        {note.tags.slice(0, 2).map((tag) => <span className="note-card-tag" key={tag}>#{tag}</span>)}
+                      <span className="note-card-tags" aria-label={`Tags: ${note.tags.map(tag => noteTagLabel(tag)).join(', ')}`}>
+                        {note.tags.slice(0, 2).map((tag) => <span className="note-card-tag" key={tag}>{noteTagLabel(tag, '#')}</span>)}
                         {note.tags.length > 2 && <span className="note-card-tag">+{note.tags.length - 2}</span>}
                       </span>
                     )}
@@ -229,14 +230,13 @@ export function Sidebar({ notes, activeId, onSelect, onCreate, onSettings, view,
           <span className="sidebar-empty-icon" aria-hidden="true">{view === 'trash' ? <Trash2 size={25} /> : <NotebookPen size={25} />}</span>
           <h3>{hasFilters ? 'Keine Treffer' : view === 'trash' ? 'Papierkorb leer' : 'Noch keine Notizen'}</h3>
           {hasFilters && <p>Suche anpassen oder Filter zurücksetzen.</p>}
+          {view === 'notes' && !hasFilters && <p>Deine Notizen erscheinen hier.</p>}
           {view === 'trash' && !hasFilters && <p>Gelöschte Notizen lassen sich hier wiederherstellen.</p>}
           {hasFilters ? (
             <button className="sidebar-empty-action" type="button" onClick={clearFilters}>Filter zurücksetzen</button>
-          ) : view === 'notes' ? (
-            <button className="sidebar-empty-action" type="button" onClick={createNote}>Erste Notiz erstellen</button>
-          ) : (
+          ) : view === 'trash' ? (
             <button className="sidebar-empty-action" type="button" onClick={() => changeView('notes')}>Zu den Notizen</button>
-          )}
+          ) : null}
         </div>
       )}
 

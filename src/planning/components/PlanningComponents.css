@@ -177,24 +177,25 @@ html[data-theme='nexus'] .dialog.planning-dialog .planning-subtask {
 html[data-theme='nexus'] .dialog.planning-dialog .planning-info { padding: 0; }
 html[data-theme='nexus'] .planning-dialog .planning-fieldset > legend {
   margin-bottom: 12px;
-  color: var(--ui-text-muted);
-  font-size: var(--hz-label, .65rem);
+  color: var(--ui-text);
+  font-size: var(--hz-section, 1.125rem);
   font-weight: 550;
-  line-height: 1.7;
-  letter-spacing: var(--hz-tracking, .22em);
-  text-transform: uppercase;
+  line-height: 1.35;
 }
 html[data-theme='nexus'] .planning-dialog :is(.field > span, .planning-check, .planning-more-options > summary) {
+  color: var(--ui-text-secondary);
   font-size: var(--hz-body, .875rem);
+  line-height: 1.5;
   font-weight: 400;
   letter-spacing: normal;
   text-transform: none;
 }
+html[data-theme='nexus'] .planning-dialog :is(.field > span, .planning-more-options > summary) { font-weight: 550; }
 html[data-theme='nexus'] .dialog.planning-dialog .field :is(input, select, textarea) {
   padding: 10px 0;
   color: var(--ui-text);
   border: 0;
-  border-bottom: 1px solid var(--hz-line, #a8cfe526);
+  border-bottom: 1px solid var(--hz-field-line, #a8cfe54d);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -206,6 +207,10 @@ html[data-theme='nexus'] .dialog.planning-dialog .field :is(input, select, texta
 html[data-theme='nexus'] .planning-dialog :is(.planning-help, .planning-info p, .planning-operation-status, .planning-more-options > summary > span, .planning-note-option small) {
   font-size: var(--hz-meta, .75rem);
   line-height: 1.7;
+}
+html[data-theme='nexus'] .planning-dialog .planning-more-options > summary > span { font-weight: 400; }
+html[data-theme='nexus'] .planning-dialog :is(.planning-warning, .planning-save-error > p, .planning-delete-confirm > p) {
+  font-size: var(--hz-meta, .875rem);
 }
 html[data-theme='nexus'] .planning-dialog :is(.secondary-button, .primary-button, .danger-button) {
   border-radius: var(--hz-radius, 5px);

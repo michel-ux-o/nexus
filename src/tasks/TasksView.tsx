@@ -28,7 +28,7 @@ function CollectionTasksView({ planner, onEditTask, onDictate, onAI, onQuickCapt
   return <section className="tasks-view" aria-labelledby={`${prefix}-heading`}>
     <div className="tasks-content">
       <header className="tasks-heading">
-        <div className="tasks-heading-copy"><p className="eyebrow"><span aria-hidden="true" />DEINE SAMMLUNG</p><h1 id={`${prefix}-heading`}>Aufgaben<span className="tasks-title-period" aria-hidden="true">.</span></h1></div>
+        <h1 id={`${prefix}-heading`}>Aufgaben<span className="tasks-title-period" aria-hidden="true">.</span></h1>
         <div className="tasks-heading-actions">
           <button type="button" className="secondary-button" onClick={onDictate}><Mic size={16} aria-hidden="true" /><span>Diktieren</span></button>
           <button type="button" className="primary-button" onClick={() => onEditTask()} disabled={planner.loading || Boolean(planner.loadError)}><Plus size={17} aria-hidden="true" />Neue Aufgabe</button>
@@ -51,7 +51,7 @@ function CollectionTasksView({ planner, onEditTask, onDictate, onAI, onQuickCapt
           <label><span>Planung</span><select value={filters.planning} onChange={(event) => patch({ planning: event.target.value as TaskFilters['planning'] })}><option value="all">Alle Aufgaben</option><option value="inbox">Eingang · ungeplant</option><option value="planned">Eingeplant</option><option value="today">Heute</option><option value="day">Einem Tag zugeordnet</option><option value="week">Im Wochenpool</option></select></label>
           <label><span>Status</span><select value={filters.status} onChange={(event) => patch({ status: event.target.value as TaskFilters['status'] })}><option value="active">Unerledigt</option><option value="all">Alle Status</option><option value="open">Offen</option><option value="progress">In Bearbeitung</option><option value="done">Erledigt</option></select></label>
           <label><span>Priorität</span><select value={filters.priority} onChange={(event) => patch({ priority: event.target.value as TaskFilters['priority'] })}><option value="all">Alle Prioritäten</option><option value="high">Hoch</option><option value="normal">Normal</option><option value="low">Niedrig</option><option value="none">Keine Priorität</option></select></label>
-          <label><span>Sortieren nach</span><select value={filters.sort} onChange={(event) => patch({ sort: event.target.value as TaskFilters['sort'] })}><option value="due">Fälligkeit</option><option value="priority">Priorität</option><option value="planning">Planung</option><option value="updated">Zuletzt bearbeitet</option><option value="title">Titel · A–Z</option></select></label>
+          <label><span>Sortieren nach</span><select value={filters.sort} onChange={(event) => patch({ sort: event.target.value as TaskFilters['sort'] })}><option value="due">Fälligkeit</option><option value="priority">Priorität</option><option value="planning">Geplantem Datum</option><option value="updated">Zuletzt bearbeitet</option><option value="title">Titel · A–Z</option></select></label>
         </div>
         <div className="tasks-results-line"><p role="status"><Filter size={13} aria-hidden="true" />{tasks.length} von {planner.data.tasks.length} {planner.data.tasks.length === 1 ? 'Aufgabe' : 'Aufgaben'}</p>{filtered && <button type="button" className="tasks-text-button" onClick={() => setFilters({ ...DEFAULT_TASK_FILTERS })}><X size={14} aria-hidden="true" />Filter zurücksetzen</button>}</div>
       </section>

@@ -5,6 +5,8 @@ import { selectAccountWorkspace, WorkspaceScopeChangeError } from './workspaceSc
 
 const AccountContext = createContext<{
   email?: string;
+  userId?: string;
+  active: boolean;
   logout: () => Promise<void>;
   registerLeaveGuard: (guard: () => Promise<boolean>) => () => void;
 } | null>(null);
@@ -150,7 +152,7 @@ export function AccountBoundary({ children }: { children: ReactNode }) {
     onReset={email => run(async () => { await resetAccount(email); setNotice('Falls ein passendes Konto vorhanden ist, erhältst du eine E-Mail mit den nächsten Schritten.'); })} />;
   if (session?.authenticated && !recoveryToken) return <>
     <div hidden={accountChanged} style={{ display: accountChanged ? 'none' : 'contents' }}>
-      <AccountContext.Provider value={{ email: session.email, registerLeaveGuard, logout: async () => {
+      <AccountContext.Provider value={{ email: session.email, userId: session.userId, active: !accountChanged && !changingCredentials.current, registerLeaveGuard, logout: async () => {
         changingCredentials.current = true;
         sessionGeneration.current++;
         try { await logoutAccount(); }

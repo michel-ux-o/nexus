@@ -1,5 +1,6 @@
 import type { PlanningData, Priority, Task, TaskStatus } from '../planning/types';
 import { tasksForDay } from '../planning/selectors';
+import { firstTaskBlockDates, scheduleDate, taskSchedule } from './taskSchedule';
 
 export interface TaskFilters {
   search: string;
@@ -12,11 +13,11 @@ export const DEFAULT_TASK_FILTERS: TaskFilters = { search: '', planning: 'all', 
 
 function searchable(value: string): string { return value.normalize('NFKD').replace(/\p{M}/gu, '').toLocaleLowerCase('de'); }
 function rank(task: Task): number { return task.priority === 'high' ? 0 : task.priority === 'normal' ? 1 : task.priority === 'low' ? 2 : 3; }
-function plannedDate(task: Task): string { return task.plan?.kind === 'day' ? task.plan.date : task.plan?.kind === 'week' ? task.plan.weekStart : '9999-99-99'; }
-
 /** All filters compose; sorting copies the array and never changes stored tasks. */
-export function filterTasks(data: PlanningData, filters: TaskFilters, today: string): Task[] {
+export function filterTasks(data: PlanningData, filters: TaskFilters, today: string, blockDates?: ReadonlyMap<string, string>): Task[] {
   const blocked = new Set(data.timeBlocks.map((block) => block.taskId));
+  const dates = filters.sort === 'planning' ? blockDates ?? firstTaskBlockDates(data) : null;
+  const plannedDate = (task: Task) => dates ? scheduleDate(taskSchedule(task, dates)) ?? '9999-99-99' : '9999-99-99';
   const todayIds = filters.planning === 'today' ? new Set(tasksForDay(data, today).map((task) => task.id)) : null;
   const words = searchable(filters.search.trim()).split(/\s+/).filter(Boolean);
   return data.tasks.filter((task) => {

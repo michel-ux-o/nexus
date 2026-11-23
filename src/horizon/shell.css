@@ -5,9 +5,9 @@
   --ui-surface: #101923;
   --ui-surface-raised: #172331;
   --ui-surface-hover: #243447;
-  --ui-text: #edf2f7;
-  --ui-text-secondary: #c0ccda;
-  --ui-text-muted: #96a9bb;
+  --ui-text: #f0f5fa;
+  --ui-text-secondary: #d2deea;
+  --ui-text-muted: var(--hz-text-meta);
   --ui-border: #9ab8d52b;
   --ui-border-soft: #9ab8d51a;
   --ui-accent: #9ecde7;
@@ -68,10 +68,10 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
 
 .nexus-horizon aside.settings-backup-reminder { gap: 4px 12px; padding: 3px clamp(20px, 3vw, 44px); border: 0; background: transparent; }
 .nexus-horizon aside.settings-backup-reminder > svg { width: 14px; height: 14px; }
-.nexus-horizon aside.settings-backup-reminder p { flex: 0 1 auto; font-size: .75rem; }
+.nexus-horizon aside.settings-backup-reminder p { flex: 0 1 auto; font-size: var(--hz-meta); }
 .nexus-horizon aside.settings-backup-reminder p strong { font-weight: 450; }
 .nexus-horizon aside.settings-backup-reminder p span { display: none; }
-.nexus-horizon aside.settings-backup-reminder .secondary-button { background: transparent; border: 0; padding-inline: 4px; font-size: .75rem; text-decoration: underline; }
+.nexus-horizon aside.settings-backup-reminder .secondary-button { background: transparent; border: 0; padding-inline: 4px; font-size: var(--hz-meta); text-decoration: underline; }
 .nexus-horizon aside.settings-backup-reminder .icon-button { margin-left: auto; }
 
 .nexus-horizon > .main-stage {
@@ -162,7 +162,7 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
   text-align: left;
 }
 .nexus-horizon .horizon-brand strong { color: var(--ui-text); font-size: 1.05rem; font-weight: 600; letter-spacing: .27em; }
-.nexus-horizon .horizon-brand span { color: var(--ui-text-muted); font-size: .625rem; letter-spacing: .3em; }
+.nexus-horizon .horizon-brand span { color: var(--ui-text-muted); font-size: var(--hz-label); letter-spacing: var(--hz-tracking); }
 .nexus-horizon .horizon-header .horizon-brand:hover { background: transparent; }
 .nexus-horizon .horizon-header .horizon-dictate { color: var(--ui-text-muted); }
 
@@ -180,12 +180,18 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
   background: linear-gradient(180deg, transparent, #090d13b8);
 }
 .nexus-horizon .horizon-dock > button,
-.nexus-horizon .horizon-dock .horizon-areas-toggle { position: relative; flex-direction: column; min-width: 62px; gap: 6px; padding: 8px 10px 12px; font-size: .6875rem; }
+.nexus-horizon .horizon-dock .horizon-areas-toggle { position: relative; flex-direction: column; min-width: 62px; gap: 6px; padding: 8px 10px 12px; font-size: var(--hz-label); }
 .nexus-horizon .horizon-dock > button[aria-current='page'],
 .nexus-horizon .horizon-dock .horizon-areas-toggle:is(.is-active-area, [aria-expanded='true']) { color: var(--ui-accent); }
 .nexus-horizon .horizon-dock > button[aria-current='page']::after,
-.nexus-horizon .horizon-dock .horizon-areas-toggle.is-active-area::after { position: absolute; bottom: 3px; left: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: var(--ui-accent); content: ''; }
-.nexus-horizon :is(.horizon-header, .horizon-dock) button:focus-visible { outline: 2px solid var(--ui-accent-hover); outline-offset: 3px; }
+.nexus-horizon .horizon-dock .horizon-areas-toggle:is(.is-active-area, [aria-expanded='true'])::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  inset-inline: 20%;
+  border-bottom: 2px solid currentColor;
+}
+.nexus-horizon :is(.horizon-header, .horizon-dock) button:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: -2px; }
 
 .nexus-horizon .horizon-dock-areas { min-width: 0; }
 .nexus-horizon .horizon-dock-areas { scroll-margin-block: 12px; }
@@ -210,20 +216,17 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
   animation: horizon-areas-open 200ms cubic-bezier(.2, .7, .25, 1) both;
 }
 .nexus-horizon .horizon-areas-heading { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 12px; padding: 0 0 10px 8px; }
-.nexus-horizon .horizon-areas-heading h2 { margin: 0; color: var(--ui-text-muted); font-size: .6875rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
+.nexus-horizon .horizon-areas-heading h2 { margin: 0; color: var(--ui-text); font-size: var(--hz-section); font-weight: 550; line-height: 1.35; }
 .nexus-horizon .horizon-dock .horizon-areas-close { flex: 0 0 auto; width: 44px; min-width: 44px; height: 44px; padding: 8px; }
 .nexus-horizon .horizon-destinations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; min-height: 0; margin: 0; padding: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #789ab555 transparent; }
 /* On exceptionally short visible viewports scroll the heading with the links,
    so the fixed close row cannot consume the entire available content height. */
 .nexus-horizon .horizon-areas-panel[data-compact='true'] { overflow-y: auto; overscroll-behavior: contain; }
 .nexus-horizon .horizon-areas-panel[data-compact='true'] .horizon-destinations { flex: 0 0 auto; overflow: visible; }
-.nexus-horizon .horizon-dock .horizon-destination { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; justify-content: initial; align-items: center; min-width: 0; min-height: 60px; padding: 12px; border: 1px solid transparent; border-radius: 8px; color: var(--ui-text-secondary); font-size: .8125rem; text-align: left; transition: background 160ms ease, border-color 160ms ease, color 160ms ease; }
+.nexus-horizon .horizon-dock .horizon-destination { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; justify-content: initial; align-items: center; min-width: 0; min-height: 60px; padding: 12px; border: 1px solid transparent; border-radius: 8px; color: var(--ui-text-secondary); font-size: var(--hz-body); text-align: left; transition: background 160ms ease, border-color 160ms ease, color 160ms ease; }
 .nexus-horizon .horizon-destination > svg { color: var(--ui-text-muted); }
 .nexus-horizon .horizon-destination > span { min-width: 0; overflow-wrap: anywhere; }
-.nexus-horizon .horizon-destination > small { color: var(--ui-text-muted); opacity: .5; font-size: .5625rem; font-variant-numeric: tabular-nums; }
-.nexus-horizon .horizon-dock .horizon-destination.is-current { color: var(--ui-accent-hover); border-color: #9ecde72e; background: #9ecde70b; }
-.nexus-horizon .horizon-destination.is-current > svg { color: var(--ui-accent); }
-.nexus-horizon .horizon-dock .horizon-destination:hover { border-color: #9ecde733; background: #9ecde70d; }
+.nexus-horizon .horizon-destination > small { display: none; }
 @keyframes horizon-areas-open {
   from { opacity: 0; transform: translate(-50%, 8px) scale(.985); }
   to { opacity: 1; transform: translate(-50%, 0) scale(1); }
@@ -241,7 +244,7 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
   border: 0;
   background: #090d1366;
   color: var(--ui-text-muted);
-  font-size: .6875rem;
+  font-size: var(--hz-meta);
 }
 
 /* Readable glass rather than bright or opaque outer cards. */
@@ -269,6 +272,7 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
 .nexus-horizon .theme-sample-nexus { --swatch: #090d13; --swatch-2: #172331; --swatch-3: #9ecde7; --swatch-4: #edf2f7; }
 .nexus-horizon .theme-sample-system { --swatch: #090d13; --swatch-2: #9ecde7; }
 .nexus-horizon :is(.settings-muted, .settings-count, .settings-check small, .settings-models dt, .settings-intro) { color: var(--ui-text-muted); }
+.nexus-horizon .settings-atelier .settings-topics button[aria-current='page'] strong { text-decoration: underline; text-underline-offset: .28em; }
 .nexus-horizon .settings-atelier .settings-section-heading h3 { color: var(--ui-text); }
 .nexus-horizon .toast { background: #142231f5; color: var(--ui-text); border-color: var(--ui-border); box-shadow: 0 8px 24px #0003; }
 
@@ -284,7 +288,7 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
   .nexus-horizon .horizon-dock > button,
   .nexus-horizon .horizon-dock-areas { flex: 1 1 0; min-width: 0; }
   .nexus-horizon .horizon-dock > button,
-  .nexus-horizon .horizon-dock .horizon-areas-toggle { width: 100%; min-width: 0; gap: 5px; padding-inline: 2px; font-size: .625rem; overflow-wrap: anywhere; }
+  .nexus-horizon .horizon-dock .horizon-areas-toggle { width: 100%; min-width: 0; gap: 5px; padding-inline: 2px; overflow-wrap: anywhere; }
   .nexus-horizon .horizon-dock > button > svg,
   .nexus-horizon .horizon-areas-toggle > svg { width: 20px; height: 20px; }
   .nexus-horizon .horizon-areas-panel { max-height: calc(100dvh - 160px); padding: 8px; }
@@ -303,13 +307,19 @@ html[data-theme='nexus'] .nexus-app.nexus-horizon {
    tools use their original icon navigation; labels remain accessible. This
    also leaves room for 200% text without shrinking the chosen font size. */
 @media (max-width: 480px) {
+  .nexus-horizon .horizon-dock { padding-inline: 0; }
   .nexus-horizon .horizon-dock > button { min-width: 44px; min-height: 54px; padding-block: 8px; }
   .nexus-horizon .horizon-dock > button > span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .nexus-horizon .horizon-dock-areas { flex: 1.8 1 0; min-width: 84px; }
+  .nexus-horizon .horizon-dock-areas {
+    flex: 1.8 1 0;
+    /* Reserve space for the label alongside the five icon buttons. */
+    min-width: min(calc(100% - 220px), max(84px, 3.85em));
+    font-size: var(--hz-label);
+  }
+  .nexus-horizon .horizon-dock .horizon-areas-toggle { padding-inline: 0; border-inline-width: 0; }
   .nexus-horizon .horizon-areas-toggle > span { white-space: nowrap; }
-  .nexus-horizon .horizon-areas-panel { max-height: calc(100dvh - 120px); }
-  .nexus-horizon .horizon-dock .horizon-destination { grid-template-columns: 22px minmax(0, 1fr); padding-inline: 8px; }
-  .nexus-horizon .horizon-destination > small { display: none; }
+  .nexus-horizon .horizon-areas-panel { width: calc(100vw - 16px); max-height: calc(100dvh - 120px); }
+  .nexus-horizon .horizon-dock .horizon-destination { padding-inline: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

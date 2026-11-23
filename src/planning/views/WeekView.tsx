@@ -1,8 +1,7 @@
-import { subtaskProgress } from '../subtasks';
-import { useEffect, useId, useMemo, useState, type DragEvent, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import {
   AlertTriangle, ArrowRight, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight,
-  Clock3, GripVertical, Inbox, Link2, Mic, Plus, Sparkles,
+  Clock3, GripVertical, Inbox, Link2, Mic, Plus, Repeat2, Sparkles, Target,
 } from 'lucide-react';
 import { TaskList } from '../components/TaskList';
 import {
@@ -17,6 +16,7 @@ import { blocksForCalendarDay } from '../../calendar/calendarModel';
 import { useCalendarRecurrence } from '../../calendar/useCalendarRecurrence';
 import { TASK_DRAG_TYPE as taskDragType } from '../timeline/layout';
 import type { Appointment, PlannerViewProps, Task, TaskPlan, TimeBlock, WeekPlan } from '../types';
+import { weekDayHighlights, weekDayTime, type WeekAgendaItem } from './weekPresentation';
 import './WeekView.css';
 
 export type WeekViewProps = PlannerViewProps & {
@@ -24,10 +24,6 @@ export type WeekViewProps = PlannerViewProps & {
   onWeekChange: (weekStart: string) => void;
   onOpenDay: (date: string) => void;
 };
-
-type AgendaItem =
-  | { kind: 'appointment'; entry: Appointment }
-  | { kind: 'block'; entry: TimeBlock; task: Task | undefined };
 
 function dateLabel(date: string, options: Intl.DateTimeFormatOptions): string {
   return formatDate(date, { day: undefined, month: undefined, year: undefined, ...options });
@@ -74,6 +70,29 @@ function intervalLabel(entry: Appointment | TimeBlock, date: string, zone: strin
 
 function uniqueTasks(tasks: Task[]): Task[] {
   return [...new Map(tasks.map(task => [task.id, task])).values()];
+}
+
+function DayHighlights({ activities, remainingActivities, routines, fallback }: ReturnType<typeof weekDayHighlights>) {
+  return <span className="week-day-preview-copy">
+    {activities.length > 0 ? (
+      <span className="week-day-activities">
+        {activities.map(({ id, title, time, startAt }, index) => (
+          <span className="week-day-activity" key={id} title={`${time} ${title}`}>
+            {index > 0 && <span aria-hidden="true">·</span>}
+            <time dateTime={startAt}>{time}</time><strong>{title}</strong>
+          </span>
+        ))}
+        {remainingActivities > 0 && <span className="week-day-more-activities">+{remainingActivities}<span className="week-sr-only"> weitere feste Einträge</span></span>}
+      </span>
+    ) : <strong className="week-day-fallback">{fallback}</strong>}
+    {routines.length > 0 && (
+      <span className="week-day-routines" title={routines.join(' · ')}>
+        <Repeat2 size={15} aria-hidden="true" />
+        <span className="week-day-routines-label">Routinen</span>
+        <span className="week-day-routines-list">{routines.slice(0, 2).join(' · ')}{routines.length > 2 && ` · +${routines.length - 2}`}</span>
+      </span>
+    )}
+  </span>;
 }
 
 interface TaskPlacementProps {
@@ -181,6 +200,7 @@ export function WeekView({
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropDate, setDropDate] = useState<string | null>(null);
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
+  const goalsField = useRef<HTMLTextAreaElement>(null);
   const { recurrenceError, retryRecurring } = useCalendarRecurrence(planner, start, lastDate);
 
   useEffect(() => {
@@ -203,7 +223,7 @@ export function WeekView({
 
   const days = useMemo(() => dates.map(date => {
     const tasks = tasksForDay(data, date);
-    const agenda: AgendaItem[] = [
+    const agenda: WeekAgendaItem[] = [
       ...timedAppointmentsForDay(data, date).map(entry => ({ kind: 'appointment' as const, entry })),
       ...blocksForCalendarDay(data, date).map(entry => ({ kind: 'block' as const, entry, task: taskMap.get(entry.taskId) })),
     ]
@@ -215,18 +235,21 @@ export function WeekView({
       allDay: allDayAppointmentsForDay(data, date),
       due: data.tasks.filter(task => task.dueDate === date),
       capacity,
+      time: weekDayTime(date, capacity.usedMinutes, tasks, blockCounts),
       minutes: capacity.usedMinutes,
       available: capacity.availableMinutes,
       conflicts: conflictsForDay(data, date),
     };
-  }), [data, dates, taskMap]);
+  }), [data, dates, taskMap, blockCounts]);
+  const routineRuleIds = useMemo(() => new Set(data.taskRules?.filter(rule => rule.frequency !== 'weekly').map(rule => rule.id)), [data.taskRules]);
 
   const weekTasks = useMemo(() => uniqueTasks([
     ...pool, ...days.flatMap(day => day.tasks),
   ]), [pool, days]);
   const completed = weekTasks.filter(task => task.status === 'done').length;
   const overdue = weekTasks.filter(task => task.status !== 'done' && task.dueDate !== null && task.dueDate < today);
-  const totalMinutes = days.reduce((total, day) => total + day.minutes, 0);
+  const weekFixedMinutes = days.reduce((total, day) => total + day.time.fixedMinutes, 0);
+  const weekFlexibleMinutes = days.reduce((total, day) => total + day.time.flexibleMinutes, 0);
   const week: WeekPlan = data.weeks.find(item => item.weekStart === start)
     ?? { weekStart: start, goals: '', review: '' };
   const [weekDraft, setWeekDraft] = useState<WeekPlan>(week);
@@ -275,6 +298,13 @@ export function WeekView({
     catch (error) {
       setActionError(error instanceof Error ? error.message : 'Die Wochenplanung konnte nicht aktualisiert werden.');
     }
+  }
+
+  function openGoals() {
+    const field = goalsField.current;
+    const panel = field?.closest('details');
+    if (panel) panel.open = true;
+    field?.focus();
   }
 
   async function reload() {
@@ -376,8 +406,12 @@ export function WeekView({
               <div><strong>{completed} / {weekTasks.length}</strong><span>erledigt</span></div>
             </div>
             <div className="week-overview-item">
+              <CalendarDays size={18} aria-hidden="true" />
+              <div><strong>{durationLabel(weekFixedMinutes)}</strong><span>feste Zeit</span></div>
+            </div>
+            <div className="week-overview-item">
               <Clock3 size={18} aria-hidden="true" />
-              <div><strong>{durationLabel(totalMinutes)}</strong><span>geplant</span></div>
+              <div><strong>{durationLabel(weekFlexibleMinutes)}</strong><span>flexibel eingeplant</span></div>
             </div>
             <div className="week-overview-item">
               <Inbox size={18} aria-hidden="true" />
@@ -389,6 +423,9 @@ export function WeekView({
                 <div><strong>{overdue.length}</strong><span>überfällig</span></div>
               </div>
             )}
+            <button type="button" className="week-text-button week-goals-jump" onClick={openGoals}>
+              <Target size={16} aria-hidden="true" /> Wochenziele bearbeiten
+            </button>
           </div>
 
           <div className="week-workspace">
@@ -409,25 +446,17 @@ export function WeekView({
             ))}
           </div>
 
-          <p className="week-days-label" aria-hidden="true">Geplant</p>
+          <header className="week-days-label">
+            <h2>Tage der Woche</h2><span aria-hidden="true">Geplante Zeit</span>
+          </header>
           <div className="week-days" key={start} aria-label="Montag bis Sonntag">
             {days.map(day => {
               const isToday = day.date === today;
               const dayDone = day.tasks.filter(task => task.status === 'done').length;
               const overBudget = day.minutes > day.available;
-              const firstEntry = day.agenda[0];
-              const previewTask = day.tasks.find(task => task.status !== 'done') ?? day.tasks[0];
-              const firstTitle = previewTask?.title
-                ?? (firstEntry?.kind === 'appointment' ? firstEntry.entry.title : firstEntry?.task?.title)
-                ?? day.allDay[0]?.title ?? day.due[0]?.title ?? 'Noch frei';
-              const previewDetails = [
-                day.tasks.length > 0 ? `${dayDone}/${day.tasks.length} Aufgaben erledigt` : '',
-                previewTask?.subtasks.length ? `${subtaskProgress(previewTask.subtasks).done} von ${subtaskProgress(previewTask.subtasks).total} Unteraufgaben` : '',
-                day.agenda.length > 0 ? `${day.agenda.length} feste Zeiten` : '',
-                day.allDay.length > 0 ? `${day.allDay.length} ganztägig` : '',
-                day.due.length > 0 ? `${day.due.length} fällig` : '',
-                day.conflicts.length > 0 ? `${day.conflicts.length} Zeitkonflikte` : '',
-              ].filter(Boolean).join(' · ');
+              const highlights = weekDayHighlights(day.date, zone, day.agenda, day.tasks, routineRuleIds, day.allDay, day.due);
+              const fixedTime = durationLabel(day.time.fixedMinutes);
+              const flexibleTime = durationLabel(day.time.flexibleMinutes);
               return (
                 <section
                   key={day.date} id={`${viewId}-day-${day.date}`}
@@ -442,16 +471,27 @@ export function WeekView({
                       <span className="week-day-number">{dateLabel(day.date, { day: 'numeric' })}<span className="week-day-month">{dateLabel(day.date, { month: 'short' })}</span></span>
                       {isToday && <span className="week-today-label">Heute</span>}
                     </button>
-                    <button type="button" className="week-day-preview" aria-label={`${dateLabel(day.date, { weekday: 'long', day: 'numeric', month: 'long' })}: ${firstTitle}. Tagesdetails ${expandedDate === day.date ? 'schließen' : 'öffnen'}`} aria-expanded={expandedDate === day.date} aria-controls={`${viewId}-details-${day.date}`} onClick={() => { setActiveDate(day.date); setExpandedDate(previous => previous === day.date ? null : day.date); }}>
-                      <span className="week-day-preview-copy"><strong>{firstTitle}</strong><span>{previewDetails || 'Raum für deine Planung'}</span></span>
-                      <span className={`week-day-preview-duration${overBudget ? ' is-over-budget' : ''}`}>{durationLabel(day.minutes)}<small>geplant</small></span><ChevronRight size={18} aria-hidden="true" />
+                    <button type="button" className="week-day-preview" aria-expanded={expandedDate === day.date} aria-controls={`${viewId}-details-${day.date}`} onClick={() => { setActiveDate(day.date); setExpandedDate(previous => previous === day.date ? null : day.date); }}>
+                      <span className="week-sr-only">Tagesdetails für {dateLabel(day.date, { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                      <DayHighlights {...highlights} />
+                      <span className={`week-day-preview-duration${overBudget ? ' is-over-budget' : ''}`}>
+                        <span className="week-day-time"><strong>{fixedTime}</strong><span>fest</span></span>
+                        <span className="week-day-time"><strong>{flexibleTime}</strong><span>flexibel</span></span>
+                        {overBudget && <span className="week-sr-only">Über Tagesbudget</span>}
+                        {day.conflicts.length > 0 && <span className="week-day-preview-conflicts"><AlertTriangle size={12} aria-hidden="true" /> {day.conflicts.length === 1 ? 'Zeitkonflikt' : `${day.conflicts.length} Zeitkonflikte`}</span>}
+                      </span>
+                      <ChevronRight size={18} aria-hidden="true" />
                     </button>
                     <button type="button" className="week-button week-icon-button week-day-quick-add" aria-label={`Aufgabe für ${dateLabel(day.date, { weekday: 'long', day: 'numeric', month: 'long' })} erstellen`} onClick={() => onEditTask(undefined, { plan: { kind: 'day', date: day.date } })}>
                       <Plus size={16} aria-hidden="true" />
                     </button>
                   </header>
+                  <div className="week-day-highlights"><DayHighlights {...highlights} /></div>
                   <div className={`week-day-capacity ${overBudget ? 'is-over-budget' : ''}`}>
-                    <strong>{durationLabel(day.minutes)} geplant</strong>
+                    <div className="week-day-time-details">
+                      <span className="week-day-time"><strong>{fixedTime}</strong><span>fest</span></span>
+                      <span className="week-day-time"><strong>{flexibleTime}</strong><span>flexibel</span></span>
+                    </div>
                     <span>{durationLabel(day.available)} verfügbar</span>
                     <meter min={0} max={Math.max(1, day.available)} value={Math.min(day.minutes, Math.max(1, day.available))} aria-label={`${durationLabel(day.minutes)} von ${durationLabel(day.available)} am ${dateLabel(day.date, { weekday: 'long' })} eingeplant`} />
                     {overBudget && <span className="week-capacity-warning">{durationLabel(day.minutes - day.available)} über der verfügbaren Zeit</span>}
@@ -511,19 +551,21 @@ export function WeekView({
 
           <details className="week-capacity-info">
             <summary>Wie wird die Zeit berechnet?</summary>
-            <p className="week-time-explanation">Termine, Zeitblöcke und noch nicht verblockte Schätzungen zählen zur geplanten Zeit. Ganztägige Termine und Fälligkeiten belegen keine Minuten. {data.settings.capacity?.enabled ? 'Zeitfenster und Puffer bestimmen die Kapazität.' : 'Es gelten deine Tagesbudgets.'} Alle Uhrzeiten in {zone}.</p>
+            <p className="week-time-explanation">Feste Zeit umfasst Termine mit Uhrzeit und Zeitblöcke. Bei Überschneidungen zählen gemeinsame Minuten einmal. Flexibel eingeplant ist die Schätzung einer Tagesaufgabe ohne eigenen Zeitblock. Ganztägige Termine und Fälligkeiten belegen keine Minuten. {data.settings.capacity?.enabled ? 'Zeitfenster und Puffer bestimmen die Kapazität.' : 'Es gelten deine Tagesbudgets.'} Alle Uhrzeiten in {zone}.</p>
           </details>
           </div>
 
           <div className="week-lower-grid">
-            <section className="week-panel week-pool" aria-labelledby={`${viewId}-pool-heading`}>
+            <section className={`week-panel week-pool${pool.length ? '' : ' is-empty'}`} aria-labelledby={`${viewId}-pool-heading`}>
               <header className="week-panel-heading">
-                <div><h2 id={`${viewId}-pool-heading`}><span className="week-section-index" aria-hidden="true">01</span> Wochenpool <span className="week-count">{pool.length}</span></h2></div>
+                <div><h2 id={`${viewId}-pool-heading`}><span className="week-section-index" aria-hidden="true">01</span> Wochenpool <span className="week-count">{pool.length || 'leer'}</span></h2></div>
                 <button type="button" className="week-button week-icon-button" aria-label="Aufgabe zum Wochenpool hinzufügen" onClick={() => onEditTask(undefined, { plan: { kind: 'week', weekStart: start } })}><Plus size={17} aria-hidden="true" /></button>
               </header>
-              <p className="week-pool-description">Noch keinem Tag zugeordnet</p>
-              <TaskList tasks={pool} planner={planner} onEditTask={onEditTask} compact emptyText="Keine Aufgaben im Wochenpool." />
-              {pool.length > 0 && <details className="week-pool-distribute"><summary>Auf Tage verteilen <ArrowRight size={14} aria-hidden="true" /></summary><div className="week-pool-placements">{placements(pool)}</div></details>}
+              {pool.length > 0 && <>
+                <p className="week-pool-description">Noch keinem Tag zugeordnet</p>
+                <TaskList tasks={pool} planner={planner} onEditTask={onEditTask} compact />
+                <details className="week-pool-distribute"><summary>Auf Tage verteilen <ArrowRight size={14} aria-hidden="true" /></summary><div className="week-pool-placements">{placements(pool)}</div></details>
+              </>}
               <details className="week-inbox">
                 <summary><Inbox size={16} aria-hidden="true" /><span>Aus dem Eingang einplanen</span><span className="week-count">{inbox.length}</span></summary>
                 <TaskList tasks={inbox} planner={planner} onEditTask={onEditTask} compact emptyText="Im Eingang liegen keine ungeplanten Aufgaben." />
@@ -537,7 +579,7 @@ export function WeekView({
               <div className="week-reflection-content">
               <label className="week-writing-field">
                 <span>Wochenziele</span>
-                <textarea value={draft.goals} onChange={event => updateWeek('goals', event.target.value)} rows={3} placeholder="Was ist dir wichtig?" aria-label="Wochenziele" />
+                <textarea ref={goalsField} value={draft.goals} onChange={event => updateWeek('goals', event.target.value)} rows={3} placeholder="Was ist dir wichtig?" aria-label="Wochenziele" />
               </label>
               </div>
             </details>

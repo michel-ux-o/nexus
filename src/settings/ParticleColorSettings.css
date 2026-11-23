@@ -1,13 +1,11 @@
 .particle-color-settings {
   min-width: 0;
-  margin: 6px 0 18px;
-  padding: 18px 0;
+  margin: 8px 0 0;
+  padding: 0;
   border: 0;
-  border-block: 1px solid var(--ui-border);
 }
-.particle-color-settings legend { padding: 0 8px 0 0; font-size: .875rem; font-weight: 500; }
-.particle-color-settings legend span { color: var(--ui-text-muted); font-weight: 400; }
-.particle-color-settings .settings-muted { margin: 0 0 12px; }
+.particle-color-settings legend { padding: 0 8px 0 0; color: var(--ui-text); font-size: var(--settings-heading-size); font-weight: 550; }
+.particle-color-options { margin-top: 12px; }
 .particle-color-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .settings-dialog .particle-color-options button {
   display: inline-flex;
@@ -21,14 +19,14 @@
   background: transparent;
   color: var(--ui-text-secondary);
   font: inherit;
-  font-size: .8125rem;
+  font-size: var(--settings-context-size);
   cursor: pointer;
 }
 .particle-color-options i { flex: 0 0 auto; width: 11px; height: 11px; border-radius: 50%; }
 .settings-dialog .particle-color-options button:hover { border-color: var(--ui-accent); color: var(--ui-text); }
 .settings-dialog .particle-color-options button[aria-pressed='true'] { border-color: var(--ui-accent); color: var(--ui-text); background: color-mix(in srgb, var(--ui-accent) 7%, transparent); }
 .particle-color-custom { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px; margin-top: 14px; }
-.particle-color-custom label { color: var(--ui-text-secondary); font-size: .8125rem; }
+.particle-color-custom label { color: var(--ui-text); font-size: var(--settings-text-size); }
 .settings-dialog .settings-preferences .particle-color-custom input[type='color'] {
   flex: 0 0 auto;
   width: 52px;
@@ -43,30 +41,24 @@
 .particle-color-custom input::-webkit-color-swatch-wrapper { padding: 0; }
 .particle-color-custom input::-webkit-color-swatch { border: 0; border-radius: 1px; }
 .particle-color-custom input::-moz-color-swatch { border: 0; border-radius: 1px; }
-.particle-color-custom output { color: var(--ui-text-muted); font: .75rem Consolas, 'Liberation Mono', monospace; }
+.particle-color-custom output { color: var(--ui-text-secondary); font: var(--settings-context-size) Consolas, 'Liberation Mono', monospace; }
 .particle-color-preview { display: grid; grid-template-columns: repeat(5, 3px); align-content: center; gap: 5px 8px; width: 64px; height: 44px; margin-left: auto; }
 .particle-color-preview i { width: 2px; height: 2px; border-radius: 50%; background: currentColor; }
 .particle-color-preview i:nth-child(3n) { opacity: .35; transform: translateY(3px); }
 .particle-color-preview i:nth-child(3n + 1) { opacity: .75; transform: translateY(-2px); }
-.settings-dialog .particle-color-reset { margin-top: 8px; padding: 8px 0; min-height: 44px; border: 0; background: transparent; color: var(--ui-text-secondary); font: inherit; font-size: .8125rem; text-align: left; cursor: pointer; }
+.settings-dialog .particle-color-reset { margin-top: 8px; padding: 8px 0; min-height: 44px; border: 0; background: transparent; color: var(--ui-text-secondary); font: inherit; font-size: var(--settings-context-size); text-align: left; cursor: pointer; }
 .settings-dialog .particle-color-reset:hover { color: var(--ui-accent); }
 @media (max-width: 440px) {
-  .particle-color-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .particle-color-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.25rem), 1fr)); }
   .settings-dialog .particle-color-options button { padding-inline: 9px; }
   .particle-color-custom label { flex-basis: 100%; }
 }
 
-html[data-theme='nexus'] .particle-color-settings { border-color: var(--hz-line, #a8cfe526); }
-html[data-theme='nexus'] .particle-color-settings legend { color: var(--ui-text-secondary); font-size: var(--hz-meta, .75rem); font-weight: 500; }
 html[data-theme='nexus'] .settings-dialog .particle-color-options button {
   border-color: var(--hz-line, #a8cfe526);
   border-radius: var(--hz-radius, 5px);
-  font-size: var(--hz-meta, .75rem);
 }
 html[data-theme='nexus'] .settings-dialog .particle-color-options button[aria-pressed='true'] { background: #a8cfe50b; }
-html[data-theme='nexus'] .particle-color-custom label,
-html[data-theme='nexus'] .particle-color-custom output,
-html[data-theme='nexus'] .settings-dialog .particle-color-reset { font-family: inherit; font-size: var(--hz-meta, .75rem); }
 html[data-theme='nexus'] .settings-dialog .settings-preferences .particle-color-custom input[type='color'] {
   border-color: var(--hz-line, #a8cfe526);
   border-radius: var(--hz-radius, 5px);

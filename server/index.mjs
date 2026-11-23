@@ -4,6 +4,7 @@ import { dirname, extname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createOpenAIClient } from './openai.mjs';
 import { createCloudAuth } from './cloud-auth.mjs';
+import { createWorkspaceSync, MAX_WORKSPACE_REQUEST_BYTES } from './workspace-sync.mjs';
 import { RequestCache } from './cache.mjs';
 import { ApiError, LIMITS, assistanceInput, hash, interpretationInput, validContext } from './validation.mjs';
 
@@ -160,6 +161,7 @@ export function createAppServer(options = {}) {
     if (publicOrigin.protocol !== 'https:' || publicOrigin.origin !== env.APP_ORIGIN) throw new Error('APP_ORIGIN muss eine exakte HTTPS-Origin sein.');
   }
   const account = createCloudAuth({ env, fetchImpl: options.authFetchImpl ?? options.fetchImpl ?? fetch });
+  const workspace = createWorkspaceSync({ env, fetchImpl: options.workspaceFetchImpl ?? options.fetchImpl ?? fetch });
   const apiKey = options.apiKey ?? env.OPENAI_API_KEY ?? '';
   const transcriptionModel = options.transcriptionModel ?? env.OPENAI_TRANSCRIPTION_MODEL ?? 'gpt-transcribe';
   const textModel = options.textModel ?? env.OPENAI_TEXT_MODEL ?? 'gpt-5.6-terra';
@@ -221,6 +223,26 @@ export function createAppServer(options = {}) {
         res.end(); return;
       }
       if (url.pathname === '/api/status' && req.method === 'GET') { json(res, 200, { configured: !!apiKey, transcriptionModel, textModel }); return; }
+      if (url.pathname === '/api/workspace') {
+        if (!cloud) throw new ApiError(404, 'NOT_FOUND', 'Die Workspace-Synchronisierung ist nur nach einer Kontoanmeldung verfügbar.');
+        // The cookie may have changed in a different tab since this client
+        // queued its immutable snapshot. Never write that queue into a new
+        // account just because the browser now sends another valid cookie.
+        if (req.headers['x-nexus-account'] !== verifiedAccount.id) throw new ApiError(409, 'ACCOUNT_CHANGED', 'Das angemeldete Konto hat sich geändert. Bitte lade die Seite erneut.');
+        if (!['GET', 'PUT'].includes(req.method)) {
+          res.setHeader('Allow', 'GET, PUT');
+          throw new ApiError(405, 'METHOD_NOT_ALLOWED', 'Dieser API-Endpunkt benötigt GET oder PUT.');
+        }
+        // Snapshot bodies can reach 50 MiB. Reserve the same bounded pool as
+        // AI requests before reading a body or allocating a remote snapshot.
+        if (activeRequests >= maxActiveRequests) throw new ApiError(429, 'BUSY', 'Das Backend ist ausgelastet. Bitte kurz warten.');
+        activeRequests++; acquired = true;
+        const result = req.method === 'GET' ? await workspace.get(verifiedAccount, controller.signal)
+          : await workspace.put(verifiedAccount, await readJson(req, controller.signal, MAX_WORKSPACE_REQUEST_BYTES), controller.signal);
+        controller.signal.throwIfAborted();
+        json(res, 200, { ...result, accountId: verifiedAccount.id });
+        return;
+      }
       const stage = { '/api/transcribe': 'transcribe', '/api/interpret': 'interpret', '/api/assist': 'assist' }[url.pathname];
       if (!stage) throw new ApiError(404, 'NOT_FOUND', 'API-Endpunkt nicht gefunden.');
       if (req.method !== 'POST') throw new ApiError(405, 'METHOD_NOT_ALLOWED', 'Dieser API-Endpunkt benötigt POST.');

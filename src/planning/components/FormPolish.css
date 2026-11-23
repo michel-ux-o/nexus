@@ -21,3 +21,21 @@ html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) fields
 html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) fieldset.planning-fieldset { gap: 16px; }
 html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) .planning-fieldset > legend { margin-bottom: 12px; }
 html[data-theme='nexus'] .dialog.planning-dialog:has(.task-dialog-inputs) .planning-more-body { gap: 22px; }
+
+/* Keep field meaning and actions readable at the shared Nexus content size. */
+html[data-theme='nexus'] .planning-dialog :is(.field > span, .planning-check, .planning-more-options > summary) {
+  font-size: var(--hz-body, 1rem);
+  line-height: 1.6;
+}
+html[data-theme='nexus'] .planning-dialog .field :is(input, select, textarea) {
+  font-size: var(--hz-body, 1rem);
+  line-height: 1.5;
+}
+html[data-theme='nexus'] .planning-dialog :is(.planning-help, .planning-info p, .planning-warning, .planning-operation-status, .planning-save-error > p, .planning-delete-confirm > p) {
+  font-size: var(--hz-meta, .875rem);
+  line-height: 1.7;
+}
+html[data-theme='nexus'] .planning-dialog :is(.planning-dialog-footer, .planning-button-row) button > svg,
+html[data-theme='nexus'] .planning-dialog .planning-close > svg { flex: 0 0 20px; width: 20px; height: 20px; }
+html[data-theme='nexus'] .planning-dialog .planning-check > input { flex-basis: 20px; width: 20px; height: 20px; }
+html[data-theme='nexus'] .planning-dialog .planning-more-options > summary > span { line-height: 1.6; }

@@ -9,6 +9,7 @@ const sourceDirectories = ['src', 'server', 'public', 'android/app/src'];
 const configurationFiles = [
   'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts',
   'index.html', 'render.yaml', 'Dockerfile', '.dockerignore',
+  'scripts/build-sync-validator.mjs',
   'android/settings.gradle', 'android/build.gradle', 'android/gradle.properties',
   'android/app/build.gradle', 'scripts/android-toolchain.ps1', 'scripts/release186-manifest.mjs', 'docs/android-wecker.md',
 ];

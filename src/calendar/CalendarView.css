@@ -50,8 +50,7 @@
 .nexus-calendar-entries { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .nexus-calendar .nexus-calendar-entry { display: flex; flex-direction: column; gap: 3px; width: 100%; min-width: 0; min-height: 44px; padding: 7px; border: 0; border-left: 2px solid var(--calendar-entry); border-radius: 4px; background: var(--calendar-entry-background); color: var(--calendar-entry); text-align: left; overflow-wrap: anywhere; }
 .nexus-calendar-entry:hover { filter: brightness(1.15); }
-.nexus-calendar-entry > span { font: .75rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
-.nexus-calendar-entry > strong { font-size: .75rem; font-weight: 450; line-height: 1.5; }
+.nexus-calendar-entry > span { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 .nexus-calendar-entry.is-done > strong { text-decoration: line-through; opacity: .7; }
 .nexus-calendar-entry.is-overdue { --calendar-entry: var(--ui-warning); }
 .nexus-calendar .nexus-calendar-more { min-height: 44px; padding: 7px 2px; border: 0; border-radius: 4px; background: transparent; color: var(--ui-accent); text-align: left; font-size: .875rem; }
@@ -67,15 +66,13 @@
 .nexus-calendar-content.is-day { padding: 18px; }
 .nexus-calendar-day-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .nexus-calendar-day-capacity { flex: 1 1 180px; margin-left: auto; color: var(--ui-text-muted); font-size: .75rem; text-align: right; }
-.nexus-calendar-day-tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 10px; margin-bottom: 20px; }
-.nexus-calendar-task-row { min-width: 0; }
+.nexus-calendar-day-layout { display: grid; grid-template-columns: minmax(270px, .45fr) minmax(0, 1fr); align-items: start; gap: clamp(22px, 3vw, 44px); }
 .nexus-calendar .nexus-calendar-note { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 7px; border: 0; border-radius: 5px; background: transparent; color: var(--ui-accent); font-size: .875rem; text-align: left; overflow-wrap: anywhere; }
 .nexus-calendar-explanation { margin: 14px 2px 0; color: var(--ui-text-muted); font-size: .75rem; line-height: 1.8; }
 
 @media (max-width: 1100px) {
   .nexus-calendar-content { padding: 12px; }
   .nexus-calendar-cell { padding: 4px; }
-  .nexus-calendar-entry > strong { font-size: .75rem; }
   .nexus-calendar .nexus-calendar-empty-slot > span { display: none; }
 }
 @media (max-width: 850px) {
@@ -83,7 +80,6 @@
   .nexus-calendar-content.is-week .nexus-calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .nexus-calendar-content.is-week .nexus-calendar-cell { min-height: 230px; border: 1px solid var(--ui-border-soft); border-radius: 8px; padding: 8px; }
   .nexus-calendar-content.is-week .nexus-calendar-mobile-weekday { display: inline; }
-  .nexus-calendar-content.is-week .nexus-calendar-entry > strong { font-size: .8125rem; }
 }
 @media (max-width: 600px) {
   .nexus-calendar { padding: 24px 12px 35px; }
@@ -107,8 +103,6 @@
   .nexus-calendar .nexus-calendar-date { min-height: 44px; }
   .nexus-calendar .nexus-calendar-cell-add { min-height: 44px; width: 44px; }
   .nexus-calendar .nexus-calendar-entry { padding: 9px; }
-  .nexus-calendar-entry > strong { font-size: .8125rem; }
-  .nexus-calendar-entry > span { font-size: .75rem; }
   .nexus-calendar-empty-slot > * { opacity: .6; }
   .nexus-calendar .nexus-calendar-empty-slot > span { display: inline; }
   .nexus-calendar-content.is-week .nexus-calendar-grid { grid-template-columns: minmax(0, 1fr); }
@@ -152,7 +146,7 @@
 .nexus-calendar .is-due { --calendar-entry-background: color-mix(in srgb, var(--ui-warning) 11%, var(--ui-surface)); }
 .nexus-calendar .is-block { --calendar-entry-background: color-mix(in srgb, var(--ui-accent) 11%, var(--ui-surface)); }
 .nexus-calendar .nexus-calendar-entry { gap: 4px; padding: 8px; border-left-width: 3px; border-radius: 7px; }
-.nexus-calendar-entry > strong { color: var(--ui-text); font-weight: 550; }
+.nexus-calendar-entry > strong { color: var(--ui-text); }
 .nexus-calendar .nexus-calendar-empty-slot { border: 1px dashed transparent; border-radius: 8px; }
 .nexus-calendar .nexus-calendar-empty-slot:hover, .nexus-calendar .nexus-calendar-empty-slot:focus-visible { border-color: var(--ui-border); }
 .nexus-calendar-capacity { align-items: flex-start; padding-top: 12px; }
@@ -256,8 +250,7 @@
 .nexus-atelier .nexus-calendar .is-planned { --calendar-entry-background: transparent; }
 .nexus-atelier .nexus-calendar .nexus-calendar-entry { gap: 3px; padding: 4px 5px 4px 9px; border-left-width: 1px; border-radius: 0; background: transparent; }
 .nexus-atelier .nexus-calendar .nexus-calendar-entry:hover { background: color-mix(in srgb, var(--calendar-entry) 7%, transparent); filter: none; }
-.nexus-atelier .nexus-calendar-entry > span { color: var(--calendar-entry); font-size: .625rem; }
-.nexus-atelier .nexus-calendar-entry > strong { color: var(--ui-text); font-size: .75rem; font-weight: 450; line-height: 1.55; }
+.nexus-atelier .nexus-calendar-entry > span { color: var(--calendar-entry); }
 .nexus-atelier .nexus-calendar .nexus-calendar-empty-slot { min-height: 44px; margin-top: 5px; padding: 4px 5px; border: 0; border-radius: 2px; font-size: .6875rem; }
 .nexus-atelier .nexus-calendar .nexus-calendar-more { padding-left: 10px; font-size: .6875rem; }
 .nexus-atelier .nexus-calendar-capacity { margin-top: 6px; padding-top: 12px; border-color: var(--ui-border); font-size: .625rem; line-height: 1.6; }
@@ -269,7 +262,6 @@
 .nexus-atelier .nexus-calendar-day-actions { margin-bottom: 20px; padding: 0 0 16px; border-color: var(--ui-border); }
 .nexus-atelier .nexus-calendar-day-actions .nexus-calendar-button { padding-left: 0; border-color: transparent; }
 .nexus-atelier .nexus-calendar-day-capacity { font-size: .6875rem; line-height: 1.7; }
-.nexus-atelier .nexus-calendar-day-tasks { gap: 16px; margin-bottom: 26px; }
 .nexus-atelier .nexus-calendar :is(button, summary):focus-visible { outline-offset: 3px; }
 
 @media (max-width: 1100px) {
@@ -306,8 +298,6 @@
   .nexus-atelier .nexus-calendar-mobile-weekday { color: var(--ui-text-muted); font-family: Consolas, 'Liberation Mono', monospace; font-size: .6875rem; }
   .nexus-atelier .nexus-calendar .nexus-calendar-cell-add { width: 44px; margin-top: 0; }
   .nexus-atelier .nexus-calendar .nexus-calendar-entry { padding-block: 8px; }
-  .nexus-atelier .nexus-calendar-entry > strong { font-size: .875rem; }
-  .nexus-atelier .nexus-calendar-entry > span { font-size: .6875rem; }
   .nexus-atelier .nexus-calendar .nexus-calendar-empty-slot { justify-content: flex-start; min-height: 44px; font-size: .75rem; }
   .nexus-atelier .nexus-calendar-capacity { margin-top: 10px; padding-top: 10px; font-size: .75rem; }
   .nexus-atelier .nexus-calendar-day-actions { gap: 4px 12px; }
@@ -319,26 +309,40 @@
   .nexus-atelier .nexus-calendar-meta > span { max-width: 100%; overflow-wrap: anywhere; }
 }
 
-/* Shared date selection and the optional day agenda. */
+/* Shared date selection and the day agenda. */
 .nexus-calendar-workspace { min-width: 0; }
 .nexus-calendar-workspace.has-agenda:not(.is-day) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(270px, .34fr); align-items: start; gap: clamp(22px, 3vw, 44px); }
 .nexus-calendar .nexus-calendar-return { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; margin-bottom: 15px; padding: 4px 0; border: 0; background: transparent; color: var(--ui-text-secondary); font-size: .9375rem; }
 .nexus-calendar .nexus-calendar-return:hover { color: var(--ui-accent); }
 .nexus-calendar-cell.is-selected { box-shadow: inset 0 0 0 1px var(--ui-accent); background: color-mix(in srgb, var(--ui-accent) 7%, transparent); }
 .nexus-calendar .is-selected .nexus-calendar-date { color: var(--ui-accent); }
-.nexus-calendar-entry > span { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-.nexus-calendar-entry > span > svg { flex: 0 0 auto; }
+.nexus-calendar-entry .nexus-calendar-entry-context { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 .3em; min-width: 0; font-size: .875rem; font-weight: 500; line-height: 1.35; font-variant-numeric: tabular-nums; }
+.nexus-calendar-entry-context > svg { align-self: center; flex: 0 0 .9em; width: .9em; height: .9em; }
+.nexus-calendar-entry-context > span { min-width: 0; overflow-wrap: anywhere; }
+.nexus-calendar-entry-context > small { font-size: inherit; }
+.nexus-calendar-content .nexus-calendar-entry > strong { font-size: 1rem; font-weight: 450; line-height: 1.35; hyphens: auto; overflow-wrap: anywhere; }
+.nexus-calendar-content.is-month .nexus-calendar-entry > strong { display: -webkit-box; font-size: .875rem; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 .nexus-calendar-agenda { min-width: 0; padding-top: 31px; }
-.nexus-calendar-agenda h2 { margin: 0 0 18px; color: var(--ui-text); font-size: clamp(1.25rem, 1.8vw, 1.75rem); font-weight: 450; letter-spacing: -.025em; }
-.nexus-calendar-agenda-list { min-width: 0; }
-.nexus-calendar .nexus-calendar-agenda-entry { display: grid; grid-template-columns: 21px minmax(64px, .6fr) minmax(0, 1.6fr); align-items: start; gap: 10px; width: 100%; min-height: 76px; padding: 17px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; color: var(--ui-text); text-align: left; }
-.nexus-calendar-agenda-entry > svg { margin-top: 3px; color: var(--calendar-entry, var(--ui-info)); }
-.nexus-calendar-agenda-time { color: var(--calendar-entry, var(--ui-info)); font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.nexus-calendar-agenda h2 { margin: 0 0 4px; padding-bottom: 10px; border-bottom: 1px solid var(--ui-border); color: var(--ui-text); font-size: 1.125rem; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.nexus-calendar-agenda-list { container: calendar-agenda / inline-size; min-width: 0; }
+.nexus-calendar .nexus-calendar-agenda-entry { display: grid; grid-template-columns: 1.125rem minmax(0, min(23%, 4.5rem)) minmax(0, 1fr); align-items: start; gap: .5rem; width: 100%; min-height: 60px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; color: var(--ui-text); text-align: left; }
+.nexus-calendar-agenda-entry > svg { width: 1rem; height: 1rem; margin-top: .19rem; color: var(--calendar-entry, var(--ui-info)); }
+.nexus-calendar-agenda-time { color: var(--calendar-entry, var(--ui-info)); font-size: 1rem; font-weight: 550; line-height: 1.35; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.nexus-calendar-agenda-entry:is(.is-due, .is-planned, .is-all-day) .nexus-calendar-agenda-time { font-size: .875rem; line-height: 1.54; hyphens: auto; }
 .nexus-calendar-agenda-description { min-width: 0; }
-.nexus-calendar-agenda-description strong { display: block; color: var(--ui-text); font-size: 1rem; line-height: 1.5; font-weight: 450; overflow-wrap: anywhere; }
-.nexus-calendar-agenda-description small { display: block; margin-top: 3px; color: var(--ui-text-secondary); font-size: .8125rem; line-height: 1.6; overflow-wrap: anywhere; }
+.nexus-calendar-agenda-description strong { display: block; color: var(--ui-text); font-size: 1rem; line-height: 1.35; font-weight: 450; hyphens: auto; overflow-wrap: anywhere; }
+.nexus-calendar-agenda-description small { display: block; margin-top: 2px; color: var(--ui-text-secondary); font-size: .875rem; line-height: 1.4; overflow-wrap: anywhere; }
 .nexus-calendar-agenda-entry.is-done strong { text-decoration: line-through; color: var(--ui-text-muted); }
 .nexus-calendar .nexus-calendar-agenda-entry:hover { background: color-mix(in srgb, var(--ui-accent) 5%, transparent); }
+.nexus-calendar-agenda-blocks { --calendar-entry: var(--ui-accent); border-bottom: 1px solid var(--ui-border); }
+.nexus-calendar .nexus-calendar-agenda-entry.is-grouped { grid-template-columns: 1.125rem minmax(0, 1fr); min-height: 44px; padding-bottom: 0; border-bottom: 0; }
+.nexus-calendar-block-times { display: flex; flex-wrap: wrap; gap: 0 .65rem; margin: 0; padding: 0 0 .25rem 1.625rem; list-style: none; }
+.nexus-calendar-block-times > li { min-width: 0; max-width: 100%; }
+.nexus-calendar .nexus-calendar-block-times button { display: flex; align-items: baseline; align-content: center; flex-wrap: wrap; gap: 0 .4rem; min-height: 44px; padding: 4px 6px; border: 0; border-radius: 4px; background: transparent; color: var(--ui-text-secondary); font-size: .875rem; text-align: left; }
+.nexus-calendar-block-times time { color: var(--calendar-entry); font-size: 1rem; font-weight: 550; font-variant-numeric: tabular-nums; }
+.nexus-calendar .nexus-calendar-block-times button:hover { background: color-mix(in srgb, var(--ui-accent) 8%, transparent); }
+.nexus-calendar-flexible { padding-top: 16px; }
+.nexus-calendar-flexible h3 { margin: 0 0 4px; color: var(--ui-text); font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
 .nexus-calendar-agenda-empty { margin: 0 0 15px; padding: 16px 0 24px; border-bottom: 1px solid var(--ui-border); color: var(--ui-text-muted); font-size: .9375rem; line-height: 1.7; }
 .nexus-calendar .nexus-calendar-open-day { display: inline-flex; align-items: center; gap: 16px; min-height: 44px; margin-top: 14px; padding: 8px 0; border: 0; background: transparent; color: var(--ui-text); font-size: 1rem; text-align: left; }
 .nexus-calendar .nexus-calendar-open-day:hover { color: var(--ui-accent); }
@@ -356,6 +360,7 @@
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-button:hover { color: var(--ui-accent); background: color-mix(in srgb, var(--ui-accent) 5%, transparent); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-button.is-primary { color: var(--ui-text); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-icon { border-radius: var(--hz-radius, 5px); }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar :is(.nexus-calendar-button, .nexus-calendar-icon, .nexus-calendar-return, .nexus-calendar-open-day) > svg { flex: 0 0 20px; width: 20px; height: 20px; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-create-actions { gap: 16px; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-modes { gap: 22px; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-modes button { font-size: var(--hz-body, .875rem); }
@@ -366,6 +371,11 @@
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-weekdays > span { padding-block: 8px 13px; color: var(--ui-text-secondary); font-family: inherit; font-size: var(--hz-label, .65rem); font-weight: 550; text-align: center; text-transform: uppercase; letter-spacing: var(--hz-tracking, .22em); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-weekdays > span:nth-child(n+6) { color: var(--ui-info); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-grid { border-top: 1px solid var(--hz-line, #a8cfe526); border-left: 1px solid var(--hz-line, #a8cfe526); }
+/* Calm only the reading surfaces; particles remain visible around the date sheet. */
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar :is(.nexus-calendar-grid, .nexus-calendar-agenda-list) {
+  background: var(--hz-content-wash, rgb(6 12 20 / .42));
+  backdrop-filter: blur(5px);
+}
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-cell { min-height: 122px; padding: 7px; border-right: 1px solid var(--hz-line, #a8cfe526); border-bottom: 1px solid var(--hz-line, #a8cfe526); background: transparent; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-cell > header { margin-bottom: 3px; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-cell.is-today { background: color-mix(in srgb, var(--ui-info) 4%, transparent); }
@@ -373,41 +383,49 @@
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-date { font-family: inherit; font-size: var(--hz-meta, .75rem); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-date time { font-family: inherit; font-size: 1.5rem; font-weight: 400; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .is-selected .nexus-calendar-date { color: var(--ui-info); }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-cell-add { min-height: 36px; width: 26px; margin: 0; opacity: 0; }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-cell-add { min-height: 36px; width: 32px; margin: 0; opacity: .65; }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-cell-add > svg { width: 18px; height: 18px; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-cell:hover .nexus-calendar-cell-add,
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-cell-add:focus-visible { opacity: 1; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-entry { min-height: 44px; gap: 2px; padding: 4px 5px; border: 0; border-radius: var(--hz-radius, 5px); }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-entry > span { font-family: inherit; font-size: var(--hz-meta, .75rem); font-variant-numeric: tabular-nums; }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-entry > strong { color: var(--ui-text); font-size: var(--hz-body, .875rem); font-weight: 400; line-height: 1.5; }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-entry-context { font-family: inherit; }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar :is(.nexus-calendar-capacity, .nexus-calendar-note, .nexus-calendar-empty-slot) > svg { flex: 0 0 16px; width: 16px; height: 16px; }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-entry > strong { color: var(--ui-text); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar :is(.nexus-calendar-more, .nexus-calendar-note, .nexus-calendar-empty-slot, .nexus-calendar-return, .nexus-calendar-open-day, .nexus-calendar-agenda-timeline) { font-size: var(--hz-body, .875rem); font-weight: 400; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-capacity { border-color: var(--hz-line, #a8cfe526); font-variant-numeric: tabular-nums; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-alert { border-radius: var(--hz-radius, 5px); font-size: var(--hz-body, .875rem); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-empty-slot { min-height: 24px; flex-basis: 24px; margin-top: 0; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-content.is-week .nexus-calendar-cell { min-height: 340px; }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda { padding-top: 39px; }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda h2 { color: var(--ui-text-secondary); font-family: inherit; font-size: var(--hz-label, .65rem); font-weight: 550; line-height: 1.6; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-agenda-entry { border-color: var(--hz-line, #a8cfe526); }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda-time { font-size: var(--hz-meta, .75rem); font-variant-numeric: tabular-nums; }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda-description strong { font-size: var(--hz-body, .875rem); font-weight: 400; line-height: 1.5; }
-:root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda-description small { font-size: var(--hz-meta, .75rem); line-height: 1.6; }
+:root[data-theme='nexus'] .nexus-horizon .nexus-calendar :is(.nexus-calendar-agenda h2, .nexus-calendar-agenda-entry, .nexus-calendar-agenda-blocks) { border-color: var(--hz-line, #a8cfe526); }
 :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda-empty { border-color: var(--hz-line, #a8cfe526); font-size: var(--hz-body, .875rem); }
+.nexus-calendar .nexus-calendar-agenda.is-day { padding-top: 0; }
 
 @media (max-width: 1200px) {
-  .nexus-calendar-workspace.has-agenda:not(.is-day) { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .nexus-calendar-workspace.has-agenda:not(.is-day), .nexus-calendar-day-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .nexus-calendar-agenda { padding-top: 0; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-agenda { padding-top: 0; }
 }
 @media (max-width: 600px) {
-  .nexus-calendar-agenda h2 { font-size: 1.5rem; }
-  .nexus-calendar .nexus-calendar-agenda-entry { grid-template-columns: 20px minmax(56px, .6fr) minmax(0, 1.6fr); gap: 8px; }
-  .nexus-calendar-agenda-description strong { font-size: .9375rem; }
+  .nexus-calendar-entries { container: calendar-entries / inline-size; }
+  .nexus-calendar .nexus-calendar-content .nexus-calendar-entry { display: grid; grid-template-columns: minmax(0, min(30%, 5rem)) minmax(0, 1fr); align-items: start; gap: .65rem; }
+  .nexus-calendar-content.is-month .nexus-calendar-entry > strong { display: block; font-size: 1rem; }
+  .nexus-calendar .nexus-calendar-entry-context { line-height: 1.54; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-cell-add { min-height: 44px; width: 44px; opacity: 1; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-grid { border-left: 0; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-cell { min-height: 100px; padding: 12px 6px; border-right: 0; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-entry { min-height: 44px; padding-block: 6px; }
-  :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-entry > strong { font-size: .875rem; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar .nexus-calendar-empty-slot { min-height: 44px; flex-basis: 44px; }
   :root[data-theme='nexus'] .nexus-horizon .nexus-calendar-content.is-week .nexus-calendar-cell { min-height: 170px; }
+}
+
+@container calendar-entries (max-width: 13rem) {
+  .nexus-calendar .nexus-calendar-content .nexus-calendar-entry { grid-template-columns: minmax(0, 1fr); gap: .125rem; }
+}
+
+@container calendar-agenda (max-width: 15rem) {
+  .nexus-calendar .nexus-calendar-agenda-entry { grid-template-columns: 1.125rem minmax(0, 1fr); row-gap: .125rem; }
+  .nexus-calendar-agenda-entry:not(.is-grouped) .nexus-calendar-agenda-description { grid-column: 2; }
 }
 
 /* Touch tablets retain the month grid without depending on a hover gesture. */

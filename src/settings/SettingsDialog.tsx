@@ -13,6 +13,8 @@ import { ParticleColorSettings } from './ParticleColorSettings';
 import { MorningRoutineSettings } from './MorningRoutineSettings';
 import { AndroidAlarmSettings } from '../alarm';
 import { useAccount } from '../auth/AccountBoundary';
+import { SyncPanel } from '../sync/SyncContext';
+import { BuildIdentity } from '../update/UpdateNotice';
 import { setThemePreview } from '../themes/useTheme';
 import './SettingsDialog.css';
 
@@ -30,7 +32,7 @@ type Operation = 'settings' | 'export' | 'file' | 'import' | 'backup' | 'reload'
 type SettingsTopic = 'display' | 'planning' | 'morning' | 'ai' | 'account' | 'data';
 type DataTopic = 'backup' | 'import' | 'restore' | 'storage' | 'reset';
 const SETTINGS_TOPICS = [
-  { key: 'display', label: 'Darstellung', description: 'Farben, Theme und Bewegung', icon: Monitor },
+  { key: 'display', label: 'Darstellung', description: 'Farbschema, Bewegung und Effekte', icon: Monitor },
   { key: 'planning', label: 'Alltag & Planung', description: 'Start, Zeitfenster und Erinnerungen', icon: CalendarDays },
   { key: 'morning', label: 'Morgenroutine', description: 'Dein Start von Montag bis Sonntag', icon: Sunrise },
   { key: 'ai', label: 'KI & Sprache', description: 'Freigabe, Prüfmodus und Verbindung', icon: Sparkles },
@@ -386,7 +388,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
   async function requestNotifications(): Promise<void> {
     if (typeof Notification === 'undefined' || !start('permission')) return;
     try {
-      // This is the only permission request, invoked directly by this button.
+      // Request permission only from this explicit button action.
       const permission = await Notification.requestPermission();
       setNotificationPermission(permission);
       if (permission === 'granted') {
@@ -469,6 +471,11 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
   const Container = embedded ? 'section' : 'dialog';
   const exportHistory = [...(planner.data.settings.exportHistory ?? [])].reverse();
   const rules = planner.data.taskRules ?? [];
+  let motionPauseReason = '';
+  if (draft.artifactIntensity !== 'still') {
+    if (draft.powerSaving) motionPauseReason = 'Der Stromsparmodus in der Feinabstimmung hält die Animationen an.';
+    else if (draft.menuMotion === 'still') motionPauseReason = '„Still“ bei „Bewegung im Hauptmenü“ in der Feinabstimmung hält die Animationen an.';
+  }
 
   return (
     <Container ref={embedded ? undefined : dialogRef} className={embedded ? 'settings-page settings-dialog settings-atelier' : 'dialog settings-dialog settings-atelier'} data-settings-topic={topic} data-settings-detail={mobileDetail} aria-labelledby={`${id}-title`} onCancel={(event) => { event.preventDefault(); close(); }}>
@@ -507,13 +514,27 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
                 <label className="field" htmlFor={`${id}-minutes`}><span>Tagesverfügbarkeit in Minuten</span><input id={`${id}-minutes`} type="number" min={0} max={1440} step={1} value={draft.availableMinutes} onChange={(event) => editSettings({ availableMinutes: event.currentTarget.value })} aria-describedby={`${id}-minutes-help`} /><small id={`${id}-minutes-help`}>0–1440 Minuten. Gilt für neue Tagespläne; vorhandene Tagesbudgets bleiben erhalten.</small></label>
               </div>
               </div>
-              <div id={`${id}-display`} className="settings-preference-group" data-topic-group="display" hidden={topic !== 'display'}>
-              <ThemeSettings id={id} choice={draft.theme} previewing={themePreviewing} onChange={(theme) => { editSettings({ theme }); setThemePreview(theme); setThemePreviewing(true); }} />
-              <ParticleColorSettings id={id} color={draft.particleColor} onChange={(particleColor) => editSettings({ particleColor })} />
-              <label className="field" htmlFor={`${id}-artifact-intensity`}><span>Artefakt-Intensität</span><select id={`${id}-artifact-intensity`} value={draft.artifactIntensity} onChange={(event) => editSettings({ artifactIntensity: event.currentTarget.value as SettingsDraft['artifactIntensity'] })}><option value="still">Still</option><option value="atmospheric">Atmosphärisch</option><option value="intense">Intensiv</option></select></label>
-              <label className="field" htmlFor={`${id}-motion`}><span>Bewegung im Hauptmenü</span><select id={`${id}-motion`} value={draft.menuMotion} onChange={(event) => editSettings({ menuMotion: event.currentTarget.value as SettingsDraft['menuMotion'] })}><option value="still">Still</option><option value="float">Sanft schweben</option><option value="orbit">Umkreisen</option></select></label>
-              <label className="settings-check"><input type="checkbox" checked={draft.matrixBackground} onChange={(event) => editSettings({ matrixBackground: event.currentTarget.checked })} /><span><strong>Matrix-Hintergrund anzeigen</strong></span></label>
-              <label className="settings-check"><input type="checkbox" checked={draft.powerSaving} onChange={(event) => editSettings({ powerSaving: event.currentTarget.checked })} /><span><strong>Stromsparmodus</strong><small>Reduziert Effekte und Animationen. Die Systemeinstellung für reduzierte Bewegung gilt zusätzlich.</small></span></label>
+              <div id={`${id}-display`} className="settings-preference-group settings-display" data-topic-group="display" hidden={topic !== 'display'}>
+                <ThemeSettings id={id} choice={draft.theme} previewing={themePreviewing} onChange={(theme) => { editSettings({ theme }); setThemePreview(theme); setThemePreviewing(true); }} />
+                <div className="settings-motion">
+                  <label className="settings-display-label" htmlFor={`${id}-artifact-intensity`}>Bewegung und Effekte</label>
+                  <p id={`${id}-motion-help`} className="settings-muted">Steuert die Bewegung der Nexus-Punktwolke und der 3D-Ansicht im Hauptmenü. Die Systemeinstellung für reduzierte Bewegung gilt weiterhin.</p>
+                  <select id={`${id}-artifact-intensity`} value={draft.artifactIntensity} aria-describedby={`${id}-motion-help${motionPauseReason ? ` ${id}-motion-note` : ''}`} onChange={(event) => editSettings({ artifactIntensity: event.currentTarget.value as SettingsDraft['artifactIntensity'] })}>
+                    <option value="still">Ruhig</option>
+                    <option value="atmospheric">Animiert</option>
+                    <option value="intense">Animiert (schneller im Hauptmenü)</option>
+                  </select>
+                  {motionPauseReason && <p id={`${id}-motion-note`} className="settings-muted">{motionPauseReason}</p>}
+                </div>
+                <details className="settings-display-details">
+                  <summary>Feinabstimmung</summary>
+                  <div className="settings-display-detail-fields">
+                    <label className="field" htmlFor={`${id}-motion`}><span>Bewegung im Hauptmenü</span><select id={`${id}-motion`} value={draft.menuMotion} onChange={(event) => editSettings({ menuMotion: event.currentTarget.value as SettingsDraft['menuMotion'] })}><option value="still">Still</option><option value="float">Sanft schweben</option><option value="orbit">Umkreisen</option></select></label>
+                    <label className="settings-check"><input type="checkbox" checked={draft.matrixBackground} onChange={(event) => editSettings({ matrixBackground: event.currentTarget.checked })} /><span><strong>Matrix-Hintergrund anzeigen</strong></span></label>
+                    <label className="settings-check"><input type="checkbox" checked={draft.powerSaving} onChange={(event) => editSettings({ powerSaving: event.currentTarget.checked })} /><span><strong>Stromsparmodus</strong><small>Reduziert Effekte und hält Animationen an.</small></span></label>
+                    <ParticleColorSettings id={id} color={draft.particleColor} onChange={(particleColor) => editSettings({ particleColor })} />
+                  </div>
+                </details>
               </div>
               <div className="settings-preference-group" data-topic-group="morning" hidden={topic !== 'morning'}>
                 <MorningRoutineSettings value={draft.morningRoutine} onChange={(morningRoutine) => editSettings({ morningRoutine })} disabled={disabled || planner.loading || !!planner.loadError} />
@@ -623,8 +644,8 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
         <section className="settings-section settings-account-section" hidden={topic !== 'account'} aria-labelledby={`${id}-account-title`}>
           <div className="settings-section-heading"><UserRound size={19} aria-hidden="true" /><h4 id={`${id}-account-title`}>Dein Zugang</h4></div>
           <p>{account ? <>Angemeldet{account.email ? <> als <strong>{account.email}</strong></> : ''}.</> : 'Du verwendest den lokalen Arbeitsbereich ohne Cloud-Anmeldung.'}</p>
-          <p className="settings-muted">Die Anmeldung allein synchronisiert keine Daten. Aufgaben, Notizen und Routinen liegen derzeit im Browserspeicher dieses Geräts.</p>
-          <div className="settings-account-state"><span>Automatische Gerätesynchronisierung</span><strong>Noch nicht eingerichtet</strong></div>
+          <SyncPanel settings />
+          <BuildIdentity />
           <button type="button" className="secondary-button" disabled={disabled} onClick={() => selectTopic('data')}><HardDrive size={17} aria-hidden="true" />Daten manuell übertragen</button>
         </section>
 
@@ -634,7 +655,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
           <p>Exportiere regelmäßig und bewahre Sicherungen außerhalb des Browsers auf.</p>
           <details className="settings-help"><summary>Browserwechsel, Datentransfer und Offlinebetrieb</summary>
           <p>Die Daten gehören zur jeweiligen Adresse mit Protokoll, Host und Port. Ein anderer Browser, ein anderes Profil oder eine andere App-Adresse hat einen eigenen Datenbestand.</p>
-          <p>Es gibt keine automatische Gerätesynchronisation. Übertrage Änderungen manuell per Export und Import. Zusammenführen behält bei kollidierenden IDs beide Fassungen und ihre Beziehungen bei.</p>
+          <p>In der Web- und Android-App werden bestätigte Änderungen mit demselben Konto automatisch abgeglichen, sobald eine Verbindung besteht und offene Eingaben abgeschlossen sind. Konflikte werden zur Entscheidung angezeigt. Der lokale Arbeitsbereich ohne Anmeldung verwendet weiterhin Export und Import.</p>
           <p>Die lokalen Notiz- und Planungsfunktionen benötigen keinen KI-Dienst oder API-Schlüssel. Nach dem vollständigen Laden der Produktionsversion kann die App auch offline genutzt werden.</p></details>
           <div className="settings-persistent-storage"><p><strong>Beständiger Browserspeicher</strong><br />{persistent === true ? 'Vom Browser zugesagt.' : !navigator.storage?.persist ? 'In diesem Browser nicht verfügbar.' : persistent === false ? 'Bisher nicht zugesagt.' : 'Speicherstatus wird geprüft …'} Eine Zusage schützt vor automatischer Speicherbereinigung, nicht vor manuellem Löschen der Browserdaten.</p>{storageError && <p className="settings-muted">{storageError}</p>}<button type="button" className="secondary-button" onClick={() => { void requestStorage(); }} disabled={disabled || persistent === true || !navigator.storage?.persist}><ShieldCheck size={17} aria-hidden="true" /> Beständigen Speicher anfragen</button></div>
         </section>
@@ -642,6 +663,7 @@ export function SettingsDialog({ notes, planner, onClose, onFlush, onImported, o
         <section className="settings-section settings-danger" hidden={topic !== 'data' || dataTopic !== 'reset'} aria-labelledby={`${id}-reset-title`}>
           <div className="settings-section-heading"><Trash2 size={19} aria-hidden="true" /><h3 id={`${id}-reset-title`}>Arbeitsbereich zurücksetzen</h3></div>
           <p>Entfernt alle Notizen einschließlich Papierkorb und Verlauf sowie Aufgaben, Termine, Zeitblöcke, Erinnerungen und Einstellungen aus dem aktiven Arbeitsbereich. Vorher wird eine vollständige Sicherung zum Download übergeben und zusätzlich lokal aufbewahrt.</p>
+          <p>Bei aktiver Kontosynchronisierung wird der geleerte Stand auch mit deinen anderen Geräten abgeglichen.</p>
           {!resetOpen ? <button type="button" className="secondary-button" disabled={disabled || dirty} onClick={() => setResetOpen(true)}>Zurücksetzen vorbereiten</button> : <div className="settings-reset-confirmation">
             <label className="settings-confirm"><input type="checkbox" checked={resetConfirmed} disabled={disabled || dirty} onChange={(event) => setResetConfirmed(event.currentTarget.checked)} /><span>Ich möchte meinen gesamten Arbeitsbereich leeren. Ich bewahre die vorherige Sicherung außerhalb des Browsers auf.</span></label>
             <label className="field" htmlFor={`${id}-reset-phrase`}><span>Zum Bestätigen ZURÜCKSETZEN eingeben</span><input id={`${id}-reset-phrase`} autoComplete="off" spellCheck={false} value={resetPhrase} disabled={disabled || dirty} onChange={(event) => setResetPhrase(event.currentTarget.value)} /></label>

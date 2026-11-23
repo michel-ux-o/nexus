@@ -3,21 +3,18 @@
 :root[data-theme] .nexus-atelier .tasks-view { background: radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--ui-accent) 5%, transparent), transparent 50%), var(--ui-canvas); }
 .tasks-content { width: 100%; max-width: 1360px; min-width: 0; margin: 0 auto; padding: 26px clamp(22px, 3.8vw, 68px) 32px; }
 .tasks-heading { display: flex; align-items: flex-end; flex-wrap: wrap; justify-content: space-between; gap: 18px 28px; margin-bottom: 14px; padding-bottom: 26px; border-bottom: 1px solid var(--ui-border); }
-.tasks-heading-copy { min-width: 0; }
-.tasks-heading .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; color: var(--ui-text-secondary); font: .625rem/1.6 Consolas, 'Liberation Mono', monospace; letter-spacing: .15em; }
-.tasks-heading .eyebrow > span { width: 7px; height: 7px; border: 1px solid var(--ui-accent); transform: rotate(45deg); }
-:root[data-theme] .nexus-atelier .tasks-heading h1 { margin: 0; color: var(--ui-text); font-family: 'Bahnschrift', 'Aptos Display', 'Segoe UI', sans-serif; font-size: clamp(2.8rem, 4.6vw, 4.55rem); font-weight: 350; letter-spacing: -.065em; line-height: 1.05; overflow-wrap: anywhere; }
+:root[data-theme] .nexus-atelier .tasks-heading h1 { min-width: 0; margin: 0; color: var(--ui-text); font-family: 'Bahnschrift', 'Aptos Display', 'Segoe UI', sans-serif; font-size: clamp(2.8rem, 4.6vw, 4.55rem); font-weight: 450; letter-spacing: -.045em; line-height: 1.05; overflow-wrap: anywhere; }
 .tasks-title-period { color: var(--ui-accent); }
 .tasks-heading-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; padding-bottom: 3px; }
-.tasks-heading-actions > button { min-height: 44px; max-width: 100%; white-space: normal; }
+.tasks-heading-actions > button { min-height: 44px; max-width: 100%; font-size: 1rem; white-space: normal; }
 .tasks-view .primary-button, .tasks-view .secondary-button { border-radius: 3px; }
 .tasks-view button:focus-visible, .tasks-view input:focus-visible, .tasks-view select:focus-visible, .tasks-view summary:focus-visible { outline: 2px solid var(--ui-accent-hover); outline-offset: 4px; }
 .tasks-overview { display: flex; align-items: stretch; flex-wrap: wrap; gap: 8px 30px; margin: 0 0 18px; padding: 0; }
 .tasks-overview > button, .tasks-overview > div { display: flex; position: relative; align-items: baseline; flex-wrap: wrap; gap: 8px; min-width: 0; min-height: 64px; padding: 12px 0; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; color: var(--ui-text-muted); text-align: left; overflow-wrap: anywhere; }
 .tasks-overview > * > svg { align-self: center; width: 15px; height: 15px; margin-right: 2px; }
 .tasks-overview strong { color: var(--ui-text); font-family: 'Bahnschrift', 'Segoe UI', sans-serif; font-size: 1.8rem; font-weight: 350; letter-spacing: -.05em; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.tasks-overview span { font-size: .75rem; line-height: 1.6; }
-.tasks-overview > .is-active { border-bottom-color: var(--ui-accent); color: var(--ui-text); }
+.tasks-overview span { font-size: .875rem; line-height: 1.6; }
+.tasks-overview > .is-active { border-bottom: 2px solid var(--ui-accent); color: var(--ui-text); font-weight: 600; }
 .tasks-overview > button:hover { color: var(--ui-accent); }
 .tasks-overview > .is-overdue, .tasks-overview > .is-overdue strong { color: var(--ui-danger); }
 :root[data-theme] .nexus-atelier .tasks-view .tasks-filter-panel { margin-bottom: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
@@ -27,45 +24,44 @@
 .tasks-search > input { width: 100%; min-width: 0; min-height: 48px; padding: 10px 0; border: 0; border-radius: 0; background: transparent; color: var(--ui-text); font-family: inherit; font-size: 1rem; }
 .tasks-search > input::placeholder { color: var(--ui-text-muted); opacity: 1; }
 .tasks-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 26px; margin-top: 20px; }
-.tasks-filters > label { display: grid; gap: 2px; min-width: 0; color: var(--ui-text-muted); font-size: .6875rem; line-height: 1.6; }
-.tasks-filters select { width: 100%; min-width: 0; min-height: 44px; padding: 6px 20px 6px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background-color: transparent; color: var(--ui-text); font-family: inherit; font-size: .8125rem; }
+.tasks-filters > label { display: grid; gap: 2px; min-width: 0; color: var(--ui-text-secondary); font-size: .875rem; line-height: 1.6; }
+.tasks-filters select { width: 100%; min-width: 0; min-height: 44px; padding: 6px 20px 6px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background-color: transparent; color: var(--ui-text); font-family: inherit; font-size: 1rem; }
 .tasks-filters select option { background: var(--ui-surface); color: var(--ui-text); }
 .tasks-results-line { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; min-height: 64px; padding: 12px 0; }
-.tasks-results-line > p { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ui-text-muted); font: .6875rem/1.6 Consolas, 'Liberation Mono', monospace; }
-.tasks-view .tasks-text-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; max-width: 100%; padding: 5px 0; border: 0; background: transparent; color: var(--ui-text-secondary); font-family: inherit; font-size: .75rem; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; }
+.tasks-results-line > p { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ui-text-secondary); font-size: .875rem; line-height: 1.6; font-variant-numeric: tabular-nums; }
+.tasks-view .tasks-text-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; max-width: 100%; padding: 5px 0; border: 0; background: transparent; color: var(--ui-text-secondary); font-family: inherit; font-size: .875rem; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; }
 .tasks-view .tasks-text-button:hover { color: var(--ui-accent); }
 .tasks-view .planning-task-list { gap: 0; }
 :root[data-theme] .nexus-atelier .tasks-view .planning-task-card { position: relative; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; row-gap: 0; padding: 20px 0; border: 0; border-top: 1px solid var(--ui-border); border-radius: 0; background: transparent; box-shadow: none; }
 .tasks-view .planning-task-card:last-child { border-bottom: 1px solid var(--ui-border) !important; }
 .tasks-view .planning-task-title-row { grid-column: 1; align-items: center; gap: 12px; }
-.tasks-view .planning-task-title-row > h3 { font-size: 1.125rem; font-weight: 450; letter-spacing: -.02em; }
+.tasks-view .planning-task-title-row > h3 { font-size: 1.125rem; font-weight: 550; letter-spacing: -.015em; }
 .tasks-view .planning-task-state { color: var(--ui-text-muted); }
 .tasks-view .planning-task-card:hover .planning-task-state { color: var(--ui-accent); }
 .tasks-view .planning-task-chips { grid-column: 1; gap: 4px 12px; margin-left: 31px; }
-.tasks-view .planning-task-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--ui-text-muted); font-size: .6875rem; line-height: 1.8; }
+.tasks-view .planning-task-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--ui-text-secondary); font-size: .875rem; line-height: 1.6; }
 .tasks-view .planning-task-chip.priority-high, .tasks-view .planning-task-chip.is-tag { color: var(--ui-accent); background: transparent; }
 .tasks-view .planning-task-chip.is-overdue { color: var(--ui-danger); }
 .tasks-view .planning-task-actions { grid-column: 2; grid-row: 1 / 3; align-items: center; justify-content: flex-end; align-self: center; gap: 8px 14px; max-width: 300px; }
-.tasks-view .planning-task-card.is-compact .planning-task-actions .secondary-button { flex: 0 1 auto; min-height: 44px; padding: 7px 10px; border-color: var(--ui-border); background: transparent; font-size: .75rem; }
+.tasks-view .planning-task-card.is-compact .planning-task-actions .secondary-button { flex: 0 1 auto; min-height: 44px; padding: 7px 10px; border-color: var(--ui-border); background: transparent; font-size: .875rem; }
 .tasks-view .planning-task-more { flex: 0 1 auto; }
-.tasks-view .planning-task-more > summary { padding: 8px 0; border: 0; border-radius: 0; font-size: .75rem; }
+.tasks-view .planning-task-more > summary { padding: 8px 0; border: 0; border-radius: 0; font-size: .875rem; }
 .tasks-view .planning-task-more[open] { align-self: flex-start; }
 .tasks-view .planning-task-feedback, .tasks-view .planning-task-error { grid-column: 1 / -1; margin-left: 31px; }
-.tasks-view .planning-task-feedback { min-height: 0; padding-top: 8px; font-size: .6875rem; }
+.tasks-view .planning-task-feedback { min-height: 0; padding-top: 8px; font-size: .875rem; }
 .tasks-view .planning-task-feedback:empty { display: none; }
 .tasks-view .planning-task-error { margin-top: 10px; }
-.tasks-notice { margin: 0 0 18px; padding: 14px 16px; border: 1px solid var(--ui-border); border-left-color: var(--ui-accent); border-radius: 0; color: var(--ui-text-secondary); font-size: .8125rem; line-height: 1.7; overflow-wrap: anywhere; }
+.tasks-notice { margin: 0 0 18px; padding: 14px 16px; border: 1px solid var(--ui-border); border-left-color: var(--ui-accent); border-radius: 0; color: var(--ui-text-secondary); font-size: 1rem; line-height: 1.7; overflow-wrap: anywhere; }
 .tasks-notice.is-error { border-left-color: var(--ui-danger); background: color-mix(in srgb, var(--ui-danger) 3%, transparent); color: var(--ui-danger); }
 .tasks-notice > p { margin: 0 0 10px; }
 .tasks-empty { display: flex; align-items: flex-start; flex-direction: column; gap: 13px; padding: 36px 0 24px; border-top: 1px solid var(--ui-border); }
 .tasks-empty > span { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 8px; color: var(--ui-accent); }
 .tasks-empty h2 { margin: 0 0 5px; font-family: 'Bahnschrift', 'Segoe UI', sans-serif; font-size: 1.75rem; font-weight: 350; letter-spacing: -.04em; line-height: 1.3; }
 .tasks-empty > button { min-height: 44px; max-width: 100%; white-space: normal; }
-.tasks-view .planning-task-empty { margin: 0; padding: 28px 0; border: 0; border-block: 1px solid var(--ui-border); border-radius: 0; color: var(--ui-text-muted); font-size: .8125rem; line-height: 1.7; }
+.tasks-view .planning-task-empty { margin: 0; padding: 28px 0; border: 0; border-block: 1px solid var(--ui-border); border-radius: 0; color: var(--ui-text-secondary); font-size: 1rem; line-height: 1.7; }
 .tasks-footer { display: flex; align-items: center; justify-content: flex-end; padding-top: 10px; }
 @media (max-width: 1100px) {
   .tasks-view .planning-task-actions { gap: 5px 10px; max-width: 260px; }
-  .tasks-view .planning-task-title-row > h3 { font-size: 1rem; }
 }
 @media (max-width: 850px) {
   :root[data-theme] .nexus-atelier .tasks-view .planning-task-card { grid-template-columns: minmax(0, 1fr); row-gap: 3px; }
@@ -77,18 +73,14 @@
   .tasks-content { padding: 24px 20px 28px; }
   .tasks-heading { gap: 18px; padding-bottom: 22px; }
   :root[data-theme] .nexus-atelier .tasks-heading h1 { font-size: clamp(2.1rem, 9vw, 3rem); }
-  .tasks-heading .eyebrow { font-size: .5625rem; }
   .tasks-heading-actions { width: 100%; padding: 0; gap: 10px; }
-  .tasks-heading-actions > button { flex: 1 1 auto; font-size: .75rem; }
+  .tasks-heading-actions > button { flex: 1 1 auto; }
   .tasks-overview { gap: 4px 18px; margin-bottom: 10px; }
   .tasks-overview > button, .tasks-overview > div { min-height: 60px; gap: 5px; }
   .tasks-overview > * > svg { display: none; }
   .tasks-overview strong { font-size: 1.5rem; }
-  .tasks-overview span { font-size: .6875rem; }
   .tasks-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
-  .tasks-search > input { font-size: .875rem; }
   .tasks-view .planning-task-card { padding-block: 16px; }
-  .tasks-view .planning-task-title-row > h3 { font-size: 1rem; }
   .tasks-view .planning-task-actions { flex-wrap: wrap; gap: 4px 14px; }
 }
 @media (max-width: 370px) {
@@ -103,25 +95,11 @@
 }
 @media (max-height: 430px) { .tasks-view { height: auto; overflow: visible; } }
 
-/* Nexus task controls share the start screen's quiet text and ruled surfaces. */
-.nexus-horizon .horizon-tasks-view .tasks-filters > label {
-  font-size: var(--hz-meta, .75rem);
-  line-height: 1.6;
-}
-.nexus-horizon .horizon-tasks-view .tasks-filters select {
-  border-bottom-color: var(--hz-line, #a8cfe526);
-  font-size: var(--hz-body, .875rem);
-}
-.nexus-horizon .horizon-tasks-view .tasks-results-line > p {
-  font-family: inherit;
-  font-size: var(--hz-meta, .75rem);
-}
 .nexus-horizon .horizon-tasks-view .tasks-notice {
   padding: 12px 14px;
   border-color: var(--hz-line, #a8cfe526);
   border-left-color: #b7d9ed;
   border-radius: var(--hz-radius, 5px);
-  font-size: var(--hz-body, .875rem);
 }
 .nexus-horizon .horizon-tasks-view .tasks-notice.is-error {
   border-left-color: var(--ui-danger);

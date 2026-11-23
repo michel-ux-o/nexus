@@ -13,8 +13,8 @@ const LABELS: Record<ThemeId, string> = { nexus: 'Nexus', daylight: 'Tageslicht'
 export function ThemeSettings({ id, choice, previewing, onChange }: ThemeSettingsProps) {
   return (
     <fieldset className="theme-settings" aria-describedby={`${id}-theme-help`}>
-      <legend>Farbschema</legend>
-      <p id={`${id}-theme-help`} className="settings-muted">Wähle ein Farbschema. Die gesamte App zeigt deine Auswahl sofort als Vorschau; gespeichert wird sie erst mit den Einstellungen.</p>
+      <legend className="settings-display-label">Farbschema</legend>
+      <p id={`${id}-theme-help`} className="settings-muted">Die App zeigt deine Auswahl sofort als Vorschau. Mit „Einstellungen speichern“ übernimmst du sie.</p>
       <div className="theme-options">
         {THEME_OPTIONS.map((option) => <label className="theme-option" key={option.id}>
           <input type="radio" name={`${id}-theme`} value={option.id} checked={choice === option.id} onChange={() => onChange(option.id)} />

@@ -16,6 +16,23 @@ const WORKSPACE_STORE = 'workspace';
 const PLANNING_KEY = 'planning';
 const LAST_WORKSPACE_BACKUP_KEY = 'lastWorkspaceBackup';
 const LAST_MIGRATION_BACKUP_KEY = 'lastMigrationBackup';
+// Each repository connection is pinned to one account database. Sync state never
+// belongs in the exported graph or in the shared browser preference storage.
+const SYNC_STATE_KEY = 'syncState205';
+
+/** Sync metadata is opaque JSON data; object property order is not a revision. */
+function syncStateContent(value: unknown): string | undefined {
+  return JSON.stringify(value, (_key, entry: unknown) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return entry;
+    return Object.fromEntries(Object.entries(entry).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0));
+  });
+}
+
+function workspaceContent(workspace: WorkspaceBackup): string {
+  // IndexedDB stores notes by ID, independently of their order in a cloud file.
+  // Other arrays retain their order, which can be meaningful to the planner.
+  return JSON.stringify({ notes: [...workspace.notes].sort((left, right) => left.id < right.id ? -1 : left.id > right.id ? 1 : 0), planning: workspace.planning });
+}
 
 function storageError(error: unknown, fallback = 'Der Browserspeicher konnte nicht verwendet werden.'): Error {
   if (error instanceof Error && error.name !== 'UnknownError') {
@@ -349,6 +366,87 @@ async function transaction<T>(
   async exportWorkspace(): Promise<WorkspaceBackup> {
     return transaction<WorkspaceBackup>([NOTES_STORE, WORKSPACE_STORE], 'readonly', (tx, setResult, fail) => {
       readWorkspace(tx, setResult, fail);
+    });
+  },
+
+  async getSyncState<T>(): Promise<T | null> {
+    return transaction<T | null>([METADATA_STORE], 'readonly', (tx, setResult) => {
+      const request = tx.objectStore(METADATA_STORE).get(SYNC_STATE_KEY);
+      request.onsuccess = () => setResult((request.result as T | undefined) ?? null);
+    });
+  },
+
+  async putSyncState<T>(state: T): Promise<void> {
+    const snapshot = structuredClone(state);
+    return transaction<void>([METADATA_STORE], 'readwrite', tx => {
+      tx.objectStore(METADATA_STORE).put(snapshot, SYNC_STATE_KEY);
+    });
+  },
+
+  /** Read graph and retry/base metadata from the same committed revision. */
+  async readSyncedWorkspace<T>(): Promise<{ workspace: WorkspaceBackup; syncState: T | null }> {
+    return transaction<{ workspace: WorkspaceBackup; syncState: T | null }>([NOTES_STORE, WORKSPACE_STORE, METADATA_STORE], 'readonly', (tx, setResult, fail) => {
+      const metadata = tx.objectStore(METADATA_STORE).get(SYNC_STATE_KEY);
+      let workspace: WorkspaceBackup | undefined;
+      let metadataReady = false;
+      const ready = () => {
+        if (workspace && metadataReady) setResult({ workspace, syncState: (metadata.result as T | undefined) ?? null });
+      };
+      metadata.onsuccess = () => { metadataReady = true; ready(); };
+      readWorkspace(tx, current => { workspace = current; ready(); }, fail);
+    });
+  },
+
+  /** A competing window cannot replace a pending immutable mutation unnoticed. */
+  async compareAndSetSyncState<T>(expected: T | null, next: T): Promise<boolean> {
+    const expectedContent = syncStateContent(expected);
+    const snapshot = structuredClone(next);
+    return transaction<boolean>([METADATA_STORE], 'readwrite', (tx, setResult, fail) => {
+      const store = tx.objectStore(METADATA_STORE);
+      const request = store.get(SYNC_STATE_KEY);
+      request.onsuccess = () => {
+        try {
+          if (syncStateContent(request.result ?? null) !== expectedContent) { setResult(false); return; }
+          store.put(snapshot, SYNC_STATE_KEY);
+          setResult(true);
+        } catch (error) { fail(error); }
+      };
+    });
+  },
+
+  /**
+   * Commit a validated cloud graph, its old backup and new sync state together.
+   * The caller blocks and flushes both UI stores before applying, and reloads
+   * them before releasing that barrier. Failed CAS/transactions change nothing.
+   */
+  async applySyncedWorkspace<T>(expectedCurrent: WorkspaceBackup, next: WorkspaceBackup, syncState: T, expectedSyncState?: T | null): Promise<boolean> {
+    const expectedContent = workspaceContent(parseWorkspaceBackup(JSON.stringify(expectedCurrent)));
+    const incoming = parseWorkspaceBackup(JSON.stringify(next));
+    const metadata = structuredClone(syncState);
+    const compareMetadata = expectedSyncState !== undefined;
+    const expectedMetadata = compareMetadata ? syncStateContent(expectedSyncState) : undefined;
+    return transaction<boolean>([NOTES_STORE, WORKSPACE_STORE, METADATA_STORE], 'readwrite', (tx, setResult, fail) => {
+      const store = tx.objectStore(METADATA_STORE);
+      const request = store.get(SYNC_STATE_KEY);
+      let current: WorkspaceBackup | undefined;
+      let metadataReady = false;
+      const ready = () => {
+        if (!current || !metadataReady) return;
+        try {
+          if (workspaceContent(current) !== expectedContent || (compareMetadata && syncStateContent(request.result ?? null) !== expectedMetadata)) {
+            setResult(false); return;
+          }
+          store.put(current, LAST_WORKSPACE_BACKUP_KEY);
+          store.put(metadata, SYNC_STATE_KEY);
+          const notes = tx.objectStore(NOTES_STORE);
+          notes.clear();
+          for (const note of incoming.notes) notes.add(note);
+          tx.objectStore(WORKSPACE_STORE).put(incoming.planning, PLANNING_KEY);
+          setResult(true);
+        } catch (error) { fail(error); }
+      };
+      request.onsuccess = () => { metadataReady = true; ready(); };
+      readWorkspace(tx, workspace => { current = workspace; ready(); }, fail);
     });
   },
 

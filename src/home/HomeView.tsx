@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Bell, CalendarDays, CalendarPlus, Check, CheckCheck, ChevronDown, Clock3, FilePlus2, ListPlus, LoaderCircle, Mic, NotebookPen, Pin, RotateCcw, SlidersHorizontal, Sparkles, Square } from 'lucide-react';
 import type { Note } from '../types';
+import { noteTagLabel } from '../editor/noteTags';
 import { DEFAULT_DASHBOARD, type DashboardSection, type PlannerViewProps, type Reminder, type Task, type View } from '../planning/types';
 import { addDays, dateInZone, formatDate, formatTime, todayInZone } from '../planning/dates';
 import { tasksForDay } from '../planning/selectors';
@@ -32,7 +33,7 @@ function NoteLinks({ notes, timeZone, today, onOpenNote }: { notes: Note[]; time
       return <li key={note.id}><button className="home-note-link" type="button" onClick={() => onOpenNote(note.id)} aria-label={'Notiz öffnen: ' + title}>
         <span className="home-note-icon" aria-hidden="true">{note.pinned ? <Pin size={15} /> : <NotebookPen size={16} />}</span>
         <span className="home-note-copy"><span className="home-note-title">{title}</span><span className="home-note-preview">{notePreview(note.content) || 'Noch kein Text'}</span>
-          <span className="home-note-meta"><time dateTime={note.updatedAt} title={formatDate(date) + ', ' + formatTime(note.updatedAt, timeZone) + ' (' + timeZone + ')'}>{relativeDate}, {formatTime(note.updatedAt, timeZone)}</time>{note.tags.slice(0, 2).map(tag => <span className="home-note-tag" key={tag}>#{tag}</span>)}</span>
+          <span className="home-note-meta"><time dateTime={note.updatedAt} title={formatDate(date) + ', ' + formatTime(note.updatedAt, timeZone) + ' (' + timeZone + ')'}>{relativeDate}, {formatTime(note.updatedAt, timeZone)}</time>{note.tags.slice(0, 2).map(tag => <span className="home-note-tag" key={tag}>{noteTagLabel(tag, '#')}</span>)}</span>
         </span><ArrowUpRight className="home-note-arrow" size={14} aria-hidden="true" />
       </button></li>;
     })}

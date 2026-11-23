@@ -39,10 +39,24 @@
 .week-overview-item > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
 .week-overview-item strong { color: var(--ui-text); font-size: .9375rem; font-weight: 450; font-variant-numeric: tabular-nums; }
 .week-overview-item span { color: var(--ui-text-muted); font-size: .75rem; }
-.week-overview-overdue { margin-left: auto; }
 .week-overview-overdue, .week-overview-overdue strong, .week-overview-overdue span { color: var(--ui-danger); }
+.week-view .week-goals-jump { margin-left: auto; color: var(--ui-accent); font-weight: 500; }
 .week-mobile-tabs { display: none; }
 .week-day-preview, .week-day-name-short, .week-days-label { display: none; }
+.week-day-highlights { margin: 0 12px 10px; }
+.week-day-preview-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.week-day-activities { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.week-day-activity { display: flex; align-items: baseline; gap: 5px; min-width: 0; }
+.week-day-activity time { flex-shrink: 0; color: var(--ui-accent); font-size: .75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.week-day-activity strong, .week-day-fallback { min-width: 0; color: var(--ui-text); font-size: .875rem; font-weight: 500; line-height: 1.5; }
+.week-day-routines { display: flex; align-items: baseline; gap: 6px; }
+.week-day-routines > svg { align-self: flex-start; flex-shrink: 0; margin-top: .15em; }
+.week-day-routines-label { flex-shrink: 0; font-weight: 550; }
+.week-day-routines-list { min-width: 0; }
+.week-day-routines, .week-day-more-activities { color: var(--ui-text-muted); font-size: .75rem; line-height: 1.6; }
+.week-day-time-details { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.week-day-time { display: flex; align-items: baseline; gap: .45em; }
+.week-day-time > strong { color: var(--ui-text); font-weight: 550; }
 .week-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: stretch; gap: 0; }
 :root[data-theme] .nexus-atelier .week-view .week-day { position: relative; display: flex; flex-direction: column; min-width: 0; border: 0; border-left: 1px solid var(--ui-border); border-radius: 0; background: transparent; box-shadow: none; overflow-wrap: anywhere; }
 :root[data-theme] .nexus-atelier .week-view .week-day:first-child { border-left: 0; }
@@ -117,6 +131,8 @@
 .week-count { color: var(--ui-text-muted); font-family: Consolas, 'Liberation Mono', monospace; font-size: .6875rem; font-variant-numeric: tabular-nums; }
 .week-pool .planning-task-card { padding-inline: 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; box-shadow: none; }
 .week-pool .planning-task-empty { padding: 10px 0 24px; border: 0; background: transparent; color: var(--ui-text-muted); font-size: .8125rem; }
+.week-pool.is-empty .week-panel-heading { min-height: 44px; margin-bottom: 0; }
+.week-pool.is-empty .week-inbox { margin-top: 0; }
 .week-pool-placements { border-top: 1px solid var(--ui-border); }
 .week-placement { min-width: 0; padding: 13px 0; }
 .week-placement + .week-placement { border-top: 1px solid var(--ui-border); }
@@ -185,7 +201,7 @@
   .week-day-number { font-size: 2.5rem; }
   .week-today-label { font-size: .6875rem; }
   .week-view .week-day-quick-add { flex-basis: 44px; width: 44px; }
-  .week-day-capacity { margin-inline: 0; font-size: .75rem; }
+  .week-day-highlights, .week-day-capacity { margin-inline: 0; font-size: .75rem; }
   .week-day-body { padding-inline: 0; }
   .week-day-section-title h2, .week-day-section-title > span { font-size: .75rem; }
   .week-day-conflicts { margin-inline: 0; }
@@ -214,7 +230,7 @@
   .week-date-picker { flex: 1 1 100%; justify-content: space-between; margin-left: 0; }
   .week-timezone { margin-left: auto; font-size: .625rem; }
   .week-overview { gap: 12px 20px; margin-bottom: 20px; }
-  .week-overview-overdue { margin-left: 0; }
+  .week-view .week-goals-jump { margin-left: 0; }
   .week-lower-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .week-placement-controls { flex-wrap: wrap; }
   .week-placement select { width: auto; }
@@ -239,6 +255,11 @@
 
 /* Horizont keeps the planner on the shared particle landscape. */
 .nexus-horizon .week-view {
+  --week-body: 1rem;
+  --week-context: .875rem;
+  --week-section-title: 1.125rem;
+  --week-day-column: 7.75rem;
+  --week-day-gap: .75rem;
   --ui-canvas: #0b1119;
   --ui-surface: var(--hz-window, #0c141eee);
   --ui-surface-raised: #142131;
@@ -255,7 +276,7 @@
   color-scheme: dark;
   max-width: 1600px;
   padding: 26px clamp(22px, 3.8vw, 66px) 64px;
-  font-size: var(--hz-body, .875rem);
+  font-size: var(--week-body);
   line-height: 1.6;
   text-shadow: 0 1px 8px #050a12a6;
 }
@@ -265,107 +286,138 @@
 .nexus-horizon .week-heading h1 em { color: inherit; font: inherit; letter-spacing: inherit; }
 .nexus-horizon .week-heading h1 > span { display: none; }
 .nexus-horizon .week-heading-actions { gap: 4px 14px; }
-.nexus-horizon .week-view .week-button { font-size: var(--hz-body, .875rem); border-radius: var(--hz-radius, 5px); }
+.nexus-horizon .week-view .week-button { font-size: var(--week-body); border-radius: var(--hz-radius, 5px); }
 .nexus-horizon .week-heading-actions .week-button { padding-inline: 0; border-color: transparent; background: transparent; color: var(--ui-text-secondary); }
 .nexus-horizon .week-heading-actions .week-button:hover:not(:disabled) { color: var(--ui-accent); background: transparent; }
-.nexus-horizon .week-toolbar { gap: 10px 18px; margin-bottom: 22px; }
+.nexus-horizon .week-toolbar { gap: 10px 18px; margin-bottom: 14px; }
 .nexus-horizon .week-navigation-period { min-width: 0; padding-inline: 8px; }
-.nexus-horizon .week-navigation-period > strong { font-size: var(--hz-body, .875rem); font-weight: 400; }
-.nexus-horizon .week-navigation-period > span { font-family: inherit; font-size: var(--hz-meta, .75rem); }
+.nexus-horizon .week-navigation-period > strong { font-size: var(--week-body); font-weight: 550; }
+.nexus-horizon .week-navigation-period > span { font-family: inherit; font-size: var(--week-context); }
 .nexus-horizon .week-navigation .week-icon-button { border-color: transparent; }
 .nexus-horizon .week-current-button { margin-left: 10px; padding-left: 20px; border-left: 1px solid var(--ui-border); border-radius: 0; }
-.nexus-horizon .week-timezone { color: var(--ui-text-muted); font-family: inherit; font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-overview { gap: 12px 24px; margin: 0 0 24px; padding-block: 8px 14px; border-color: var(--ui-border-soft); }
-.nexus-horizon .week-overview-item strong { font-size: var(--hz-body, .875rem); font-weight: 400; }
-.nexus-horizon .week-overview-item span { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-workspace { display: grid; grid-template-columns: minmax(0, 2.35fr) minmax(260px, 1fr); align-items: start; gap: clamp(28px, 4.8vw, 76px); }
+.nexus-horizon .week-timezone { color: var(--ui-text-muted); font-family: inherit; font-size: var(--week-context); }
+.nexus-horizon .week-overview { gap: 12px 24px; margin: 0 0 16px; padding-block: 3px 8px; border-color: var(--ui-border-soft); }
+.nexus-horizon .week-overview-item { align-items: flex-start; }
+.nexus-horizon .week-overview-item > svg { flex-shrink: 0; margin-top: .3em; color: var(--ui-accent); }
+.nexus-horizon .week-overview-overdue > svg { color: var(--ui-danger); }
+.nexus-horizon .week-overview-item > div { flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.35; }
+.nexus-horizon .week-overview-item strong { font-size: var(--week-body); font-weight: 600; }
+.nexus-horizon .week-overview-item span { font-size: var(--week-context); }
+.nexus-horizon .week-workspace { display: grid; grid-template-columns: minmax(0, 2.75fr) minmax(220px, 1fr); align-items: start; gap: clamp(24px, 3.2vw, 58px); }
 .nexus-horizon .week-agenda-column { min-width: 0; }
 .nexus-horizon .week-mobile-tabs { display: none; }
-.nexus-horizon .week-days-label { display: block; margin: 0; padding: 0 65px 10px 0; color: var(--ui-text-muted); font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; text-align: right; }
+.nexus-horizon .week-days-label { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 0 82px 6px 0; color: var(--ui-text-muted); font-size: var(--week-context); }
+:root[data-theme] .nexus-horizon .week-view .week-days-label h2 { margin: 0; color: var(--ui-text); font: inherit; font-size: var(--week-section-title); font-weight: 550; letter-spacing: normal; }
 .nexus-horizon .week-days { display: block; }
 :root[data-theme] .nexus-horizon .week-view .week-day,
 :root[data-theme] .nexus-horizon .week-view .week-day:first-child { display: flex; border: 0; border-bottom: 1px solid var(--ui-border); background: transparent; box-shadow: none; }
-:root[data-theme] .nexus-horizon .week-view .week-day.is-today { background: linear-gradient(90deg, #a6d8e808, transparent 72%); box-shadow: none; }
+:root[data-theme] .nexus-horizon .week-view .week-day.is-today { background: linear-gradient(90deg, #a6d8e816, transparent 72%); box-shadow: none; }
 :root[data-theme] .nexus-horizon .week-view .week-day.is-drop-target { outline: 2px solid var(--ui-accent); outline-offset: -2px; background: #a6d8e810; }
-.nexus-horizon .week-day-heading { display: grid; grid-template-columns: 100px minmax(0, 1fr) 32px; align-items: center; gap: 10px; padding: 12px 0; }
-.nexus-horizon .week-day-open { display: grid; grid-template-columns: 40px 40px; align-content: center; align-items: baseline; gap: 4px 6px; min-height: 58px; }
-.nexus-horizon .week-day-name-long, .nexus-horizon .week-day-month { display: none; }
-.nexus-horizon .week-day-name-short { display: inline; }
-.nexus-horizon .week-day-name { color: var(--ui-text); font-family: inherit; font-size: var(--hz-body, .875rem); font-weight: 400; }
-.nexus-horizon .week-day-number { color: var(--ui-accent); font-family: inherit; font-size: 1.2rem; font-weight: 400; letter-spacing: 0; }
-.nexus-horizon .week-today-label { grid-column: 1 / -1; justify-self: start; padding: 0; border-radius: 0; background: transparent; color: var(--ui-accent); font-size: var(--hz-meta, .75rem); line-height: 1.4; }
+.nexus-horizon .week-day:nth-child(6) { margin-top: .3rem; }
+.nexus-horizon .week-day-heading { display: grid; grid-template-columns: var(--week-day-column) minmax(0, 1fr) 32px; align-items: center; gap: var(--week-day-gap); padding: 5px 0; }
+.nexus-horizon .week-day-open { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-content: center; align-items: baseline; gap: 1px .3rem; min-height: 46px; }
+.nexus-horizon .week-day-name { grid-column: 1 / -1; color: var(--ui-text); font-family: inherit; font-size: var(--week-section-title); font-weight: 550; line-height: 1.25; }
+.nexus-horizon .week-day-number { gap: .2rem; color: var(--ui-text-secondary); font-family: inherit; font-size: var(--week-context); font-weight: 500; letter-spacing: 0; line-height: 1.4; }
+.nexus-horizon .week-day-month { font-size: inherit; }
+.nexus-horizon .week-today-label { justify-self: start; color: var(--ui-accent); font-size: var(--week-context); line-height: 1.4; }
 .nexus-horizon .week-day.is-today .week-day-name { color: var(--ui-accent); }
-.nexus-horizon .week-day-preview { display: grid; grid-template-columns: minmax(0, 1fr) 90px 18px; align-items: center; gap: 15px; width: 100%; min-width: 0; min-height: 58px; padding: 0; border: 0; background: transparent; color: var(--ui-text); text-align: left; }
-.nexus-horizon .week-day-preview:hover { color: var(--ui-accent); }
+.nexus-horizon .week-day-preview { display: grid; grid-template-columns: minmax(0, 1fr) auto 18px; align-items: center; gap: 12px; width: 100%; min-width: 0; min-height: 46px; padding: 0; border: 0; background: transparent; color: var(--ui-text); text-align: left; }
+.nexus-horizon .week-day-preview:hover :is(.week-day-activity strong, .week-day-fallback, svg) { color: var(--ui-accent); }
 .nexus-horizon .week-day-preview > svg { color: var(--ui-text-secondary); }
 .nexus-horizon .week-day.is-expanded .week-day-preview > svg { transform: rotate(90deg); }
-.nexus-horizon .week-day-preview-copy { display: flex; flex-direction: column; gap: 7px; min-width: 0; overflow-wrap: anywhere; }
-.nexus-horizon .week-day-preview-copy > strong { font-size: var(--hz-body, .875rem); font-weight: 400; line-height: 1.5; }
-.nexus-horizon .week-day-preview-copy > span { color: var(--ui-text-muted); font-size: var(--hz-meta, .75rem); line-height: 1.6; }
-.nexus-horizon .week-day-preview-duration { color: var(--ui-text); font-size: var(--hz-meta, .75rem); font-variant-numeric: tabular-nums; line-height: 1.5; text-align: right; }
-.nexus-horizon .week-day-preview-duration small { display: none; }
-.nexus-horizon .week-day-preview-duration.is-over-budget { color: var(--ui-warning); }
+.nexus-horizon .week-day-highlights { display: none; }
+.nexus-horizon :is(.week-day-activity strong, .week-day-fallback, .week-day-activity time) { font-size: var(--week-body); line-height: 1.35; }
+.nexus-horizon .week-day-activity time { font-weight: 600; }
+.nexus-horizon :is(.week-day-routines, .week-day-more-activities) { font-size: var(--week-context); line-height: 1.35; }
+.nexus-horizon .week-day-routines-label, .nexus-horizon .week-day-routines > svg { color: var(--ui-text-secondary); }
+.nexus-horizon .week-day-preview .week-day-activities { flex-wrap: nowrap; }
+.nexus-horizon .week-day-preview .week-day-more-activities { flex-shrink: 0; white-space: nowrap; }
+.nexus-horizon .week-day-preview :is(.week-day-activity strong, .week-day-routines-list, .week-day-fallback) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nexus-horizon .week-day-preview-duration { display: grid; grid-template-columns: max-content max-content; align-items: baseline; column-gap: .4rem; color: var(--ui-text-muted); font-size: var(--week-context); font-variant-numeric: tabular-nums; line-height: 1.35; }
+.nexus-horizon .week-day-preview-duration .week-day-time { display: contents; }
+.nexus-horizon .week-day-preview-duration strong { justify-self: end; font-size: var(--week-body); }
+.nexus-horizon .week-day-preview-duration.is-over-budget strong, .nexus-horizon .week-day-preview-conflicts { color: var(--ui-warning); }
+.nexus-horizon .week-day-preview-conflicts { display: flex; align-items: center; grid-column: 1 / -1; gap: 4px; }
 .nexus-horizon .week-day:not(.is-expanded) > :is(.week-day-capacity, .week-day-conflicts, .week-day-body, .week-day-footer) { display: none; }
 .nexus-horizon .week-view .week-day-quick-add { opacity: .65; }
 .nexus-horizon .week-day:hover .week-day-quick-add, .nexus-horizon .week-day:focus-within .week-day-quick-add { opacity: 1; }
-.nexus-horizon .week-day-capacity { margin: 4px 0 18px 110px; }
-.nexus-horizon .week-day-body { padding: 0 0 12px 110px; }
-.nexus-horizon .week-day-conflicts { margin-left: 110px; }
-.nexus-horizon .week-day-footer { margin-left: 110px; padding-inline: 0; }
-.nexus-horizon .week-day .planning-task-title-row > h3, .nexus-horizon .week-agenda-edit strong { font-size: var(--hz-body, .875rem); font-weight: 400; }
-.nexus-horizon .week-day .planning-task-chip { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-agenda-edit time { font-family: inherit; font-size: var(--hz-meta, .75rem); font-variant-numeric: tabular-nums; }
-.nexus-horizon .week-agenda-edit > span { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-day-section-title h2 { font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; }
-.nexus-horizon .week-day-section-title > span { font-family: inherit; font-size: var(--hz-meta, .75rem); }
+.nexus-horizon .week-day-capacity { margin: 4px 0 18px calc(var(--week-day-column) + var(--week-day-gap)); }
+.nexus-horizon .week-day-body { padding: 0 0 12px calc(var(--week-day-column) + var(--week-day-gap)); }
+.nexus-horizon .week-day-conflicts { margin-left: calc(var(--week-day-column) + var(--week-day-gap)); }
+.nexus-horizon .week-day-footer { margin-left: calc(var(--week-day-column) + var(--week-day-gap)); padding-inline: 0; }
+.nexus-horizon .week-day .planning-task-title-row > h3, .nexus-horizon .week-agenda-edit strong { font-size: var(--week-body); font-weight: 550; }
+.nexus-horizon .week-day .planning-task-chip { font-size: var(--week-context); }
+.nexus-horizon .week-agenda-edit time { font-family: inherit; font-size: var(--week-body); font-variant-numeric: tabular-nums; }
+.nexus-horizon .week-agenda-edit > span { font-size: var(--week-context); }
+.nexus-horizon .week-day-section-title h2 { color: var(--ui-text); font-size: var(--week-section-title); font-weight: 550; }
+.nexus-horizon .week-day-section-title > span { font-family: inherit; font-size: var(--week-context); }
 .nexus-horizon .week-capacity-info { margin: 12px 0 0; }
-.nexus-horizon .week-capacity-info > summary { font-size: var(--hz-meta, .75rem); }
+.nexus-horizon :is(.week-capacity-info > summary, .week-time-explanation) { font-size: var(--week-context); }
 .nexus-horizon .week-lower-grid { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
 .nexus-horizon .week-lower-grid > * { width: 100%; }
 :root[data-theme] .nexus-horizon .week-view .week-pool { border-top: 0; }
 .nexus-horizon .week-panel-heading { min-height: 32px; margin-bottom: 12px; }
-:root[data-theme] .nexus-horizon .week-view .week-panel-heading h2 { gap: 12px; color: var(--ui-text-secondary); font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; }
+:root[data-theme] .nexus-horizon .week-view .week-panel-heading h2 { gap: .6rem; color: var(--ui-text); font-size: var(--week-section-title); font-weight: 550; letter-spacing: normal; }
 .nexus-horizon .week-section-index { display: none; }
-.nexus-horizon .week-count { color: var(--ui-accent); font-family: inherit; font-size: var(--hz-meta, .75rem); font-weight: 400; letter-spacing: 0; }
-.nexus-horizon .week-pool .planning-task-title-row > h3 { font-size: var(--hz-body, .875rem); font-weight: 400; }
+.nexus-horizon .week-count { color: var(--ui-accent); font-family: inherit; font-size: var(--week-context); font-weight: 500; letter-spacing: 0; }
+.nexus-horizon .week-pool .planning-task-title-row > h3 { font-size: var(--week-body); font-weight: 550; }
 .nexus-horizon .week-pool .planning-task-card { padding-block: 12px; }
 .nexus-horizon .week-pool .planning-task-chips { gap: 3px 9px; }
-.nexus-horizon .week-pool .planning-task-chip { padding: 0; border: 0; background: transparent; font-size: var(--hz-meta, .75rem); }
+.nexus-horizon .week-pool .planning-task-chip { padding: 0; border: 0; background: transparent; font-size: var(--week-context); }
 .nexus-horizon .week-pool .planning-task-chip:not(.priority-high):not(.is-tag):not(.is-overdue) { color: var(--ui-text-muted); }
 .nexus-horizon .week-pool .planning-task-actions { gap: 3px 9px; }
 .nexus-horizon .week-pool .planning-task-actions .secondary-button,
-.nexus-horizon .week-pool .planning-task-more > summary { min-height: 44px; padding-inline: 0; border-color: transparent; background: transparent; font-size: var(--hz-meta, .75rem); }
+.nexus-horizon .week-pool .planning-task-more > summary { min-height: 44px; padding-inline: 0; border-color: transparent; background: transparent; font-size: var(--week-context); }
 .nexus-horizon .week-pool .planning-task-card:not(.is-done) .planning-task-state { color: var(--ui-text-muted); }
-.nexus-horizon :is(.week-reflection-summary, .week-review-summary) { min-height: 60px; font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; }
+.nexus-horizon :is(.week-reflection-summary, .week-review-summary) { min-height: 52px; color: var(--ui-text); font-size: var(--week-section-title); font-weight: 550; }
+.nexus-horizon :is(.week-reflection-summary, .week-review-summary):hover { color: var(--ui-accent); }
 .nexus-horizon .week-reflection-marker { font-size: 1rem; }
-.nexus-horizon .week-save-state { margin-block: 12px 0; font-size: var(--hz-meta, .75rem); }
-.nexus-horizon :is(.week-pool-description, .week-inbox > summary, .week-placement-title, .week-note-link) { font-size: var(--hz-body, .875rem); }
-.nexus-horizon .week-writing-field { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-writing-field textarea { padding: 12px; border: 1px solid var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); background: var(--hz-window, #0c141eee); font-size: var(--hz-body, .875rem); }
-.nexus-horizon .week-date-picker { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-date-picker input { font-size: var(--hz-body, .875rem); }
-.nexus-horizon :is(.week-day-capacity, .week-day-empty, .week-agenda-task-link, .week-text-button, .week-note-link small) { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon :is(.week-all-day, .week-due) > button strong { font-size: var(--hz-body, .875rem); font-weight: 400; }
-.nexus-horizon .week-mobile-tabs button > span { font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .week-mobile-tabs button > strong { font-family: inherit; font-weight: 400; }
+.nexus-horizon .week-save-state { margin-block: 12px 0; font-size: var(--week-context); }
+.nexus-horizon :is(.week-pool-description, .week-inbox > summary, .week-placement-title, .week-note-link) { font-size: var(--week-body); }
+.nexus-horizon .week-writing-field { font-size: var(--week-context); }
+.nexus-horizon .week-writing-field textarea { padding: 12px; border: 1px solid var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); background: var(--hz-window, #0c141eee); font-size: var(--week-body); }
+.nexus-horizon .week-date-picker { font-size: var(--week-context); }
+.nexus-horizon .week-date-picker input { font-size: var(--week-body); }
+.nexus-horizon :is(.week-day-capacity, .week-day-empty, .week-agenda-task-link, .week-text-button, .week-note-link small) { font-size: var(--week-context); }
+.nexus-horizon .week-day-time-details { gap: .25rem 1rem; }
+.nexus-horizon .week-day-time-details strong { font-size: var(--week-body); }
+.nexus-horizon .week-day-time-details .week-day-time { color: var(--ui-text-secondary); }
+.nexus-horizon :is(.week-all-day, .week-due) > button strong { font-size: var(--week-body); font-weight: 550; }
+.nexus-horizon :is(.week-all-day, .week-due) > button span { font-size: var(--week-context); }
+
+@media (1000px < width <= 1200px) {
+  .nexus-horizon .week-view { --week-day-column: 6rem; }
+  .nexus-horizon .week-day-name-long { display: none; }
+  .nexus-horizon .week-day-name-short { display: inline; }
+}
 
 @media (max-width: 1000px) {
   .nexus-horizon .week-view { padding: 20px 24px 50px; }
   .nexus-horizon .week-workspace { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .nexus-horizon .week-heading-actions { gap: 3px 15px; justify-content: flex-start; }
-  .nexus-horizon .week-mobile-tabs { display: grid; }
+  .nexus-horizon .week-mobile-tabs { display: grid; grid-template-columns: repeat(7, minmax(2.25rem, 1fr)); gap: 3px; margin-bottom: 8px; overflow-x: auto; }
+  .nexus-horizon .week-mobile-tabs button { min-height: 60px; gap: 2px; line-height: 1.3; }
+  .nexus-horizon .week-mobile-tabs button > span { color: var(--ui-text-secondary); font-size: var(--week-context); }
+  .nexus-horizon .week-mobile-tabs button > strong { font-family: inherit; font-size: var(--week-section-title); font-weight: 550; }
+  .nexus-horizon .week-mobile-tabs button.is-active { background: linear-gradient(0deg, #a6d8e818, transparent 85%); }
+  .nexus-horizon .week-mobile-tabs button.is-active > span { color: var(--ui-accent); }
+  .nexus-horizon .week-mobile-tabs button:focus-visible { outline-offset: -3px; }
   .nexus-horizon .week-days-label { display: none; }
   :root[data-theme] .nexus-horizon .week-view .week-day,
   :root[data-theme] .nexus-horizon .week-view .week-day:first-child { display: none; }
   :root[data-theme] .nexus-horizon .week-view .week-day.is-active { display: flex; border-bottom: 0; }
-  .nexus-horizon .week-day-heading { grid-template-columns: minmax(0, 1fr) 44px; padding-block: 16px; }
-  .nexus-horizon .week-day-open { display: flex; min-height: 75px; gap: 7px; }
+  .nexus-horizon .week-day:nth-child(6) { margin-top: 0; }
+  .nexus-horizon .week-day-heading { grid-template-columns: minmax(0, 1fr) 44px; padding-block: 12px; }
+  .nexus-horizon .week-day-open { display: flex; min-height: 54px; gap: 4px; }
   .nexus-horizon .week-day-name-long { display: inline; }
   .nexus-horizon .week-day-name-short { display: none; }
-  .nexus-horizon .week-day-name { color: var(--ui-text-muted); font-size: var(--hz-body, .875rem); }
-  .nexus-horizon .week-day-number { gap: 8px; font-size: 2rem; }
-  .nexus-horizon .week-day-month { display: inline; }
+  .nexus-horizon .week-day-number { gap: 5px; font-size: var(--week-body); }
   .nexus-horizon .week-day-preview { display: none; }
+  .nexus-horizon .week-day-highlights { display: block; margin-inline: 0; }
+  .nexus-horizon .week-day-highlights .week-day-activities { flex-direction: column; align-items: flex-start; gap: .3rem; }
+  .nexus-horizon .week-day-highlights .week-day-activity > span[aria-hidden] { display: none; }
+  .nexus-horizon .week-day-routines { flex-wrap: wrap; margin-top: .25rem; }
+  .nexus-horizon .week-day-routines-list { flex: 1 1 12ch; }
   .nexus-horizon .week-day:not(.is-expanded) > :is(.week-day-capacity, .week-day-conflicts, .week-day-body, .week-day-footer) { display: flex; }
   .nexus-horizon .week-day:not(.is-expanded) > .week-day-body,
   .nexus-horizon .week-day:not(.is-expanded) > .week-day-conflicts { display: block; }
@@ -379,8 +431,8 @@
   .nexus-horizon .week-toolbar { margin-top: 12px; margin-bottom: 16px; }
   .nexus-horizon .week-navigation { justify-content: space-between; }
   .nexus-horizon .week-navigation-period { flex: 1; padding-inline: 0; }
-  .nexus-horizon .week-navigation-period > strong { font-size: var(--hz-body, .875rem); }
   .nexus-horizon .week-current-button { margin-left: 0; padding-left: 12px; border-left: 0; }
   .nexus-horizon .week-lower-grid { display: flex; gap: 26px; }
-  .nexus-horizon .week-overview { gap: 10px 18px; }
+  .nexus-horizon .week-overview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+  .nexus-horizon .week-goals-jump { grid-column: 1 / -1; justify-self: start; }
 }

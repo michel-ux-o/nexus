@@ -36,6 +36,11 @@
 }
 .notes-editor .editor-toolbar { border-top: 0; }
 .notes-editor .editor-footer { border-top: 0; }
+/* The sidebar owns desktop creation; the empty editor needs its own action
+   on mobile, where the note list is a separate screen. */
+@media (min-width: 701px) {
+  .workspace .empty-state .empty-note-create { display: none; }
+}
 @media (max-width: 700px) {
   .area-content .notes-editor .editor-header, .notes-editor .editor-header { padding: 24px 20px 12px; }
   .area-content .notes-editor .editor-content, .notes-editor .editor-content { padding: 18px 20px 20px; }

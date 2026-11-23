@@ -18,8 +18,8 @@ const PARTICLE_COLORS = [
 export function ParticleColorSettings({ id, color, onChange }: ParticleColorSettingsProps) {
   return (
     <fieldset className="particle-color-settings" aria-describedby={`${id}-particle-color-help`}>
-      <legend>Partikelfarbe <span>· Nexus</span></legend>
-      <p id={`${id}-particle-color-help`} className="settings-muted">Gilt für die Nexus-Punktwolke. Die Farbe wird nach dem Speichern angewendet.</p>
+      <legend>Partikelfarbe</legend>
+      <p id={`${id}-particle-color-help`} className="settings-muted">Die Farbe der Punktwolke im Farbschema Nexus wird nach dem Speichern übernommen.</p>
       <div className="particle-color-options" role="group" aria-label="Vorgegebene Partikelfarben">
         {PARTICLE_COLORS.map((option) => <button
           key={option.value}

@@ -79,6 +79,8 @@ export function ReminderDialog({ planner, reminder, defaults, onClose }: Reminde
   }
 
   const linkedExists = !link || (link.startsWith('task:') ? planner.data.tasks.some(task => `task:${task.id}` === link) : planner.data.appointments.some(appointment => `appointment:${appointment.id}` === link));
+  const linkedTimeBlock = link.startsWith('task:') && planner.data.timeBlocks.some(block => `task:${block.taskId}` === link);
+  const linkedScheduleType = linkedTimeBlock ? 'Zeitblocks' : link.startsWith('appointment:') && linkedExists ? 'Termins' : null;
   const draft = `NEXUS – Erinnerungsentwurf\nNoch nicht bestätigt gespeichert.\n\n${JSON.stringify({ id, title, localStart, timeZone: zone, frequency, enabled, link, createdAt }, null, 2)}`;
   return <PlanningDialog title={reminder ? 'Erinnerung bearbeiten' : 'Neue Erinnerung'} eyebrow="ERINNERUNGEN" busy={Boolean(busy)} onClose={onClose} onSubmit={event => void save(event)} footer={<>
     {reminder && <button type="button" className="danger-button planning-delete-trigger" disabled={Boolean(busy)} onClick={() => setConfirmDelete(true)}><Trash2 size={16} aria-hidden="true" /> Erinnerung löschen</button>}
@@ -100,7 +102,10 @@ export function ReminderDialog({ planner, reminder, defaults, onClose }: Reminde
       <label className="field"><span>Eigene Zeitzone</span><input required maxLength={100} list={zoneList} value={zone} spellCheck={false} autoComplete="off" onChange={event => { setZone(event.target.value); setValidation(''); }} placeholder="Europe/Berlin" />
         <datalist id={zoneList}>{Array.from(new Set([planner.data.settings.timeZone, 'Europe/Berlin', 'Europe/London', 'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'UTC'])).map(value => <option key={value} value={value} />)}</datalist>
       </label>
-      <label className="field"><span id={`${zoneList}-frequency`}>Wiederholung</span><select aria-labelledby={`${zoneList}-frequency`} value={frequency} onChange={event => setFrequency(event.target.value as Reminder['frequency'])}>{Object.entries(frequencyLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+      <label className="field"><span id={`${zoneList}-frequency`}>Wiederholung</span><select aria-labelledby={`${zoneList}-frequency`} value={frequency} onChange={event => setFrequency(event.target.value as Reminder['frequency'])}>{Object.entries(frequencyLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+        {frequency === 'once' && <small>Ein Vorkommen am gewählten Datum.</small>}
+      </label>
+      {link && linkedExists && <p className="planning-help">Datum und Uhrzeit legst du hier separat fest.{linkedScheduleType && ` Sie bleiben beim Verschieben des ${linkedScheduleType} erhalten.`}</p>}
       <label className="reminder-toggle-field"><input type="checkbox" checked={enabled} onChange={event => setEnabled(event.target.checked)} /><span><strong>Erinnerung aktiv</strong><small>Pausierte Regeln erzeugen keine neuen Meldungen.</small></span></label>
       <p className="planning-help"><Bell size={14} aria-hidden="true" /> Nur das Erinnerungsvorkommen wird quittiert; verknüpfte Aufgaben bleiben unverändert.</p>
       <details className="reminder-form-help"><summary>Zeitzone &amp; Wiederholungen</summary><p className="planning-help">Der Beginn braucht eine eindeutige Uhrzeit. Spätere Wiederholungen bei Zeitumstellungen werden auf die spätere oder nächste gültige Minute gelegt und gekennzeichnet. Die eigene Zeitzone bleibt beim Wechsel der App-Zeitzone erhalten.</p>{reminder && <p className="planning-help">Quittierte und geschlummerte Vorkommen bleiben als Belege erhalten. Änderungen gelten für noch nicht quittierte Vorkommen.</p>}</details>

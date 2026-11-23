@@ -1,19 +1,21 @@
 /*
  * Native production-only app-shell cache, without runtime/API caching.
- * The page fingerprints Vite's initial JS/CSS URLs in the worker URL. On install,
- * verify that fingerprint and discover local hashed imports, lazy chunks, CSS
+ * The production build stamps its identity into both this worker and HTML. On
+ * install verify that identity and discover local hashed imports, lazy chunks, CSS
  * URLs, and fonts recursively. A failed asset fetch fails the whole install.
  * Bump CACHE_SCHEMA when changing this worker's cache/discovery semantics.
- * Updates wait for old tabs to close; only then are old caches removed. Never
- * skipWaiting automatically, which could strand an old tab's lazy imports.
+ * Updates wait for tabs to close or an explicit guarded request from the only
+ * open app window. Retain old assets for old documents, including back/forward
+ * cache restores; automatic activation never discards another tab's assets.
  */
-const CACHE_SCHEMA = 2;
+const CACHE_SCHEMA = 3;
+const BUILD = /* __NEXUS_BUILD__ */ null;
 const SCOPE = new URL(self.registration.scope);
 const SHELL = new URL('index.html', SCOPE);
 const ASSET_ROOT = new URL('assets/', SCOPE).pathname;
-const REVISION = new URL(self.location.href).searchParams.get('build');
+const BUILD_INFO = new URL('build.json', SCOPE);
 const CACHE_PREFIX = `nexus-notes:${SCOPE.pathname}:`;
-const CACHE_NAME = `${CACHE_PREFIX}v${CACHE_SCHEMA}:${REVISION}`;
+const CACHE_NAME = `${CACHE_PREFIX}v${CACHE_SCHEMA}:${BUILD?.id}`;
 // Vite's default content hashes distinguish build files from text literals such
 // as "example.js" in the application, or ordinary API/static URLs.
 const BUILD_FILENAME = /-[a-z\d_-]{8,}\.(?:m?js|css|svg|png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|eot|wasm)$/i;
@@ -79,16 +81,24 @@ async function fetchStatic(url, html = false) {
 }
 
 async function precache() {
-  if (!REVISION || !/^[a-f0-9]{64}$/.test(REVISION)) throw new Error('Fehlende Build-Kennung.');
+  if (!BUILD?.id || !Number.isFinite(Date.parse(BUILD.builtAt))) throw new Error('Fehlende Build-Kennung.');
+  // An old document or stale server must never replace a more recent cache.
+  for (const key of await caches.keys()) {
+    if (!key.startsWith(CACHE_PREFIX)) continue;
+    const previous = await (await caches.open(key)).match(BUILD_INFO.href);
+    if (previous && Date.parse((await previous.json()).builtAt) > Date.parse(BUILD.builtAt)) {
+      throw new Error('Ein neuerer Build ist bereits installiert.');
+    }
+  }
   const shell = await fetchStatic(SHELL.href, true);
-  const assets = initialAssets(await shell.clone().text());
+  const html = await shell.clone().text();
+  const meta = [...html.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) => tag)
+    .find(tag => attribute(tag, 'name') === 'nexus-build');
+  if (!meta || attribute(meta, 'content') !== BUILD.id) throw new Error('Der Build hat sich während der Einrichtung geändert.');
+  const assets = initialAssets(html);
   if (![...assets].some((path) => /\.m?js(?:\?|$)/.test(path))) {
     throw new Error('Kein Produktions-Bundle gefunden.');
   }
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode([...assets].sort().join('\n')));
-  const revision = [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
-  if (revision !== REVISION) throw new Error('Der Build hat sich während der Einrichtung geändert.');
-
   const cache = await caches.open(CACHE_NAME);
   try {
     // Set iteration also visits newly discovered chunks; every URL is fetched once.
@@ -100,6 +110,7 @@ async function precache() {
       await cache.put(path, response);
     }
     await cache.put(SHELL.href, shell);
+    await cache.put(BUILD_INFO.href, new Response(JSON.stringify(BUILD), { headers: { 'content-type': 'application/json' } }));
   } catch (error) {
     await caches.delete(CACHE_NAME);
     throw error;
@@ -109,11 +120,26 @@ async function precache() {
 self.addEventListener('install', (event) => event.waitUntil(precache()));
 
 self.addEventListener('activate', (event) => {
+  // Old hashed assets remain available even if an old tab is restored from
+  // the browser's back/forward cache after this activation.
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('message', (event) => {
+  const port = event.ports?.[0];
+  if (!port) return;
+  if (event.data?.type === 'NEXUS_BUILD_INFO') { port.postMessage({ build: BUILD }); return; }
+  if (event.data?.type !== 'NEXUS_ACTIVATE_UPDATE') return;
   event.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
-      .map((key) => caches.delete(key)));
-    await self.clients.claim();
+    const source = event.source;
+    if (!source?.id || event.data.buildId !== BUILD?.id) { port.postMessage({ ok: false, reason: 'build-changed' }); return; }
+    const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+      .filter(client => { const url = new URL(client.url); return url.origin === SCOPE.origin && url.pathname.startsWith(SCOPE.pathname); });
+    if (!windows.some(client => client.id === source.id) || windows.some(client => client.id !== source.id)) {
+      port.postMessage({ ok: false, reason: 'other-tabs' }); return;
+    }
+    port.postMessage({ ok: true });
+    await self.skipWaiting();
   })());
 });
 
@@ -157,7 +183,17 @@ self.addEventListener('fetch', (event) => {
     // Static hosts may add Vary: Origin. Module/stylesheet CORS requests carry
     // Origin, whereas install-time same-origin fetches do not. These exact,
     // content-hashed, same-origin files have one representation for this app.
-    event.respondWith(caches.open(CACHE_NAME).then(async (cache) =>
-      (await cache.match(request, { ignoreVary: true })) ?? fetch(request)));
+    event.respondWith((async () => {
+      const own = await (await caches.open(CACHE_NAME)).match(request, { ignoreVary: true });
+      if (own) return own;
+      // Exact content-hashed URLs are safe across builds. Never serve another
+      // build's HTML or downgrade the current navigation shell.
+      for (const key of await caches.keys()) {
+        if (!key.startsWith(CACHE_PREFIX) || key === CACHE_NAME) continue;
+        const old = await (await caches.open(key)).match(request, { ignoreVary: true });
+        if (old) return old;
+      }
+      return fetch(request);
+    })());
   }
 });

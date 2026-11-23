@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, Check, Copy, Sparkles } from 'lucide-react';
 import type { Note, Selection } from '../types';
 import { BACKUP_LIMITS } from '../data/backup';
-import { AI_ACTIONS, buildPrompt, captureSource, isSourceCurrent, isValidSelection, parseTags, sourceText } from './prompts';
+import { AI_ACTIONS, buildPrompt, captureSource, isSourceCurrent, isValidSelection, parseTags } from './prompts';
 import type { AIAction, AIScope, SourceSnapshot } from './prompts';
 import { api } from '../services/ai';
 import { useAIConnection } from './useAIConnection';
@@ -21,7 +21,10 @@ interface AIPanelProps {
 export function AIPanel({ note, selection, onClose, onApply, consent = false, onConsent, workspaceEpoch = 0 }: AIPanelProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const promptRef = useRef<HTMLTextAreaElement>(null);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const prefix = useId();
+  const [step, setStep] = useState(0);
+  const [scope, setScope] = useState<AIScope | null>(null);
   const [source, setSource] = useState<SourceSnapshot | null>(null);
   const [action, setAction] = useState<AIAction>('summarize');
   const [prompt, setPrompt] = useState('');
@@ -73,6 +76,7 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
     };
   }, []);
   useEffect(() => { cancelRequest(); setConfirmed(false); }, [workspaceEpoch]);
+  useEffect(() => { stepHeadingRef.current?.focus(); }, [step]);
 
   function cancelRequest() {
     requestRef.current?.abort();
@@ -88,10 +92,12 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
       return;
     }
     setSource(nextSource);
+    setScope(scope);
     sourceEpoch.current = workspaceEpoch;
     setPrompt(buildPrompt(action, nextSource));
     setConfirmed(false);
     setError('');
+    setStep(2);
     setStatus(result || title || tags
       ? 'Quelle und Prompt wurden erneuert. Deine Vorschau bleibt erhalten; prüfe sie erneut gegen die neue Quelle.'
       : 'Quelle ausgewählt. Du kannst den vollständigen Prompt jetzt prüfen und bearbeiten.');
@@ -100,10 +106,10 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
   function changeAction(nextAction: AIAction) {
     cancelRequest();
     setAction(nextAction);
-    if (source) setPrompt(buildPrompt(nextAction, source));
+    setSource(null);
     setConfirmed(false);
     setError('');
-    setStatus('Aufgabe geändert. Der Prompt wurde angepasst. Prüfe eine bereits eingefügte Antwort erneut.');
+    setStatus('Ziel geändert. Gib die gewünschten Inhalte im nächsten Schritt erneut frei. Deine Antwort bleibt als Entwurf erhalten.');
   }
 
   async function sendPrompt() {
@@ -121,6 +127,7 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
       if (current.current.workspaceEpoch !== epoch || !isSourceCurrent(requestSource, current.current.note)) throw new Error('Die Quelle hat sich während der Anfrage geändert. Wähle den aktuellen Stand erneut als Quelle.');
       if (typeof answer.text !== 'string' || !answer.text.trim() || answer.text.length > BACKUP_LIMITS.content) throw new Error('Die KI-Antwort ist leer oder zu lang.');
       setResult(answer.text);
+      setStep(3);
       if (action === 'metadata') {
         const suggestedTitle = answer.text.match(/(?:^|\n)Titel:\s*(.+)/i)?.[1]?.trim();
         const suggestedTags = answer.text.match(/(?:^|\n)Tags:\s*([^\n]*)/i)?.[1];
@@ -177,7 +184,7 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
   return (
     <dialog
       ref={dialogRef}
-      className="dialog ai-dialog ai-sidepanel ai-atelier ai-horizon note-ai-horizon"
+      className="dialog ai-dialog ai-sidepanel ai-atelier ai-horizon note-ai-horizon ai-guided"
       aria-labelledby={`${prefix}-heading`}
       aria-describedby={`${prefix}-description`}
       onCancel={(event) => { event.preventDefault(); onClose(); }}
@@ -195,55 +202,51 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
       <div className="dialog-body ai-body">
         <div className="info-box ai-mode" id={`${prefix}-description`}>
           <strong>{connection?.configured ? 'OpenAI konfiguriert · manueller Webmodus verfügbar' : 'Manueller Webmodus'}</strong>
-          <p>{checking ? 'Backend-Konfiguration wird geprüft. Es werden keine Notizinhalte gesendet.' : connection?.configured ? `${connection.textModel} · Verbindung noch nicht geprüft. Nur „An OpenAI senden“ überträgt den sichtbaren Prompt.` : connectionError || 'Prompt kopieren, selbst in ChatGPT senden und die Antwort hier einfügen. Keine direkte KI-Verbindung eingerichtet.'}</p>
-          <button type="button" className="secondary-button" disabled={checking || sending} onClick={() => void checkConnection()}>Konfiguration erneut prüfen</button>
+          <details className="ai-connection-details"><summary>Verbindung und Datenschutz</summary><p>{checking ? 'Backend-Konfiguration wird geprüft. Es werden keine Notizinhalte gesendet.' : connection?.configured ? `${connection.textModel} · Verbindung noch nicht geprüft. Nur „An OpenAI senden“ überträgt den sichtbaren Prompt.` : connectionError || 'Prompt kopieren, selbst in ChatGPT senden und die Antwort hier einfügen. Keine direkte KI-Verbindung eingerichtet.'}</p><button type="button" className="secondary-button" disabled={checking || sending} onClick={() => void checkConnection()}>Konfiguration erneut prüfen</button></details>
         </div>
-
-        <section className="ai-section ai-source-section" aria-labelledby={`${prefix}-source-heading`}>
-          <h3 id={`${prefix}-source-heading`}>Ausgewählte Quelle</h3>
+        <nav className="ai-steps" aria-label="Schritte im KI-Assistenten">
+          {['Ziel', 'Inhalte', 'Prompt', 'Vorschau'].map((label, index) => <button key={label} type="button" aria-current={step === index ? 'step' : undefined} disabled={applying || (index > 1 && !source)} onClick={() => setStep(index)}><span aria-hidden="true">{index + 1}</span>{label}</button>)}
+        </nav>
+        {step === 0 && <section className="ai-section ai-goal-section" aria-labelledby={`${prefix}-goal-heading`}>
+          <h3 ref={stepHeadingRef} tabIndex={-1} id={`${prefix}-goal-heading`}>1 · Was möchtest du erreichen?</h3>
+          <p className="ai-help">Wähle ein Ziel für „{note.title.trim() || 'Ohne Titel'}“. Danach bestimmst du, welche Inhalte in den Prompt kommen.</p>
+          <label className="field" htmlFor={`${prefix}-action`}><span>Was möchtest du tun?</span><select id={`${prefix}-action`} value={action} onChange={(event) => changeAction(event.target.value as AIAction)}>{AI_ACTIONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+          <p className="ai-help">{AI_ACTIONS.find((item) => item.value === action)?.instruction}</p>
+        </section>}
+        {step === 1 && <section className="ai-section ai-source-section" aria-labelledby={`${prefix}-source-heading`}>
+          <h3 ref={stepHeadingRef} tabIndex={-1} id={`${prefix}-source-heading`}>2 · Inhalte auswählen und freigeben</h3>
           <p className="ai-source-title">{note.title.trim() || 'Ohne Titel'}</p>
           <fieldset className="ai-source-options" disabled={Boolean(note.deletedAt)}>
             <legend className="ai-visually-hidden">Quelle für den Prompt</legend>
-            <label className={`ai-source-option${source?.scope === 'note' ? ' is-selected' : ''}`}>
-              <input type="radio" name={`${prefix}-scope`} checked={source?.scope === 'note'} onChange={() => chooseSource('note')} />
+            <label className={`ai-source-option${scope === 'note' ? ' is-selected' : ''}`}>
+              <input type="radio" name={`${prefix}-scope`} checked={scope === 'note'} onChange={() => { cancelRequest(); setScope('note'); setSource(null); setConfirmed(false); }} />
               <span><strong>Ganze Notiz</strong><small>Titel, Text und Tags dieser Notiz</small></span>
             </label>
-            <label className={`ai-source-option${source?.scope === 'selection' ? ' is-selected' : ''}`}>
-              <input type="radio" name={`${prefix}-scope`} checked={source?.scope === 'selection'} disabled={!hasSelection} onChange={() => chooseSource('selection')} />
+            <label className={`ai-source-option${scope === 'selection' ? ' is-selected' : ''}`}>
+              <input type="radio" name={`${prefix}-scope`} checked={scope === 'selection'} disabled={!hasSelection} onChange={() => { cancelRequest(); setScope('selection'); setSource(null); setConfirmed(false); }} />
               <span><strong>Textmarkierung</strong><small>{hasSelection ? `${selection.text.length.toLocaleString('de')} markierte Zeichen · nur dieser Text` : 'Zuerst Text im Editor markieren'}</small></span>
             </label>
           </fieldset>
           {note.deletedAt && <p className="ai-warning" role="alert">Stelle diese Notiz aus dem Papierkorb wieder her, bevor du KI-Vorschläge übernimmst.</p>}
-          {source && (
+          {scope && (
             <details className="ai-source-preview">
               <summary>Ausgewählten Inhalt prüfen</summary>
-              <pre>{sourceText(source)}</pre>
+              <pre>{scope === 'selection' ? selection?.text : `Titel: ${note.title || '(ohne Titel)'}\nTags: ${note.tags.join(', ') || '(keine)'}\n\n${note.content}`}</pre>
             </details>
           )}
-          {stale && (
-            <div className="ai-warning" role="alert">
-              <p>Die Notiz wurde seit der Quellenauswahl geändert. Die Übernahme ist gesperrt, damit keine neueren Eingaben überschrieben werden.</p>
-              <button type="button" className="secondary-button" disabled={Boolean(note.deletedAt) || (source?.scope === 'selection' && !hasSelection)} onClick={() => chooseSource(source?.scope ?? 'note')}>Aktuellen Stand als Quelle wählen</button>
-              {source?.scope === 'selection' && !hasSelection && <p>Schließe den Assistenten und markiere den gewünschten Text erneut.</p>}
-            </div>
-          )}
-        </section>
+          <p className="ai-help">Die Freigabe erstellt den Prompt lokal. Inhalte werden erst durch dein Kopieren und Senden oder „An OpenAI senden“ weitergegeben.</p>
+        </section>}
 
-        <section className="ai-section ai-prompt-section" aria-labelledby={`${prefix}-prompt-heading`}>
-          <h3 id={`${prefix}-prompt-heading`}>Prompt</h3>
-          <label className="field" htmlFor={`${prefix}-action`}>
-            <span>Was möchtest du tun?</span>
-            <select id={`${prefix}-action`} value={action} onChange={(event) => changeAction(event.target.value as AIAction)}>
-              {AI_ACTIONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-            </select>
-          </label>
+        {step === 2 && <section className="ai-section ai-prompt-section" aria-labelledby={`${prefix}-prompt-heading`}>
+          <h3 ref={stepHeadingRef} tabIndex={-1} id={`${prefix}-prompt-heading`}>3 · Prompt prüfen und verwenden</h3>
+          <p className="ai-context-released">Lokal freigegeben: {source?.scope === 'selection' ? 'Textmarkierung' : 'ganze Notiz'} · {AI_ACTIONS.find((item) => item.value === action)?.label}</p>
           <label className="field" htmlFor={`${prefix}-prompt`}>
             <span>Vollständiger Prompt · bearbeitbar</span>
             <textarea ref={promptRef} id={`${prefix}-prompt`} className="ai-prompt" value={prompt} disabled={!source} placeholder="Wähle zuerst ausdrücklich die ganze Notiz oder eine Textmarkierung aus." rows={9} onChange={(event) => { cancelRequest(); setPrompt(event.target.value); setConfirmed(false); }} spellCheck={false} aria-describedby={`${prefix}-privacy`} />
           </label>
           <p className="ai-help" id={`${prefix}-privacy`}>„Prompt kopieren“ nutzt die Zwischenablage. „ChatGPT öffnen“ überträgt keine Inhalte. Erst dein Einfügen und Senden dort teilt den oben sichtbaren Prompt mit ChatGPT.</p>
           <div className="ai-actions">
-            <button type="button" className="secondary-button" disabled={!source || !prompt.trim()} onClick={() => void copyPrompt()}><Copy size={16} aria-hidden="true" /> Prompt kopieren</button>
+            <button type="button" className="secondary-button" disabled={!source || stale || !prompt.trim()} onClick={() => void copyPrompt()}><Copy size={16} aria-hidden="true" /> Prompt kopieren</button>
             <a className="secondary-button ai-chat-link" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="ChatGPT in neuem Tab öffnen">ChatGPT öffnen <ArrowUpRight size={16} aria-hidden="true" /></a>
           </div>
           {connection?.configured && <div className="ai-api-controls">
@@ -252,10 +255,10 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
             <button type="button" className="primary-button" disabled={!source || stale || !prompt.trim() || !consent || sending || Boolean(note.deletedAt)} onClick={() => void sendPrompt()}>{sending ? 'Anfrage läuft …' : 'An OpenAI senden'}</button>
             {sending && <button type="button" className="secondary-button" onClick={() => { cancelRequest(); setStatus('Anfrage abgebrochen. Deine Vorschau bleibt erhalten.'); }}>Anfrage abbrechen</button>}
           </div>}
-        </section>
+        </section>}
 
-        <section className="ai-section ai-result-section" aria-labelledby={`${prefix}-result-heading`}>
-          <h3 id={`${prefix}-result-heading`}>Antwortvorschau</h3>
+        {step === 3 && <section className="ai-section ai-result-section" aria-labelledby={`${prefix}-result-heading`}>
+          <h3 ref={stepHeadingRef} tabIndex={-1} id={`${prefix}-result-heading`}>4 · Antwortvorschau prüfen</h3>
           {metadata ? (
             <div className="ai-metadata-fields">
               {result && <details className="ai-source-preview"><summary>Empfangene Antwort prüfen</summary><pre>{result}</pre></details>}
@@ -276,15 +279,19 @@ export function AIPanel({ note, selection, onClose, onApply, consent = false, on
             <input type="checkbox" checked={confirmed} disabled={!source || stale || !hasResult || Boolean(validationError) || Boolean(note.deletedAt)} onChange={(event) => setConfirmed(event.target.checked)} />
             <span>Ich habe die Vorschau geprüft und bestätige die Übernahme.</span>
           </label>
-        </section>
+        </section>}
 
+        {stale && <div className="ai-warning" role="alert"><p>Die Notiz wurde seit der Freigabe geändert. Senden und Übernahme sind gesperrt. Deine Antwort bleibt erhalten.</p><button type="button" className="secondary-button" disabled={Boolean(note.deletedAt)} onClick={() => setStep(1)}>Inhalte erneut freigeben</button></div>}
         <p className="ai-status" role="status" aria-live="polite">{status}</p>
         {error && <p className="ai-warning" role="alert">{error}</p>}
       </div>
 
       <footer className="dialog-footer ai-footer">
-        <button type="button" className="secondary-button" onClick={onClose}>Schließen</button>
-        <button type="button" className="primary-button" disabled={!canApply} onClick={applyResult}><Check size={17} aria-hidden="true" /> {metadata ? 'Titel und Tags übernehmen' : 'Vorschau übernehmen'}</button>
+        <button type="button" className="secondary-button" onClick={() => step > 0 ? setStep(step - 1) : onClose()}>{step > 0 ? 'Vorheriger Schritt' : 'Schließen'}</button>
+        {step === 0 && <button type="button" className="primary-button" onClick={() => setStep(1)}>Weiter: Inhalte auswählen</button>}
+        {step === 1 && <button type="button" className="primary-button" disabled={!scope || Boolean(note.deletedAt) || (scope === 'selection' && !hasSelection)} onClick={() => scope && chooseSource(scope)}>Inhalte freigeben und Prompt ansehen</button>}
+        {step === 2 && <button type="button" className="primary-button" disabled={!source || sending} onClick={() => setStep(3)}>{hasResult ? 'Weiter: Vorschau prüfen' : 'Antwort manuell einfügen'}</button>}
+        {step === 3 && <button type="button" className="primary-button" disabled={!canApply} onClick={applyResult}><Check size={17} aria-hidden="true" /> {metadata ? 'Titel und Tags übernehmen' : 'Vorschau übernehmen'}</button>}
       </footer>
     </dialog>
   );

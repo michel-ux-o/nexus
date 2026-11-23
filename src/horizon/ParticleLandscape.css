@@ -20,6 +20,11 @@
 
 .horizon-particle-landscape__canvas[hidden] { display: none; }
 
+/* Keep the landscape recognizable behind workspace lists and editors. */
+.horizon-particle-landscape:is([data-view='tasks'], [data-view='today'], [data-view='week'], [data-view='calendar'], [data-view='notes'], [data-view='reminders'], [data-view='ai'], [data-view='settings']) .horizon-particle-landscape__canvas {
+  opacity: .24;
+}
+
 .horizon-particle-landscape::after {
   content: '';
   position: absolute;

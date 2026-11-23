@@ -1,6 +1,7 @@
 import { useDeferredValue, useId, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { ArrowUpRight, CalendarDays, CheckSquare, NotebookPen, Search, X } from 'lucide-react';
+import { noteTagLabel } from '../editor/noteTags';
 import type { WorkspaceViewProps } from '../planning/types';
 import { formatDate, formatTime, dateInZone } from '../planning/dates';
 import { WorkspaceDialog } from '../layout/WorkspaceDialog';
@@ -25,7 +26,7 @@ function metadata(result: SearchResult, timeZone: string): string {
     return item.allDay ? `${formatDate(item.allDay.startDate, { day: 'numeric', month: 'short', year: 'numeric' })} · Ganztägig`
       : `${formatDate(dateInZone(item.startAt, timeZone), { day: 'numeric', month: 'short', year: 'numeric' })} · ${formatTime(item.startAt, timeZone)} · ${item.durationMinutes} Min.`;
   }
-  return result.item.tags.length ? result.item.tags.map((tag) => `#${tag}`).join(' · ') : 'Ohne Tags';
+  return result.item.tags.length ? result.item.tags.map((tag) => noteTagLabel(tag, '#')).join(' · ') : 'Ohne Tags';
 }
 
 export function SearchDialog({ planner, notes, onClose, onOpenNote, onEditTask, onEditAppointment, onNavigate }: SearchDialogProps) {

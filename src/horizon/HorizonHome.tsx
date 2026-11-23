@@ -3,13 +3,13 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEv
 import { ArrowRight, ArrowUpRight, Bell, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, Expand, Focus, LoaderCircle, Mic, Plus, RotateCcw, X } from 'lucide-react';
 import type { Planner, Reminder, Subtask, Task, WorkspaceViewProps } from '../planning/types';
 import type { Note, SaveStatus } from '../types';
-import { dateInZone, dayBounds, formatDate, formatTime, todayInZone } from '../planning/dates';
+import { dateInZone, formatDate, formatTime } from '../planning/dates';
 import { appointmentsForDay } from '../planning/selectors';
 import { reminderOccurrences } from '../planning/reminders';
 import { subtaskProgress, setSubtaskDone, subtaskState } from '../planning/subtasks';
 import { SubtaskChecklist } from '../planning/components/SubtaskChecklist';
 import { useCalendarRecurrence } from '../calendar/useCalendarRecurrence';
-import { emptyHorizonDraft, horizonDayNotes, horizonDayTasks, horizonDraftsForWorkspace, horizonNextTaskId, horizonTaskDate, parseHorizonDrafts, type HorizonDayDraft, type HorizonDraftBook } from './homeModel';
+import { emptyHorizonDraft, horizonDayBlocks, horizonDayNotes, horizonDayTasks, horizonDraftsForWorkspace, horizonNextReminder, horizonNextTaskId, horizonNextTimedItem, horizonNotePreview, horizonRecommendTask, horizonRoutineTask, horizonTaskBlock, horizonTaskDate, parseHorizonDrafts, type HorizonDayDraft, type HorizonDraftBook } from './homeModel';
 import { HorizonDayStrip } from './HorizonDayStrip';
 import { emitHorizonScene } from './sceneEvents';
 import './HorizonHome.css';
@@ -82,6 +82,17 @@ function writeDraftBook(epoch: number, update: (book: HorizonDraftBook) => Horiz
 }
 function subscribeDrafts(listener: () => void) { draftListeners.add(listener); return () => { draftListeners.delete(listener); }; }
 
+/** Remote changes must not invalidate unsent inline capture or subtask text. */
+export function hasHorizonDrafts(): boolean {
+  let book = draftBook;
+  if (!book) {
+    try { book = parseHorizonDrafts(sessionStorage.getItem(draftStorageKey())); }
+    catch { return true; }
+  }
+  return Object.values(book.days).some(draft => !!(draft.taskTitle || draft.noteTitle || draft.noteContent || draft.reminderTitle))
+    || Object.values(book.subtasks).some(draft => !!draft.title);
+}
+
 /** Call when replacing workspace data, including when Home is currently unmounted. */
 export function resetHorizonDraftIdentities() {
   let book = draftBook;
@@ -111,6 +122,9 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
+  const [now, setNow] = useState(Date.now);
+  const [calendarExpanded, setCalendarExpanded] = useState(false);
+  const [remindersExpanded, setRemindersExpanded] = useState(false);
   const lock = useRef(false);
   const focusDialog = useRef<HTMLDialogElement>(null);
   const focusTrigger = useRef<HTMLButtonElement>(null);
@@ -124,33 +138,62 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
   const timeZone = planner.data.settings.timeZone;
   const ready = !planner.loading && !planner.loadError;
   const disabled = busy !== null || !ready;
-  const today = todayInZone(timeZone);
+  const today = dateInZone(new Date(now), timeZone);
+  const todayTime = date === today ? now : null;
   const tasks = useMemo(() => horizonDayTasks(planner.data, date), [planner.data, date]);
-  const dayNotes = useMemo(() => horizonDayNotes(notes, tasks, date, timeZone), [notes, tasks, date, timeZone]);
+  const routineTasks = tasks.filter(horizonRoutineTask).sort((left, right) => Number(Boolean(right.morningRoutineDate)) - Number(Boolean(left.morningRoutineDate)));
+  const otherTasks = tasks.filter(task => !horizonRoutineTask(task));
+  const focusTasks = [...routineTasks, ...otherTasks];
+  const dayNotes = useMemo(() => horizonDayNotes(notes, tasks, date, timeZone)
+    .map(note => ({ ...note, preview: horizonNotePreview(note.content) })), [notes, tasks, date, timeZone]);
   const reminders = useMemo(() => reminderOccurrences(planner.data, date, date), [planner.data, date]);
-  const appointments = useMemo(() => appointmentsForDay(planner.data, date).sort((a, b) => Number(Boolean(b.allDay)) - Number(Boolean(a.allDay)) || a.startAt.localeCompare(b.startAt)), [planner.data, date]);
-  const blocks = useMemo(() => {
-    const [from, to] = dayBounds(date, timeZone);
-    return planner.data.timeBlocks.filter(block => Date.parse(block.startAt) < to && Date.parse(block.startAt) + block.durationMinutes * 60000 > from).sort((a, b) => a.startAt.localeCompare(b.startAt));
-  }, [planner.data, date, timeZone]);
-  const calendarItems = [...appointments.map(appointment => ({ kind: 'appointment' as const, id: appointment.id, title: appointment.title, time: appointment.allDay ? 'Ganztägig' : dateInZone(appointment.startAt, timeZone) < date ? 'Fortsetzung' : formatTime(appointment.startAt, timeZone), sort: appointment.allDay ? '' : appointment.startAt, appointment })), ...blocks.map(block => ({ kind: 'block' as const, id: block.id, title: planner.data.tasks.find(task => task.id === block.taskId)?.title ?? 'Zeitblock', time: dateInZone(block.startAt, timeZone) < date ? 'Fortsetzung' : formatTime(block.startAt, timeZone), sort: block.startAt, block }))].sort((a, b) => a.sort.localeCompare(b.sort));
+  const appointments = useMemo(() => appointmentsForDay(planner.data, date), [planner.data, date]);
+  const blocks = useMemo(() => horizonDayBlocks(planner.data, date), [planner.data, date]);
+  const calendarItems = [
+    ...appointments.map(appointment => ({ kind: 'appointment' as const, allDay: Boolean(appointment.allDay), appointment, id: appointment.id, title: appointment.title, startAt: appointment.startAt, durationMinutes: appointment.durationMinutes })),
+    ...blocks.map(block => ({ kind: 'block' as const, allDay: false, block, id: block.id, title: tasks.find(task => task.id === block.taskId)?.title ?? 'Zeitblock', startAt: block.startAt, durationMinutes: block.durationMinutes })),
+  ].sort((left, right) => Number(right.allDay) - Number(left.allDay) || Date.parse(left.startAt) - Date.parse(right.startAt));
+  const nextCalendarItem = horizonNextTimedItem(calendarItems.filter(item => !item.allDay), todayTime)
+    ?? calendarItems.find(item => item.allDay);
+  const nextReminder = horizonNextReminder(reminders, todayTime);
+  const otherCalendarItems = calendarItems.filter(item => item !== nextCalendarItem);
+  const otherReminders = reminders.filter(item => item !== nextReminder);
   const morningReceipt = planner.data.morningRoutineReceipts?.find(receipt => receipt.date === today);
   const morningTask = date === today && !morningReceipt?.skipped
     ? tasks.find(task => task.morningRoutineDate === today && task.status !== 'done') ?? null
     : null;
-  const defaultTask = tasks.find(task => !task.morningRoutineDate) ?? null;
+  const recommendedTask = ready ? horizonRecommendTask(tasks, blocks, todayTime) : null;
   const selectedTask = (outsideTaskId ? planner.data.tasks.find(task => task.id === outsideTaskId) : undefined)
     ?? (morningTask && morningFocusDismissed !== morningTask.id ? morningTask : undefined)
-    ?? tasks.find(task => task.id === selectedId) ?? defaultTask;
+    ?? tasks.find(task => task.id === selectedId) ?? recommendedTask;
   const isMorningFocus = Boolean(selectedTask?.morningRoutineDate);
   const canSkipMorning = selectedTask?.morningRoutineDate === today && selectedTask.status !== 'done' && !morningReceipt?.skipped;
   const selectedTaskIndex = selectedTask ? tasks.findIndex(task => task.id === selectedTask.id) : -1;
-  const selectedTaskNumber = selectedTaskIndex >= 0 ? String(selectedTaskIndex + 1).padStart(2, '0') : null;
+  const selectedBlock = selectedTask ? horizonTaskBlock(blocks, selectedTask.id, todayTime) : undefined;
+  const manualSelection = Boolean(selectedTask && (outsideTaskId === selectedTask.id || selectedId === selectedTask.id));
+  const selectedBlockDate = selectedBlock ? dateInZone(selectedBlock.startAt, timeZone) : null;
+  const calendarItemLabel = nextCalendarItem
+    ? nextCalendarItem.allDay ? 'Ganztägiger Termin'
+      : `${date < today ? 'Erster' : todayTime !== null && Date.parse(nextCalendarItem.startAt) < todayTime ? 'Laufender' : 'Nächster'} ${nextCalendarItem.kind === 'block' ? 'Zeitblock' : 'Termin'}`
+    : null;
+  const reminderLabel = nextReminder && (date < today || (todayTime !== null && Date.parse(nextReminder.effectiveAt) < todayTime))
+    ? 'Offene Erinnerung' : 'Nächste Erinnerung';
   // The list, inline steps and full focus room keep one selection identity. The
   // scene can open that same place without deriving state from visible text.
   const focusStage = !selectedTask ? 'empty' : focusMode ? 'immersed' : subtasksOpen ? 'steps' : 'selected';
   const { recurrenceError, retryRecurring } = useCalendarRecurrence(planner, date, date);
   const completed = tasks.filter(task => task.status === 'done').length;
+
+  useEffect(() => {
+    const refresh = () => setNow(Date.now());
+    const timer = window.setInterval(refresh, 30_000);
+    window.addEventListener('focus', refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh); };
+  }, []);
+  useEffect(() => {
+    setCalendarExpanded(false);
+    setRemindersExpanded(false);
+  }, [date, workspaceEpoch]);
 
   useEffect(() => { setFullTitle(false); }, [selectedTask?.id, selectedTask?.title]);
   useEffect(() => {
@@ -256,7 +299,7 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
     setSelectedId(null); setOutsideTaskId(null); setMorningFocusDismissed(null); setFocusDirection('stationary'); setFocusRevision(value => value + 1); setStatus(''); setError(''); onDateChange(next);
   }
   function selectTask(id: string, direction?: number, region: 'tasks' | 'focus' = 'tasks') {
-    const movement = direction ?? Math.sign(tasks.findIndex(task => task.id === id) - tasks.findIndex(task => task.id === selectedTask?.id));
+    const movement = direction ?? Math.sign(focusTasks.findIndex(task => task.id === id) - focusTasks.findIndex(task => task.id === selectedTask?.id));
     if (selectedTask?.id !== id) {
       setFocusDirection(movement < 0 ? 'previous' : movement > 0 ? 'next' : 'stationary');
       setFocusRevision(value => value + 1);
@@ -266,8 +309,8 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
     emitHorizonScene({ kind: 'select', region, direction: movement, item: id });
   }
   function switchTask(direction: number) {
-    if (tasks.length < 2) return;
-    const id = horizonNextTaskId(tasks, selectedTask?.id ?? null, direction);
+    if (focusTasks.length < 2) return;
+    const id = horizonNextTaskId(focusTasks, selectedTask?.id ?? null, direction);
     if (id) selectTask(id, direction, 'focus');
   }
   function startSwipe(event: TouchEvent, target: typeof focusSwipeStart) {
@@ -326,7 +369,7 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
   function leaveMorningFocus() {
     if (!selectedTask?.morningRoutineDate) return;
     setMorningFocusDismissed(selectedTask.id); setOutsideTaskId(null);
-    setSelectedId(tasks.find(task => !task.morningRoutineDate && task.status !== 'done')?.id ?? defaultTask?.id ?? null);
+    setSelectedId(null);
     setFocusDirection('next'); setFocusRevision(value => value + 1);
   }
   function skipMorning() {
@@ -422,28 +465,82 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
   function renderFocusContent(inFocus: boolean) {
     const progress = subtaskProgress(selectedTask?.subtasks ?? []);
     return <><div className="horizon-focus-scene" key={`${selectedTask?.id ?? 'empty'}:${focusRevision}`} data-direction={focusDirection} data-scene-item={selectedTask?.id} data-focus-stage={inFocus ? 'immersed' : focusStage}>
-      <div className="horizon-focus-kicker"><span className="horizon-focus-identity">{selectedTaskNumber && <span className="horizon-focus-index" aria-hidden="true">{selectedTaskNumber}</span>}<span>{isMorningFocus ? 'Aufgabe' : 'Dein Fokus'}</span></span><span>{isMorningFocus ? 'Morgenroutine' : selectedTaskIndex >= 0 ? `${selectedTaskIndex + 1} / ${tasks.length}` : selectedTask ? 'Nicht eingeplant' : 'Tagesaufgabe auswählen'}</span></div>
+      {selectedTask && <p className="horizon-focus-kicker">{isMorningFocus ? 'Morgenroutine' : inFocus || manualSelection ? 'Dein Fokus' : date < today ? 'Offene Tagesaufgabe' : 'Empfohlene nächste Handlung'}</p>}
       {selectedTask ? <>
         <h2 ref={inFocus ? undefined : inlineTitle} id={inFocus ? undefined : 'horizon-inline-focus-title'} className={`horizon-focus-title${!inFocus && !fullTitle ? ' is-preview' : ''}`}>{selectedTask.title}</h2>
         {!inFocus && titleOverflows && <button type="button" className="horizon-focus-title-toggle" aria-expanded={fullTitle} aria-controls="horizon-inline-focus-title" onClick={() => setFullTitle(value => !value)}>{fullTitle ? 'Titel einklappen' : 'Vollständigen Titel anzeigen'}{fullTitle ? <ChevronUp size={15} /> : <ChevronDown size={15} />}</button>}
+        {selectedTaskIndex >= 0 && <div className="horizon-focus-timing">
+          {selectedBlock && selectedBlockDate
+            ? <span>{date < today || (todayTime !== null && Date.parse(selectedBlock.startAt) < todayTime) ? 'Beginn geplant für' : 'Beginn um'} <time dateTime={selectedBlock.startAt}>{selectedBlockDate !== date && `${formatDate(selectedBlockDate, { day: 'numeric', month: 'short' })}, `}{formatTime(selectedBlock.startAt, timeZone)} Uhr</time> · {selectedBlock.durationMinutes} Min.</span>
+            : <span>Ohne feste Uhrzeit{selectedTask.estimatedMinutes !== null && ` · ca. ${selectedTask.estimatedMinutes} Min.`}</span>}
+          {selectedTask.status === 'done' && <span>Erledigt</span>}
+        </div>}
         {selectedTask.description && inFocus && <p className="horizon-focus-description">{selectedTask.description}</p>}
-        {!tasks.some(task => task.id === selectedTask.id) && <div className="horizon-outside-task"><p>Diese Aufgabe ist für diesen Tag noch nicht eingeplant.</p><button type="button" disabled={disabled} onClick={() => void perform(`plan:${selectedTask.id}`, () => planner.moveTask(selectedTask.id, { kind: 'day', date }), 'Aufgabe für diesen Tag eingeplant und gespeichert.', { region: 'tasks', action: 'update', item: selectedTask.id }, { finish: () => setOutsideTaskId(null), matches: current => current.data.tasks.some(task => task.id === selectedTask.id && task.plan?.kind === 'day' && task.plan.date === date) })}>Für diesen Tag einplanen</button></div>}
+        {selectedTaskIndex < 0 && <div className="horizon-outside-task"><p>Diese Aufgabe ist für diesen Tag noch nicht eingeplant.</p><button type="button" disabled={disabled} onClick={() => void perform(`plan:${selectedTask.id}`, () => planner.moveTask(selectedTask.id, { kind: 'day', date }), 'Aufgabe für diesen Tag eingeplant und gespeichert.', { region: 'tasks', action: 'update', item: selectedTask.id }, { finish: () => setOutsideTaskId(null), matches: current => current.data.tasks.some(task => task.id === selectedTask.id && task.plan?.kind === 'day' && task.plan.date === date) })}>Für diesen Tag einplanen</button></div>}
+        {!inFocus && <div className="horizon-focus-actions horizon-primary-actions">
+          <button ref={focusTrigger} className="horizon-enter-focus" type="button" onClick={() => { setSelectedId(selectedTask.id); setFocusMode(true); }}>Fokusmodus öffnen<ArrowRight size={18} /></button>
+          {isMorningFocus && <button type="button" className="horizon-text-button" disabled={disabled} onClick={() => toggleTask(selectedTask)}><Check size={16} />{selectedTask.status === 'done' ? 'Aufgabe wieder öffnen' : 'Morgenroutine abschließen'}</button>}
+        </div>}
         <button type="button" className="horizon-subtasks-toggle" aria-expanded={inFocus || subtasksOpen} aria-controls={inFocus ? 'horizon-focus-subtasks' : 'horizon-inline-subtasks'} onClick={() => { setSubtasksOpen(value => !value); emitHorizonScene({ kind: 'select', region: 'focus', active: !subtasksOpen, item: selectedTask.id }); }} disabled={inFocus}>
-          {progress.done} von {progress.total} Schritten erledigt{(inFocus || subtasksOpen) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {progress.total ? `${progress.done} von ${progress.total} Schritten erledigt` : 'Unteraufgaben'}{(inFocus || subtasksOpen) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
         {(inFocus || subtasksOpen) && renderSubtasks(selectedTask, inFocus)}
         {inFocus && <div className="horizon-focus-details"><span>{selectedTask.status === 'done' ? 'Erledigt' : selectedTask.status === 'progress' ? 'In Bearbeitung' : 'Offen'}{selectedTask.estimatedMinutes !== null ? ` · ${selectedTask.estimatedMinutes} Min.` : ''}</span>{selectedTask.dueDate && <span>Fällig {formatDate(selectedTask.dueDate)}</span>}{selectedTask.noteIds.map(id => {
           const note = notes.find(note => note.id === id && !note.deletedAt);
           return note && <button type="button" key={id} onClick={() => { setFocusMode(false); onOpenNote(id); }}>{note.title || 'Unbenannte Notiz'}<ArrowUpRight size={13} /></button>;
         })}</div>}
-        <div className="horizon-focus-actions">{inFocus ? <>
+        {inFocus && <div className="horizon-focus-actions">
           <button type="button" className="horizon-strong-button" disabled={disabled} onClick={() => toggleTask(selectedTask)}><Check size={16} />{selectedTask.status === 'done' ? 'Aufgabe wieder öffnen' : 'Aufgabe abschließen'}</button>
           <button type="button" className="horizon-text-button" disabled={disabled} onClick={() => { setFocusMode(false); onEditTask(selectedTask); }}>Details bearbeiten<ArrowUpRight size={14} /></button>
-        </> : <><button ref={focusTrigger} className="horizon-text-button horizon-enter-focus" type="button" onClick={() => setFocusMode(true)}>Fokusmodus öffnen<ArrowRight size={20} /></button>{isMorningFocus && <button type="button" className="horizon-text-button" disabled={disabled} onClick={() => toggleTask(selectedTask)}><Check size={16} />{selectedTask.status === 'done' ? 'Aufgabe wieder öffnen' : 'Morgenroutine abschließen'}</button>}</>}</div>
+        </div>}
         {isMorningFocus && <div className="horizon-morning-actions">{canSkipMorning && <button type="button" disabled={disabled} onClick={skipMorning}>Heute überspringen</button>}<button type="button" disabled={disabled} onClick={leaveMorningFocus}>Andere Aufgabe</button></div>}
-      </> : <div className="horizon-focus-empty"><Focus size={30} strokeWidth={1} /><h2>Keine Aufgabe ausgewählt.</h2><p>Wähle eine Tagesaufgabe oder halte eine neue fest.</p><button type="button" className="horizon-text-button" onClick={() => selectCapture('task')}>Aufgabe hinzufügen<Plus size={16} /></button></div>}
-    </div>{morningTask && selectedTask?.id !== morningTask.id && <button type="button" className="horizon-text-button horizon-morning-return" onClick={() => selectTask(morningTask.id)}>Morgenroutine öffnen<ArrowRight size={16} /></button>}<div className="horizon-focus-navigation" role="group" aria-label="Tagesaufgabe wechseln"><button type="button" aria-label="Vorherige Tagesaufgabe" disabled={tasks.length < 2} onClick={() => switchTask(-1)}><ChevronLeft size={18} /></button><span>{selectedTask ? 'Tagesaufgaben' : 'Noch kein Fokus'}</span><button type="button" aria-label="Nächste Tagesaufgabe" disabled={tasks.length < 2} onClick={() => switchTask(1)}><ChevronRight size={18} /></button></div>
+      </> : <div className="horizon-focus-empty"><Focus size={30} strokeWidth={1} /><h2>{planner.loading ? 'Aufgaben werden geladen …' : planner.loadError ? 'Aufgaben konnten nicht geladen werden.' : tasks.some(task => task.status !== 'done') ? 'Keine Aufgabe ausgewählt.' : tasks.length ? 'Alle Tagesaufgaben erledigt.' : 'Keine Aufgaben für diesen Tag.'}</h2>{ready && <button type="button" className="horizon-text-button" onClick={() => selectCapture('task')}>Aufgabe hinzufügen<Plus size={16} /></button>}</div>}
+    </div>{morningTask && selectedTask?.id !== morningTask.id && <button type="button" className="horizon-text-button horizon-morning-return" onClick={() => selectTask(morningTask.id)}>Morgenroutine öffnen<ArrowRight size={16} /></button>}
+    {!inFocus && manualSelection && !isMorningFocus && recommendedTask && selectedTask?.id !== recommendedTask.id && <button type="button" className="horizon-text-button horizon-morning-return" onClick={() => {
+      setOutsideTaskId(null); setSelectedId(null); setSubtasksOpen(true);
+      if (morningTask) setMorningFocusDismissed(morningTask.id);
+      emitHorizonScene({ kind: 'select', region: 'focus', item: recommendedTask.id });
+    }}>Empfehlung anzeigen<ArrowRight size={16} /></button>}
+    {tasks.length > 1 && <div className="horizon-focus-navigation" role="group" aria-label="Tagesaufgabe wechseln"><button type="button" aria-label="Vorherige Tagesaufgabe" onClick={() => switchTask(-1)}><ChevronLeft size={18} /></button><span>Tagesaufgaben</span><button type="button" aria-label="Nächste Tagesaufgabe" onClick={() => switchTask(1)}><ChevronRight size={18} /></button></div>}
     </>;
+  }
+
+  function renderTask(task: Task) {
+    const selected = task.id === selectedTask?.id;
+    const done = task.status === 'done';
+    const progress = subtaskProgress(task.subtasks);
+    const detail = done ? 'Erledigt' : progress.total ? `${progress.done} von ${progress.total} Schritten`
+      : task.status === 'progress' ? 'In Bearbeitung' : task.estimatedMinutes !== null ? `${task.estimatedMinutes} Min.` : null;
+    return <li className={`${done ? 'is-done ' : ''}${selected ? 'is-selected' : ''}`} key={task.id} data-scene-item={task.id} data-scene-selected={selected}>
+      <label className="horizon-task-check"><input type="checkbox" aria-label={`${done ? 'Aufgabe wieder öffnen' : 'Aufgabe abschließen'}: ${task.title}`} checked={done} disabled={disabled} onChange={() => toggleTask(task)} /><span aria-hidden="true">{done ? <Check size={15} /> : <Circle size={19} strokeWidth={1.2} />}</span></label>
+      <button type="button" className="horizon-task-select" aria-label={`Fokus auswählen: ${task.title}`} aria-pressed={selected} aria-controls="horizon-selected-focus" onClick={() => selectTask(task.id)}>
+        <span className="horizon-task-copy"><strong>{task.title}</strong>{detail && <small>{detail}</small>}</span><ChevronRight size={17} />
+      </button>
+    </li>;
+  }
+
+  function renderCalendarItem(item: typeof calendarItems[number]) {
+    return <li key={item.kind + item.id}><button type="button" onClick={() => item.kind === 'appointment' ? onEditAppointment(item.appointment) : onEditBlock(item.block)}>
+      {item.allDay ? <span className="horizon-agenda-time">Ganztägig</span>
+        : dateInZone(item.startAt, timeZone) < date ? <span className="horizon-agenda-time">Fortsetzung</span>
+        : <time className="horizon-agenda-time" dateTime={item.startAt}>{formatTime(item.startAt, timeZone)}</time>}
+      <span className="horizon-agenda-title">{item.title}</span><ArrowUpRight size={13} />
+    </button></li>;
+  }
+
+  function renderReminder(occurrence: typeof reminders[number]) {
+    const done = occurrence.status !== 'pending';
+    return <li key={occurrence.id} className={done ? 'is-done' : ''}>
+      <label><input type="checkbox" aria-label={`Erinnerung erledigt: ${occurrence.reminder.title}`} checked={done} disabled={disabled} onChange={event => {
+        const next = event.target.checked ? 'done' : 'pending';
+        void perform(`reminder:${occurrence.id}`, () => planner.acknowledgeReminder(occurrence, next), 'Erinnerungsstatus gespeichert.', { region: 'reminders', action: next === 'done' ? 'complete' : 'restore', item: occurrence.id }, {
+          matches: current => reminderOccurrences(current.data, date, date).some(item => item.id === occurrence.id && item.status === next),
+        });
+      }} /><span aria-hidden="true">{done ? <Check size={14} /> : <Bell size={14} />}</span></label>
+      <button type="button" aria-label={`Erinnerung bearbeiten: ${occurrence.reminder.title}`} aria-describedby={`horizon-time-${occurrence.id}`} onClick={() => { emitHorizonScene({ kind: 'select', region: 'reminders', item: occurrence.id }); onEditReminder(occurrence.reminder); }}>
+        <time id={`horizon-time-${occurrence.id}`} dateTime={occurrence.effectiveAt}>{formatTime(occurrence.effectiveAt, timeZone)}</time><span>{occurrence.reminder.title}{occurrence.adjusted && <small>Zeitumstellung angepasst</small>}</span>
+      </button>
+    </li>;
   }
 
   const feedback = (modal = false) => <div className="horizon-feedback" aria-live="polite">
@@ -456,26 +553,57 @@ export function HorizonHome({ planner, notes, date, onDateChange, onOpenCalendar
   return <main className={`horizon-home${focusMode ? ' has-focus-mode' : ''}`} aria-label="Horizont Start" data-scene-region="home" data-focus-stage={focusStage} data-selected-task={selectedTask?.id}>
     <header className="horizon-home-intro"><h1 className="horizon-sr-only">Start</h1></header>
 
-    <section className="horizon-day-calendar" aria-label="Tageskalender" data-scene-region="calendar">
-      <div className="horizon-day-title"><time dateTime={date}>{formatDate(date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</time>{date !== today && <button type="button" onClick={() => { emitHorizonScene({ kind: 'day', region: 'calendar', direction: today > date ? 1 : -1, item: today }); changeDate(today); }}>Heute</button>}</div>
-      <HorizonDayStrip date={date} today={today} onChange={changeDate} />
-      <div className="horizon-calendar-access"><button type="button" onClick={() => { emitHorizonScene({ kind: 'select', region: 'calendar', item: date }); onOpenCalendar(date); }}><CalendarDays size={15} />Großer Kalender<ArrowUpRight size={14} /></button><button type="button" aria-label="Termin hinzufügen" onClick={() => onEditAppointment(undefined, date)}><Plus size={17} /></button></div>
-      <ol className="horizon-day-agenda" aria-label="Termine und Zeitblöcke">{calendarItems.map(item => <li key={item.kind + item.id}><button type="button" onClick={() => item.kind === 'appointment' ? onEditAppointment(item.appointment) : onEditBlock(item.block)}><time>{item.time}</time><span>{item.title}<small>{item.kind === 'block' ? 'Fokuszeit' : 'Termin'}</small></span><ArrowUpRight size={13} /></button></li>)}</ol>
-      {!calendarItems.length && <p className="horizon-empty horizon-calendar-empty">Keine Termine oder Fokuszeiten.</p>}
-    </section>
+    <div className="horizon-day-overview">
+      <section className="horizon-day-calendar" aria-label="Tageskalender" data-scene-region="calendar">
+        <div className="horizon-day-title"><time dateTime={date}>{formatDate(date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</time>{date !== today && <button type="button" onClick={() => { emitHorizonScene({ kind: 'day', region: 'calendar', direction: today > date ? 1 : -1, item: today }); changeDate(today); }}>Heute</button>}</div>
+        <HorizonDayStrip date={date} today={today} onChange={changeDate} />
+        <div className="horizon-upcoming">
+          <h2 className="horizon-home-group-title">{calendarItemLabel ?? 'Zeitplan'}</h2>
+          {nextCalendarItem ? <ol className="horizon-day-agenda">{renderCalendarItem(nextCalendarItem)}</ol>
+            : <p className="horizon-empty">{planner.loading ? 'Zeitplan wird geladen …' : planner.loadError ? 'Zeitplan konnte nicht geladen werden.' : calendarItems.length ? 'Heute steht kein weiterer Termin oder Zeitblock an.' : 'Keine Termine oder Zeitblöcke.'}</p>}
+          {otherCalendarItems.length > 0 && <><button type="button" className="horizon-show-more" aria-expanded={calendarExpanded} aria-controls="horizon-other-calendar" onClick={() => setCalendarExpanded(value => !value)}>
+            {calendarExpanded ? 'Weitere Einträge ausblenden' : otherCalendarItems.length === 1 ? '1 weiterer Eintrag im Zeitplan' : `${otherCalendarItems.length} weitere Einträge im Zeitplan`}{calendarExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button><ol className="horizon-day-agenda horizon-more-items" id="horizon-other-calendar" hidden={!calendarExpanded}>{otherCalendarItems.map(renderCalendarItem)}</ol></>}
+        </div>
+        <div className="horizon-calendar-access"><button type="button" onClick={() => { emitHorizonScene({ kind: 'select', region: 'calendar', item: date }); onOpenCalendar(date); }}><CalendarDays size={15} />Großer Kalender<ArrowUpRight size={14} /></button><button type="button" aria-label="Termin hinzufügen" onClick={() => onEditAppointment(undefined, date)}><Plus size={17} /></button></div>
+      </section>
 
-    <section className="horizon-day-tasks" aria-label="Tagesaufgaben" data-scene-region="tasks"><div className="horizon-section-heading"><div><h2>Aufgaben <span>{tasks.length}</span></h2><small className="horizon-task-summary">{ready ? `${tasks.length - completed} offen · ${completed} erledigt` : 'Wird geladen …'}</small></div><button type="button" aria-label="Aufgabe hinzufügen" aria-expanded={capture === 'task'} onClick={() => selectCapture(capture === 'task' ? null : 'task')}><Plus size={20} /></button></div>
+      <aside className="horizon-day-aside" aria-label="Tagesnotizen und Erinnerungen">
+        <section className="horizon-day-reminders" aria-label="Tageserinnerungen" data-scene-region="reminders">
+          <div className="horizon-section-heading"><h2 className="horizon-home-group-title">{nextReminder ? reminderLabel : 'Erinnerungen'}</h2><button type="button" aria-label="Erinnerung hinzufügen" aria-expanded={capture === 'reminder'} onClick={() => selectCapture(capture === 'reminder' ? null : 'reminder')}><Plus size={20} /></button></div>
+          {nextReminder ? <ul className="horizon-reminder-list">{renderReminder(nextReminder)}</ul>
+            : <p className="horizon-empty">{planner.loading ? 'Erinnerungen werden geladen …' : planner.loadError ? 'Erinnerungen konnten nicht geladen werden.' : reminders.length ? 'Keine offene Erinnerung.' : 'Für diesen Tag ist keine Erinnerung geplant.'}</p>}
+          {otherReminders.length > 0 && <><button type="button" className="horizon-show-more" aria-expanded={remindersExpanded} aria-controls="horizon-other-reminders" onClick={() => setRemindersExpanded(value => !value)}>
+            {remindersExpanded ? 'Weitere Erinnerungen ausblenden' : `${otherReminders.length} weitere ${otherReminders.length === 1 ? 'Erinnerung' : 'Erinnerungen'}`}{remindersExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button><ul className="horizon-reminder-list horizon-more-items" id="horizon-other-reminders" hidden={!remindersExpanded}>{otherReminders.map(renderReminder)}</ul></>}
+          <button type="button" className="horizon-text-button horizon-section-link" onClick={() => onNavigate('reminders')}>Alle Erinnerungen<ArrowRight size={17} /></button>
+        </section>
+        <section className="horizon-day-notes" aria-label="Tagesnotizen" data-scene-region="notes">
+          <div className="horizon-section-heading"><h2 className="horizon-home-group-title">Notizen <span>{dayNotes.length}</span></h2><button type="button" aria-label="Notiz hinzufügen" aria-expanded={capture === 'note'} onClick={() => selectCapture(capture === 'note' ? null : 'note')}><Plus size={20} /></button></div>
+          <ul className="horizon-note-list">{dayNotes.map(note => <li key={note.id}>
+            <button type="button" aria-label={`Notiz öffnen: ${note.title || 'Unbenannte Notiz'}`} onClick={() => { emitHorizonScene({ kind: 'select', region: 'notes', item: note.id }); onOpenNote(note.id); }}><strong>{note.title || 'Unbenannte Notiz'}</strong>{note.preview && <span>{note.preview}</span>}</button>
+          </li>)}</ul>
+          {!dayNotes.length && <p className="horizon-empty">Noch keine Tagesnotizen.</p>}
+          <button type="button" className="horizon-text-button horizon-section-link" onClick={() => onNavigate('notes')}>Alle Notizen<ArrowRight size={17} /></button>
+        </section>
+      </aside>
+    </div>
+
+    <section className="horizon-day-tasks" aria-label="Tagesaufgaben" data-scene-region="tasks"><div className="horizon-section-heading"><div><h2 className="horizon-home-group-title">Aufgaben</h2><small className="horizon-task-summary">{ready ? `${tasks.length - completed} offen · ${completed} erledigt` : 'Wird geladen …'}</small></div><button type="button" aria-label="Aufgabe hinzufügen" aria-expanded={capture === 'task'} onClick={() => selectCapture(capture === 'task' ? null : 'task')}><Plus size={20} /></button></div>
       {planner.loading ? <p className="horizon-empty">Aufgaben werden geladen …</p> : planner.loadError ? <p role="alert" className="horizon-error">{planner.loadError}</p> : <>
-        <ul className="horizon-task-list">{tasks.map((task, index) => <li className={`${task.status === 'done' ? 'is-done ' : ''}${task.id === selectedTask?.id ? 'is-selected' : ''}`} key={task.id} data-scene-item={task.id} data-scene-selected={task.id === selectedTask?.id}><label className="horizon-task-check"><input type="checkbox" aria-label={`${task.status === 'done' ? 'Aufgabe wieder öffnen' : 'Aufgabe abschließen'}: ${task.title}`} checked={task.status === 'done'} disabled={disabled} onChange={() => toggleTask(task)} /><span aria-hidden="true">{task.status === 'done' ? <Check size={15} /> : <Circle size={19} strokeWidth={1.2} />}</span></label><button type="button" className="horizon-task-select" aria-label={`Fokus auswählen: ${task.title}`} aria-pressed={task.id === selectedTask?.id} aria-controls="horizon-selected-focus" onClick={() => selectTask(task.id)}><span className="horizon-task-index">{String(index + 1).padStart(2, '0')}</span><span className="horizon-task-copy"><strong>{task.title}</strong><small>{task.subtasks.length ? `${subtaskProgress(task.subtasks).done} von ${subtaskProgress(task.subtasks).total} Schritten` : task.status === 'progress' ? 'In Bearbeitung' : task.estimatedMinutes !== null ? `${task.estimatedMinutes} Minuten` : task.status === 'done' ? 'Erledigt' : 'Offen'}</small></span><ChevronRight size={17} /></button></li>)}</ul>
+        {routineTasks.length > 0 && <section className="horizon-routine-tasks" aria-labelledby="horizon-routine-tasks-title">
+          <h3 id="horizon-routine-tasks-title" className="horizon-home-group-title">Wiederkehrend</h3>
+          <ul className="horizon-task-list">{routineTasks.map(renderTask)}</ul>
+        </section>}
+        {otherTasks.length > 0 && <div className="horizon-other-tasks">
+          {routineTasks.length > 0 && <h3 className="horizon-home-group-title" id="horizon-other-tasks-title">Weitere Aufgaben</h3>}
+          <ul className="horizon-task-list" aria-labelledby={routineTasks.length > 0 ? 'horizon-other-tasks-title' : undefined}>{otherTasks.map(renderTask)}</ul>
+        </div>}
         {!tasks.length && <div className="horizon-empty horizon-tasks-empty"><p>Dieser Tag hat noch keine Aufgaben.</p><button type="button" className="horizon-text-button" onClick={() => selectCapture('task')}>Erste Aufgabe festhalten<Plus size={15} /></button></div>}
       </>}
       {recurrenceError && <div className="horizon-error" role="alert"><p>{recurrenceError}</p><button type="button" onClick={retryRecurring}>Wiederholungen erneut laden</button></div>}
       <button className="horizon-text-button horizon-section-link" type="button" onClick={() => onNavigate('tasks')}>Alle Aufgaben<ArrowRight size={17} /></button>
     </section>
-
-    <aside className="horizon-day-aside" aria-label="Tagesnotizen und Erinnerungen"><section className="horizon-day-notes" aria-label="Tagesnotizen" data-scene-region="notes"><div className="horizon-section-heading"><h2>Notizen <span>{dayNotes.length}</span></h2><button type="button" aria-label="Notiz hinzufügen" aria-expanded={capture === 'note'} onClick={() => selectCapture(capture === 'note' ? null : 'note')}><Plus size={20} /></button></div><ul className="horizon-note-list">{dayNotes.map(note => <li key={note.id}><button type="button" aria-label={`Notiz öffnen: ${note.title || 'Unbenannte Notiz'}`} onClick={() => { emitHorizonScene({ kind: 'select', region: 'notes', item: note.id }); onOpenNote(note.id); }}><strong>{note.title || 'Unbenannte Notiz'}</strong>{note.content.trim() && <span>{note.content.replace(/\s+/g, ' ').slice(0, 140)}</span>}</button></li>)}</ul>{!dayNotes.length && <p className="horizon-empty">Noch keine Tagesnotizen.</p>}<button type="button" className="horizon-text-button horizon-section-link" onClick={() => onNavigate('notes')}>Alle Notizen<ArrowRight size={17} /></button></section>
-      <section className="horizon-day-reminders" aria-label="Tageserinnerungen" data-scene-region="reminders"><div className="horizon-section-heading"><h2>Erinnerungen <span>{reminders.length}</span></h2><button type="button" aria-label="Erinnerung hinzufügen" aria-expanded={capture === 'reminder'} onClick={() => selectCapture(capture === 'reminder' ? null : 'reminder')}><Plus size={20} /></button></div><ul className="horizon-reminder-list">{reminders.map(occurrence => <li key={occurrence.id} className={occurrence.status !== 'pending' ? 'is-done' : ''}><label><input type="checkbox" aria-label={`Erinnerung erledigt: ${occurrence.reminder.title}`} checked={occurrence.status !== 'pending'} disabled={disabled} onChange={event => { const next = event.target.checked ? 'done' : 'pending'; void perform(`reminder:${occurrence.id}`, () => planner.acknowledgeReminder(occurrence, next), 'Erinnerungsstatus gespeichert.', { region: 'reminders', action: next === 'done' ? 'complete' : 'restore', item: occurrence.id }, { matches: current => reminderOccurrences(current.data, date, date).some(item => item.id === occurrence.id && item.status === next) }); }} /><span aria-hidden="true">{occurrence.status !== 'pending' ? <Check size={14} /> : <Bell size={14} />}</span></label><button type="button" aria-label={`Erinnerung bearbeiten: ${occurrence.reminder.title}`} onClick={() => { emitHorizonScene({ kind: 'select', region: 'reminders', item: occurrence.id }); onEditReminder(occurrence.reminder); }}><time dateTime={occurrence.effectiveAt}>{formatTime(occurrence.effectiveAt, timeZone)}</time><span>{occurrence.reminder.title}{occurrence.adjusted && <small>Zeitumstellung angepasst</small>}</span></button></li>)}</ul>{!reminders.length && <p className="horizon-empty">Für diesen Tag ist keine Erinnerung geplant.</p>}<button type="button" className="horizon-text-button horizon-section-link" onClick={() => onNavigate('reminders')}>Alle Erinnerungen<ArrowRight size={17} /></button></section>
-    </aside>
 
     <section className="horizon-home-focus" id="horizon-selected-focus" aria-label={isMorningFocus ? 'Morgenroutine' : 'Dein Fokus'} data-scene-region="focus" data-scene-item={selectedTask?.id} data-focus-stage={focusStage} onTouchStart={event => startSwipe(event, focusSwipeStart)} onTouchEnd={event => endSwipe(event, focusSwipeStart, switchTask)} onTouchCancel={() => { focusSwipeStart.current = null; }}>{!focusMode && renderFocusContent(false)}</section>
 

@@ -20,6 +20,7 @@ export function TimeBlockDialog({ planner, block, defaults, onClose }: TimeBlock
   const [confirmDelete, setConfirmDelete] = useState(false);
   const task = planner.data.tasks.find((item) => item.id === taskId);
   const furtherBlocks = planner.data.timeBlocks.filter((item) => item.taskId === taskId && item.id !== block?.id);
+  const keepsReminderTimes = block && planner.data.reminders?.some(reminder => reminder.taskId === block.taskId && reminder.enabled);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,6 +60,7 @@ export function TimeBlockDialog({ planner, block, defaults, onClose }: TimeBlock
       {task && <div className="planning-info">
         <p>Beim Speichern wird <strong>{task.title}</strong> für den frühesten Tag ihrer Zeitblöcke eingeplant. {task.dueDate ? `Die Fälligkeit am ${formatDate(task.dueDate)} bleibt erhalten.` : 'Ein Fälligkeitsdatum wird dadurch nicht gesetzt.'}</p>
         {furtherBlocks.length > 0 && <p>{furtherBlocks.length === 1 ? 'Ein weiterer Zeitblock dieser Aufgabe bleibt' : `${furtherBlocks.length} weitere Zeitblöcke dieser Aufgabe bleiben`} erhalten, auch an anderen Tagen.</p>}
+        {keepsReminderTimes && <p>Mit dieser Aufgabe verknüpfte Erinnerungen behalten beim Verschieben des Zeitblocks ihr Datum und ihre Uhrzeit.</p>}
       </div>}
     </fieldset>
     {validation && <p className="planning-warning" role="alert">{validation}</p>}

@@ -7,7 +7,7 @@ services:
     region: frankfurt
     plan: free
     autoDeployTrigger: 'off'
-    buildCommand: npm ci --include=dev && npx tsc -b && npx vite build --configLoader native
+    buildCommand: npm ci --include=dev && node scripts/build-sync-validator.mjs && npx tsc -b && npx vite build --configLoader native
     startCommand: node server/index.mjs
     healthCheckPath: /
     envVars:

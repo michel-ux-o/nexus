@@ -1,99 +1,113 @@
 /* Horizont keeps the task collection and selected work in one quiet clearing. */
 :root[data-theme] .nexus-atelier.nexus-horizon .tasks-view.horizon-tasks-view {
   --task-ice: #a7d6ee;
-  --task-muted: #9eafc0;
+  --task-muted: var(--hz-text-meta, #b3c5d5);
   --task-line: var(--hz-line, #a8cfe526);
   color: #edf3f7;
   background: transparent;
-  font-size: var(--hz-body, .875rem);
+  font-size: var(--hz-body, 1rem);
   scrollbar-color: #66889d transparent;
 }
 .nexus-horizon .horizon-tasks-view .horizon-tasks-content { max-width: 1500px; margin: 0 auto; padding: 26px clamp(20px, 4vw, 64px) 30px; }
-.nexus-horizon .horizon-tasks-view .horizon-tasks-heading { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px; margin-bottom: 32px; }
-.nexus-horizon .horizon-tasks-view .horizon-tasks-eyebrow { margin: 0 0 12px; color: #c8d9e6; font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); line-height: 1.7; text-transform: uppercase; overflow-wrap: anywhere; }
-:root[data-theme] .nexus-horizon .horizon-tasks-view .horizon-tasks-heading h1 { margin: 0; color: #edf3f7; font-family: inherit; font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem)); font-weight: 400; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-tasks-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--task-line); }
+:root[data-theme] .nexus-horizon .horizon-tasks-view .horizon-tasks-heading h1 { margin: 0; color: #edf3f7; font-family: inherit; font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem)); font-weight: 550; letter-spacing: -.035em; line-height: 1.15; overflow-wrap: anywhere; }
 .nexus-horizon .horizon-tasks-view .horizon-tasks-heading-actions { display: flex; flex-wrap: wrap; gap: 12px 26px; }
 .nexus-horizon .horizon-tasks-view .horizon-tasks-workspace { display: grid; grid-template-columns: minmax(260px, .85fr) minmax(0, 1.4fr); align-items: start; gap: clamp(32px, 5vw, 82px); }
 .nexus-horizon .horizon-tasks-view .horizon-task-collection, .nexus-horizon .horizon-tasks-view .horizon-task-detail { min-width: 0; }
 :root[data-theme] .nexus-horizon .horizon-tasks-view .tasks-search { min-height: 48px; padding-inline: 0; border: 0; border-bottom: 1px solid var(--task-line); border-radius: 0; background: transparent; color: var(--task-muted); }
-.nexus-horizon .horizon-tasks-view .tasks-search > input { color: #edf3f7; font-size: var(--hz-body, .875rem); }
+.nexus-horizon .horizon-tasks-view .tasks-search > input { color: #edf3f7; font-size: var(--hz-body, 1rem); }
 .nexus-horizon .horizon-tasks-view .tasks-search > input::placeholder { color: #aabac7; }
 .nexus-horizon .horizon-tasks-view .horizon-task-tabs { display: flex; flex-wrap: wrap; align-items: center; column-gap: 24px; margin-top: 10px; }
-.nexus-horizon .horizon-tasks-view .horizon-task-tabs > button { position: relative; min-height: 48px; padding: 8px 2px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; color: #d6e0e7; font: inherit; font-size: var(--hz-body, .875rem); }
-.nexus-horizon .horizon-tasks-view .horizon-task-tabs > button[aria-pressed="true"] { border-bottom-color: var(--task-ice); color: var(--task-ice); }
+.nexus-horizon .horizon-tasks-view .horizon-task-tabs > button { position: relative; min-height: 48px; padding: 8px 2px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; color: #d6e0e7; font: inherit; font-size: var(--hz-body, 1rem); }
+.nexus-horizon .horizon-tasks-view .horizon-task-tabs > button[aria-pressed="true"] { border-bottom: 2px solid var(--task-ice); color: var(--task-ice); font-weight: 600; }
 .nexus-horizon .horizon-tasks-view .horizon-task-tabs > button span { font-variant-numeric: tabular-nums; }
-.nexus-horizon .horizon-tasks-view .horizon-task-filters { margin-top: 8px; }
-.nexus-horizon .horizon-tasks-view .horizon-task-filters > summary { display: flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 44px; color: var(--task-muted); font-size: var(--hz-meta, .75rem); cursor: pointer; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-task-controls { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 20px; margin-top: 8px; }
+.nexus-horizon .horizon-tasks-view .horizon-task-sort { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; min-width: 0; color: var(--task-muted); font-size: var(--hz-meta, .875rem); }
+.nexus-horizon .horizon-tasks-view .horizon-task-sort > select { min-width: 0; max-width: 100%; min-height: 44px; padding: 6px 14px 6px 0; border: 0; border-bottom: 1px solid var(--task-line); background: transparent; color: #edf3f7; font: inherit; font-size: var(--hz-body, 1rem); }
+.nexus-horizon .horizon-tasks-view .horizon-task-sort > select option { background: #111b27; color: #edf3f7; }
+.nexus-horizon .horizon-tasks-view .horizon-task-filters[open] { flex-basis: 100%; min-width: 0; margin-bottom: 10px; }
+.nexus-horizon .horizon-tasks-view .horizon-task-filters > summary { display: flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 44px; color: var(--task-muted); font-size: var(--hz-meta, .875rem); cursor: pointer; overflow-wrap: anywhere; }
 .nexus-horizon .horizon-tasks-view .horizon-task-filters > summary::marker { content: ''; }
 .nexus-horizon .horizon-tasks-view .horizon-task-filters[open] > summary { color: var(--task-ice); }
 .nexus-horizon .horizon-tasks-view .horizon-task-filters .tasks-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; }
 .nexus-horizon .horizon-tasks-view .horizon-task-filters .tasks-filters > label { color: var(--task-muted); }
 .nexus-horizon .horizon-tasks-view .horizon-task-filters .tasks-filters select { border-bottom-color: var(--task-line); color: #e1eaf1; }
 .nexus-horizon .horizon-tasks-view .horizon-task-filters .tasks-filters select option { background: #111b27; color: #edf3f7; }
-.nexus-horizon .horizon-tasks-view .tasks-results-line { min-height: 42px; padding-block: 3px; gap: 0 12px; }
+.nexus-horizon .horizon-tasks-view .tasks-results-line { min-height: 44px; padding-block: 3px; gap: 0 12px; }
 .nexus-horizon .horizon-tasks-view .tasks-results-line > p { color: var(--task-muted); }
-.nexus-horizon .horizon-tasks-view .tasks-results-line .tasks-text-button { min-height: 44px; font-size: var(--hz-meta, .75rem); }
+.nexus-horizon .horizon-tasks-view .tasks-results-line .tasks-text-button { min-height: 44px; font-size: var(--hz-meta, .875rem); }
 .nexus-horizon .horizon-tasks-view .horizon-task-list { max-height: min(58vh, 650px); min-height: 0; margin: 0; padding: 0 12px 0 0; list-style: none; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-gutter: stable; scrollbar-color: #66889d transparent; }
-.nexus-horizon .horizon-tasks-view .horizon-task-list > li { position: relative; display: flex; align-items: center; min-width: 0; min-height: 84px; padding: 10px 8px; border-bottom: 1px solid var(--task-line); }
+.nexus-horizon .horizon-tasks-view .horizon-task-list > li { display: block; min-width: 0; border-bottom: 1px solid var(--task-line); }
 .nexus-horizon .horizon-tasks-view .horizon-task-list > li:first-child { border-top: 1px solid var(--task-line); }
-.nexus-horizon .horizon-tasks-view .horizon-task-list > li.is-selected { background: transparent; border-bottom-color: #a8cfe54a; }
-.nexus-horizon .horizon-tasks-view .horizon-task-list > li.is-selected::before { content: ''; position: absolute; top: 22px; left: 0; width: 2px; height: 20px; background: #b7d9ed; pointer-events: none; }
-.nexus-horizon .horizon-tasks-view .horizon-task-complete { position: relative; display: grid; place-items: center; flex: 0 0 40px; min-width: 40px; min-height: 44px; cursor: pointer; }
+.nexus-horizon .horizon-tasks-view .horizon-task-item { position: relative; display: flex; align-items: center; min-width: 0; min-height: 68px; padding: 3px 4px 3px 6px; }
+.nexus-horizon .horizon-tasks-view .horizon-task-item.is-selected { background: color-mix(in srgb, var(--task-ice) 6%, transparent); }
+.nexus-horizon .horizon-tasks-view .horizon-task-item.is-selected::before { content: ''; position: absolute; inset: 8px auto 8px 0; width: 2px; background: var(--task-ice); pointer-events: none; }
+.nexus-horizon .horizon-tasks-view .horizon-task-series-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; max-width: calc(100% - 62px); margin: 0 0 2px 60px; padding: 0; border: 0; background: transparent; color: var(--task-muted); text-align: left; font: inherit; font-size: var(--hz-meta, .875rem); }
+.nexus-horizon .horizon-tasks-view .horizon-task-series-toggle:is(:hover, .has-selection, [aria-expanded="true"]) { color: var(--task-ice); }
+.nexus-horizon .horizon-tasks-view .horizon-task-series-toggle > svg { flex: 0 0 auto; }
+.nexus-horizon .horizon-tasks-view .horizon-task-series-toggle[aria-expanded="true"] > svg:last-child { transform: rotate(180deg); }
+.nexus-horizon .horizon-tasks-view .horizon-task-series-list { list-style: none; margin: 0 0 6px 19px; padding: 0; border-left: 1px solid var(--task-line); }
+.nexus-horizon .horizon-tasks-view .horizon-task-series-list > li { border-top: 1px solid var(--task-line); }
+.nexus-horizon .horizon-tasks-view .horizon-task-complete { position: relative; display: grid; place-items: center; flex: 0 0 44px; min-width: 44px; min-height: 44px; cursor: pointer; }
 .nexus-horizon .horizon-tasks-view .horizon-task-complete > input { position: absolute; width: 26px; height: 26px; margin: 0; opacity: 0; cursor: pointer; }
 .nexus-horizon .horizon-tasks-view .horizon-task-complete > span { display: grid; place-items: center; width: 21px; height: 21px; border: 1px solid #d1dfe7; border-radius: 50%; color: #09131c; pointer-events: none; }
 .nexus-horizon .horizon-tasks-view .horizon-task-complete > input:checked + span { border-color: var(--task-ice); background: var(--task-ice); }
 .nexus-horizon .horizon-tasks-view .horizon-task-complete > input:focus-visible + span { outline: 2px solid var(--task-ice); outline-offset: 5px; }
 .nexus-horizon .horizon-tasks-view .horizon-task-complete > input:disabled + span { opacity: .5; }
-.nexus-horizon .horizon-tasks-view .horizon-task-select { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 16px; min-width: 0; min-height: 64px; padding: 8px 4px 8px 12px; border: 0; background: transparent; color: #edf3f7; text-align: left; }
+.nexus-horizon .horizon-tasks-view .horizon-task-select { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 10px; min-width: 0; min-height: 60px; padding: 8px 4px 8px 10px; border: 0; background: transparent; color: #edf3f7; text-align: left; }
 .nexus-horizon .horizon-tasks-view .horizon-task-select > span { min-width: 0; }
-.nexus-horizon .horizon-tasks-view .horizon-task-select strong { display: block; font-size: .95rem; font-weight: 400; line-height: 1.45; overflow-wrap: anywhere; }
-.nexus-horizon .horizon-tasks-view .horizon-task-select small { display: block; margin-top: 4px; color: var(--task-muted); font-size: var(--hz-meta, .75rem); line-height: 1.5; }
+.nexus-horizon .horizon-tasks-view .horizon-task-select strong { display: block; font-size: var(--hz-body, 1rem); font-weight: 550; line-height: 1.4; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-task-series > .horizon-task-item strong { font-size: 1.125rem; }
+.nexus-horizon .horizon-tasks-view :is(.horizon-task-row-meta, .horizon-task-row-status) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin-top: 3px; color: var(--task-muted); font-size: var(--hz-meta, .875rem); line-height: 1.45; }
+.nexus-horizon .horizon-tasks-view .horizon-task-row-meta { font-variant-numeric: tabular-nums; }
+.nexus-horizon .horizon-tasks-view .horizon-task-row-meta time { color: var(--task-ice); font-size: var(--hz-body, 1rem); font-weight: 550; }
 .nexus-horizon .horizon-tasks-view .horizon-task-select > svg { flex: 0 0 auto; color: #b9cedc; }
-.nexus-horizon .horizon-tasks-view .horizon-task-list > li.is-done .horizon-task-select strong { color: #adc1ce; }
+.nexus-horizon .horizon-tasks-view .horizon-task-item.is-done .horizon-task-select strong { color: #adc1ce; }
 .nexus-horizon .horizon-tasks-view .horizon-task-detail { position: relative; padding: 9px 0 30px; }
-:root[data-theme] .nexus-horizon .horizon-tasks-view .horizon-task-detail h2 { margin: 0 0 9px; color: #f0f5f8; font-family: inherit; font-size: var(--hz-title, clamp(1.6rem, 2.6vw, 2.5rem)); font-weight: 400; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-task-detail-label { margin: 0 0 6px; color: var(--task-muted); font-size: var(--hz-meta, .875rem); font-weight: 550; line-height: 1.5; }
+:root[data-theme] .nexus-horizon .horizon-tasks-view .horizon-task-detail h2 { margin: 0 0 9px; color: #f0f5f8; font-family: inherit; font-size: clamp(1.5rem, 2.2vw, 2.125rem); font-weight: 550; letter-spacing: -.025em; line-height: 1.2; overflow-wrap: anywhere; }
 .nexus-horizon .horizon-tasks-view .horizon-task-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 28px; margin-bottom: 12px; }
 .nexus-horizon .horizon-tasks-view .horizon-task-status { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .nexus-horizon .horizon-tasks-view .horizon-status-dot { width: 9px; height: 9px; flex: 0 0 auto; border: 1px solid #a3bdcc; border-radius: 50%; }
 .nexus-horizon .horizon-tasks-view .horizon-status-dot.is-progress { background: #8bbdd7; }
 .nexus-horizon .horizon-tasks-view .horizon-status-dot.is-done { background: #b8c6cf; }
-.nexus-horizon .horizon-tasks-view .horizon-task-status > select { min-height: 44px; max-width: 100%; padding: 6px 22px 6px 0; border: 0; background: transparent; color: #dce8ef; font: inherit; font-size: var(--hz-body, .875rem); }
+.nexus-horizon .horizon-tasks-view .horizon-task-status > select { min-height: 44px; max-width: 100%; padding: 6px 22px 6px 0; border: 0; background: transparent; color: #dce8ef; font: inherit; font-size: var(--hz-body, 1rem); }
 .nexus-horizon .horizon-tasks-view .horizon-task-status > select option { background: var(--hz-window, #0c141eee); color: #edf3f7; }
-.nexus-horizon .horizon-tasks-view .horizon-task-description { margin: 8px 0 24px; color: #d4e0e8; font-size: var(--hz-body, .875rem); line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
-.nexus-horizon .horizon-tasks-view .horizon-task-metadata { display: flex; flex-wrap: wrap; gap: 18px 26px; margin: 24px 0 28px; }
-.nexus-horizon .horizon-tasks-view .horizon-task-metadata > div { min-width: 0; flex: 1 1 135px; padding-right: 12px; }
-.nexus-horizon .horizon-tasks-view .horizon-task-metadata dt { display: flex; align-items: center; gap: 9px; color: var(--task-muted); font-size: var(--hz-meta, .75rem); line-height: 1.5; }
+.nexus-horizon .horizon-tasks-view .horizon-task-description { max-width: 66ch; margin: 8px 0 24px; color: #d4e0e8; font-size: var(--hz-body, 1rem); line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-task-metadata { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 16px 18px; margin: 24px 0; padding-block: 14px; border-block: 1px solid var(--task-line); }
+.nexus-horizon .horizon-tasks-view .horizon-task-metadata > div { min-width: 0; }
+.nexus-horizon .horizon-tasks-view .horizon-task-metadata dt { display: flex; align-items: center; gap: 9px; color: var(--task-muted); font-size: var(--hz-meta, .875rem); line-height: 1.5; }
 .nexus-horizon .horizon-tasks-view .horizon-task-metadata dt > svg { flex: 0 0 auto; }
-.nexus-horizon .horizon-tasks-view .horizon-task-metadata dd { margin: 8px 0 0 27px; color: var(--task-ice); font-size: var(--hz-body, .875rem); line-height: 1.5; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-task-metadata dd { margin: 4px 0 0 27px; color: #edf3f7; font-size: var(--hz-body, 1rem); font-weight: 550; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-task-metadata > div:first-child dd { color: var(--task-ice); }
 .nexus-horizon .horizon-tasks-view .horizon-task-metadata .is-overdue dd { color: #e6b7a6; }
-.nexus-horizon .horizon-tasks-view .horizon-task-attributes { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 24px; color: var(--task-muted); font-size: var(--hz-meta, .75rem); line-height: 1.6; }
+.nexus-horizon .horizon-tasks-view .horizon-task-attributes { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 24px; color: var(--task-muted); font-size: var(--hz-meta, .875rem); line-height: 1.6; }
 .nexus-horizon .horizon-tasks-view .horizon-task-attributes > span { display: inline-flex; align-items: center; gap: 6px; overflow-wrap: anywhere; }
 .nexus-horizon .horizon-tasks-view .horizon-subtasks-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding-bottom: 12px; border-bottom: 1px solid var(--task-line); }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks-heading h3, .nexus-horizon .horizon-tasks-view .horizon-task-notes h3 { margin: 0; color: #c8d9e6; font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); line-height: 1.7; text-transform: uppercase; }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks-heading > span { color: var(--task-muted); font-size: var(--hz-meta, .75rem); font-variant-numeric: tabular-nums; }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks { width: 100%; max-width: none; margin: 14px 0 5px; padding: 0; border: 0; list-style: none; text-align: left; }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks > li > label { display: flex; align-items: flex-start; gap: 13px; min-height: 44px; padding-block: 10px; color: #e3edf3; font-size: var(--hz-body, .875rem); line-height: 1.6; cursor: pointer; }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks input[type="checkbox"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 2px 0 0; accent-color: #9ecde5; }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks label > span { min-width: 0; overflow-wrap: anywhere; }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks label small { display: inline-block; margin-left: 10px; color: var(--task-muted); font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .horizon-tasks-view .horizon-subtasks-empty { margin: 20px 0 10px; color: var(--task-muted); font-size: var(--hz-body, .875rem); line-height: 1.6; }
+.nexus-horizon .horizon-tasks-view :is(.horizon-subtasks-heading, .horizon-task-notes) h3 { margin: 0; color: #edf3f7; font-size: 1.125rem; font-weight: 600; line-height: 1.45; }
+.nexus-horizon .horizon-tasks-view .horizon-subtasks-heading > span { color: var(--task-muted); font-size: var(--hz-meta, .875rem); font-variant-numeric: tabular-nums; }
+.nexus-horizon .horizon-tasks-view .horizon-task-detail > .subtask-checklist { margin-block: 7px 5px; }
+.nexus-horizon .horizon-tasks-view .subtask-checklist-label { color: #e3edf3; font-size: var(--hz-body, 1rem); }
+.nexus-horizon .horizon-tasks-view .subtask-checklist-copy small { color: var(--task-muted); font-size: var(--hz-meta, .875rem); }
+.nexus-horizon .horizon-tasks-view .horizon-subtasks-empty { margin: 20px 0 10px; color: var(--task-muted); font-size: var(--hz-body, 1rem); line-height: 1.6; }
 .nexus-horizon .horizon-tasks-view .horizon-subtask-form { margin-top: 12px; }
-.nexus-horizon .horizon-tasks-view .horizon-subtask-form > label { display: grid; gap: 8px; min-width: 0; color: var(--task-muted); font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .horizon-tasks-view .horizon-subtask-form input { width: 100%; min-width: 0; min-height: 44px; padding: 10px 2px; border: 0; border-bottom: 1px solid var(--task-line); border-radius: 0; background: transparent; color: #edf3f7; font: inherit; font-size: var(--hz-body, .875rem); }
+.nexus-horizon .horizon-tasks-view .horizon-subtask-form > label { display: grid; gap: 8px; min-width: 0; color: var(--task-muted); font-size: var(--hz-meta, .875rem); }
+.nexus-horizon .horizon-tasks-view .horizon-subtask-form input { width: 100%; min-width: 0; min-height: 44px; padding: 10px 2px; border: 0; border-bottom: 1px solid var(--task-line); border-radius: 0; background: transparent; color: #edf3f7; font: inherit; font-size: var(--hz-body, 1rem); }
 .nexus-horizon .horizon-tasks-view .horizon-subtask-form > div { display: flex; flex-wrap: wrap; gap: 10px 24px; }
-.nexus-horizon .horizon-tasks-view .horizon-task-notes { display: grid; gap: 8px; margin-top: 24px; }
+.nexus-horizon .horizon-tasks-view .horizon-task-notes { display: grid; gap: 6px; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--task-line); }
 .nexus-horizon .horizon-tasks-view .horizon-task-notes .tasks-text-button { justify-content: flex-start; text-align: left; }
-.nexus-horizon .horizon-tasks-view .horizon-task-notes > span { color: var(--task-muted); font-size: var(--hz-meta, .75rem); }
+.nexus-horizon .horizon-tasks-view .horizon-task-notes > span { color: var(--task-muted); font-size: var(--hz-meta, .875rem); }
 .nexus-horizon .horizon-tasks-view .horizon-task-focus { display: flex; justify-content: flex-end; margin-top: 20px; }
-.nexus-horizon .horizon-tasks-view .tasks-text-button { min-height: 44px; padding-inline: 7px; border-radius: var(--hz-radius, 5px); color: #c0d3df; font-size: var(--hz-body, .875rem); text-align: left; }
+.nexus-horizon .horizon-tasks-view .tasks-text-button { min-height: 44px; padding-inline: 7px; border-radius: var(--hz-radius, 5px); color: #c0d3df; font-size: var(--hz-body, 1rem); text-align: left; }
 .nexus-horizon .horizon-tasks-view .tasks-text-button:hover { color: var(--task-ice); }
+.nexus-horizon .horizon-tasks-view .horizon-task-primary-action { color: var(--task-ice); font-weight: 600; }
 .nexus-horizon .horizon-tasks-view button:disabled, .nexus-horizon .horizon-tasks-view select:disabled { opacity: .5; cursor: default; }
 .nexus-horizon .horizon-tasks-view button:focus-visible, .nexus-horizon .horizon-tasks-view select:focus-visible, .nexus-horizon .horizon-tasks-view input:focus-visible, .nexus-horizon .horizon-tasks-view summary:focus-visible { outline-color: var(--task-ice); }
 .nexus-horizon .horizon-tasks-view .horizon-tasks-empty { display: grid; justify-items: start; gap: 12px; padding: 30px 4px; color: var(--task-muted); }
 .nexus-horizon .horizon-tasks-view .horizon-tasks-empty h2 { margin: 0; color: #e0eaf1; font-size: 1.25rem; font-weight: 400; line-height: 1.3; overflow-wrap: anywhere; }
-.nexus-horizon .horizon-tasks-view .horizon-tasks-empty p { margin: 0; font-size: var(--hz-body, .875rem); line-height: 1.7; }
+.nexus-horizon .horizon-tasks-view .horizon-tasks-empty p { margin: 0; font-size: var(--hz-body, 1rem); line-height: 1.7; }
 .nexus-horizon .horizon-tasks-view .horizon-tasks-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-top: 14px; }
-.nexus-horizon .horizon-tasks-view .horizon-tasks-footer > p { min-height: 1.5em; margin: 0; color: var(--task-muted); font-size: var(--hz-meta, .75rem); line-height: 1.6; overflow-wrap: anywhere; }
+.nexus-horizon .horizon-tasks-view .horizon-tasks-footer > p { min-height: 1.5em; margin: 0; color: var(--task-muted); font-size: var(--hz-meta, .875rem); line-height: 1.6; overflow-wrap: anywhere; }
 @media (max-width: 900px) {
   .nexus-horizon .horizon-tasks-view .horizon-tasks-workspace { grid-template-columns: minmax(230px, .8fr) minmax(0, 1fr); gap: 28px; }
   .nexus-horizon .horizon-tasks-view .horizon-tasks-content { padding-inline: 24px; }
@@ -101,16 +115,14 @@
 }
 @media (max-width: 700px) {
   .nexus-horizon .horizon-tasks-view .horizon-tasks-content { padding: 20px 20px 28px; }
-  .nexus-horizon .horizon-tasks-view .horizon-tasks-heading { margin-bottom: 24px; }
+  .nexus-horizon .horizon-tasks-view .horizon-tasks-heading { margin-bottom: 12px; padding-bottom: 10px; }
   .nexus-horizon .horizon-tasks-view .horizon-tasks-heading-actions { gap: 10px 24px; }
   .nexus-horizon .horizon-tasks-view .horizon-tasks-workspace { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .nexus-horizon .horizon-tasks-view .horizon-task-filters .tasks-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .nexus-horizon .horizon-tasks-view .horizon-task-list { max-height: 310px; }
-  .nexus-horizon .horizon-tasks-view .horizon-task-list > li { min-height: 72px; }
   .nexus-horizon .horizon-tasks-view .horizon-task-select { min-height: 52px; }
   .nexus-horizon .horizon-tasks-view .horizon-task-detail { padding-top: 22px; border-top: 1px solid var(--task-line); }
   .nexus-horizon .horizon-tasks-view .horizon-task-detail:empty { display: none; }
-  .nexus-horizon .horizon-tasks-view .horizon-task-metadata { gap: 18px; }
   .nexus-horizon .horizon-tasks-view .horizon-task-focus { justify-content: flex-start; }
 }
 @media (max-width: 370px) {

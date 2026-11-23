@@ -1,0 +1,11 @@
+.nexus-build-identity { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--ui-border); color: var(--ui-text-secondary); }
+.nexus-build-identity p { margin: 0; font-size: .8rem; }
+.nexus-build-identity strong { color: var(--ui-text); }
+.nexus-build-identity code, .nexus-install-address, .nexus-build-compact { overflow-wrap: anywhere; }
+.nexus-build-identity button { justify-self: start; }
+.nexus-update-notice { position: fixed; z-index: 180; bottom: 48px; right: 20px; width: min(540px, calc(100vw - 32px)); padding: 18px; border: 1px solid var(--ui-border); border-radius: 14px; background: var(--ui-surface-raised); color: var(--ui-text); box-shadow: 0 12px 44px #0003; }
+.nexus-update-notice p { margin: 6px 0; color: var(--ui-text-secondary); font-size: .83rem; }
+.nexus-update-notice small { display: block; overflow-wrap: anywhere; color: var(--ui-text-muted); }
+.nexus-update-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.nexus-update-actions button { min-height: 40px; }
+@media (max-width: 600px) { .nexus-update-notice { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 64px); overflow-y: auto; } }

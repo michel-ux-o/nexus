@@ -1,10 +1,11 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import { AlertCircle, Bell, BellOff, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Link2, Pause, Play, Plus, Repeat2, RotateCcw, Settings2, X } from 'lucide-react';
+import { AlertCircle, Bell, BellOff, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Link2, Pause, Play, Plus, Repeat2, RotateCcw, X } from 'lucide-react';
 import { dateInZone, formatDate, formatTime, todayInZone } from '../planning/dates';
 import { reminderOccurrences, reminderOverdueSummary, resolveReminderTime } from '../planning/reminders';
 import type { Reminder, ReminderOccurrence, WorkspaceViewProps } from '../planning/types';
 import { errorMessage } from '../planning/components/PlanningDialog';
-import { boundedDay, frequencyLabels, reminderTimeLabel } from './presentation';
+import { boundedDay, frequencyLabels, reminderRelativeTime, reminderTimeLabel } from './presentation';
+import { BrowserNotificationStatus } from './BrowserNotificationStatus';
 import { useTheme } from '../themes/useTheme';
 import './Reminders.css';
 
@@ -42,7 +43,8 @@ export function RemindersView({ planner, onEditReminder, onEditTask, onEditAppoi
     const refresh = () => setNow(new Date());
     const interval = window.setInterval(refresh, 30_000);
     window.addEventListener('focus', refresh);
-    return () => { window.clearInterval(interval); window.removeEventListener('focus', refresh); };
+    document.addEventListener('visibilitychange', refresh);
+    return () => { window.clearInterval(interval); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, []);
 
   const occurrences = useMemo(() => reminderOccurrences(data, since, until, now), [data, since, until, now]);
@@ -138,6 +140,17 @@ export function RemindersView({ planner, onEditReminder, onEditTask, onEditAppoi
     return reminder.taskId || reminder.appointmentId ? <span className="reminders-meta">Verknüpfung nicht mehr vorhanden</span> : null;
   }
 
+  function linkedSchedule(occurrence: ReminderOccurrence) {
+    const relativeTime = reminderRelativeTime(occurrence, data);
+    const { taskId, appointmentId } = occurrence.reminder;
+    const targetType = taskId && data.timeBlocks.some(block => block.taskId === taskId) ? 'Zeitblocks'
+      : appointmentId && data.appointments.some(appointment => appointment.id === appointmentId) ? 'Termins' : null;
+    return <>
+      {relativeTime && <p className="reminders-meta reminders-relative-time">{relativeTime}</p>}
+      {targetType && occurrence.status === 'pending' && <p className="reminders-meta">Die separat festgelegte Uhrzeit bleibt beim Verschieben des {targetType} erhalten.</p>}
+    </>;
+  }
+
   function occurrenceActions(occurrence: ReminderOccurrence, detail = false) {
     return <div className="reminders-card-actions">
       {occurrence.status === 'pending' ? <>
@@ -165,6 +178,7 @@ export function RemindersView({ planner, onEditReminder, onEditTask, onEditAppoi
         {reminder.timeZone !== zone && <p className="reminders-meta">Eigene Zeitzone: {reminder.timeZone} · {formatTime(occurrence.scheduledAt, reminder.timeZone)}</p>}
         {occurrence.adjusted && <p className="reminders-adjusted"><AlertCircle size={13} aria-hidden="true" /> Wegen Zeitumstellung auf eine gültige Minute angepasst.</p>}
         {linkedTarget(reminder)}
+        {linkedSchedule(occurrence)}
         {occurrenceActions(occurrence)}
       </div>
     </li>;
@@ -174,6 +188,7 @@ export function RemindersView({ planner, onEditReminder, onEditTask, onEditAppoi
 
   return <section className={`reminders-view${horizon ? ' reminders-horizon' : ''}`} aria-labelledby={`${id}-title`} aria-busy={Boolean(busy)}>
     <header className="reminders-header"><div><p className="reminders-eyebrow">{formatDate(today, { weekday: 'long', day: 'numeric', month: 'long' })}</p><h1 id={`${id}-title`}>{horizon ? 'Erinnerungen' : 'Erinnerungszentrale'}</h1>{horizon && <p className="reminders-intro">{openCount} offen</p>}</div><div className="reminders-header-actions">{horizon && <time className="reminders-header-date" dateTime={today}>{formatDate(today, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</time>}<button type="button" className="reminders-button reminders-button-primary" disabled={Boolean(busy)} onClick={() => onEditReminder()}><Plus size={20} aria-hidden="true" /> Neue Erinnerung</button></div></header>
+    <BrowserNotificationStatus planner={planner} onOpenSettings={() => onNavigate('settings')} />
     <div className="reminders-toolbar"><div className="reminders-tabs" role="group" aria-label="Erinnerungen filtern">{horizon ? <>
       <button type="button" aria-pressed={showAllOpen || tab !== 'done'} className={showAllOpen || tab !== 'done' ? 'is-active' : ''} onClick={() => { setShowAllOpen(true); setTab('overdue'); }}>Offen</button>
       <button type="button" aria-pressed={!showAllOpen && tab === 'done'} className={!showAllOpen && tab === 'done' ? 'is-active' : ''} onClick={() => { setShowAllOpen(false); setTab('done'); }}>Erledigt<span>{count.done}</span></button>
@@ -189,11 +204,28 @@ export function RemindersView({ planner, onEditReminder, onEditTask, onEditAppoi
     <div className="reminders-results" aria-label={`${horizon && showAllOpen ? 'Offene' : tabs.find(item => item.id === tab)?.label} Erinnerungen`}>
       {horizon ? <div className="reminders-workspace"><div className="reminders-agenda">
         {horizonVisible.length ? [...horizonDayGroups].map(([day, items]) => <section key={day} className="reminders-day" aria-labelledby={`${id}-day-${day}`}><h2 id={`${id}-day-${day}`}>{day === today ? 'Heute' : day === boundedDay(today, 1) ? 'Morgen' : formatDate(day, { weekday: 'long', day: 'numeric', month: 'long', ...(day.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' as const } : {}) })}</h2><ul className="reminders-occurrences">{items.map(occurrence => <li key={occurrence.id}><button type="button" className={`reminders-occurrence${selectedOccurrence?.id === occurrence.id ? ' is-selected' : ''}`} aria-pressed={selectedOccurrence?.id === occurrence.id} aria-controls={`${id}-detail`} onClick={() => setSelectedOccurrenceId(occurrence.id)}><time dateTime={occurrence.effectiveAt}>{formatTime(occurrence.effectiveAt, zone)}</time><span className="reminders-occurrence-copy"><strong>{occurrence.reminder.title}</strong>{receiptById.get(occurrence.id)?.snoozedUntil && <small>Geschlummert</small>}{occurrence.status !== 'pending' && <small>{occurrence.status === 'done' ? 'Erledigt' : 'Verworfen'}</small>}</span><ChevronRight size={20} aria-hidden="true" /></button></li>)}</ul></section>) : !(tab === 'overdue' && older.length) && <div className="reminders-empty"><BellOff size={27} aria-hidden="true" /><h2>{showAllOpen ? 'Keine offenen Erinnerungen in den nächsten 42 Tagen.' : tabs.find(item => item.id === tab)?.empty}</h2></div>}
-      </div>{selectedOccurrence && <aside id={`${id}-detail`} className="reminders-detail" aria-labelledby={`${id}-detail-title`}><p className="reminders-detail-eyebrow">Ausgewählte Erinnerung</p><h2 id={`${id}-detail-title`}>{selectedOccurrence.reminder.title}</h2><p className="reminders-detail-time"><time dateTime={selectedOccurrence.effectiveAt}>{dateInZone(selectedOccurrence.effectiveAt, zone) === today ? 'Heute' : reminderTimeLabel(selectedOccurrence.effectiveAt, zone).split(' · ')[0]} · {formatTime(selectedOccurrence.effectiveAt, zone)}</time></p>{selectedDescription && <p className="reminders-detail-description">{selectedDescription}</p>}<div className="reminders-detail-meta"><span className="reminders-badge">{frequencyLabels[selectedOccurrence.reminder.frequency]}</span>{!selectedOccurrence.reminder.enabled && <span className="reminders-badge">Pausiert</span>}{selectedOccurrence.status !== 'pending' && <span className="reminders-badge">{selectedOccurrence.status === 'done' ? 'Erledigt' : 'Verworfen'}</span>}{selectedReceipt?.snoozedUntil && <p className="reminders-meta">Geschlummert · ursprünglich {reminderTimeLabel(selectedOccurrence.scheduledAt, zone)}.</p>}{selectedOccurrence.reminder.timeZone !== zone && <p className="reminders-meta">Eigene Zeitzone: {selectedOccurrence.reminder.timeZone} · {formatTime(selectedOccurrence.scheduledAt, selectedOccurrence.reminder.timeZone)}</p>}{selectedOccurrence.adjusted && <p className="reminders-adjusted"><AlertCircle size={13} aria-hidden="true" /> Wegen Zeitumstellung auf eine gültige Minute angepasst.</p>}{linkedTarget(selectedOccurrence.reminder)}</div>{occurrenceActions(selectedOccurrence, true)}</aside>}</div> : visible.length ? <ul className="reminders-list">{visible.map(occurrenceRow)}</ul> : !(tab === 'overdue' && older.length) && <div className="reminders-empty"><BellOff size={27} aria-hidden="true" /><h2>{tabs.find(item => item.id === tab)?.empty}</h2></div>}
+      </div>{selectedOccurrence && <aside id={`${id}-detail`} className="reminders-detail" aria-labelledby={`${id}-detail-title`}>
+        <p className="reminders-detail-eyebrow">Ausgewählte Erinnerung</p>
+        <h2 id={`${id}-detail-title`}>{selectedOccurrence.reminder.title}</h2>
+        <p className="reminders-detail-time"><time dateTime={selectedOccurrence.effectiveAt}>
+          <span>{dateInZone(selectedOccurrence.effectiveAt, zone) === today ? 'Heute' : reminderTimeLabel(selectedOccurrence.effectiveAt, zone).split(' · ')[0]}</span>
+          <strong>{formatTime(selectedOccurrence.effectiveAt, zone)} Uhr</strong>
+        </time></p>
+        {selectedDescription && <p className="reminders-detail-description">{selectedDescription}</p>}
+        <div className="reminders-detail-meta">
+          <span className="reminders-badge">{frequencyLabels[selectedOccurrence.reminder.frequency]}</span>
+          {!selectedOccurrence.reminder.enabled && <span className="reminders-badge">Pausiert</span>}
+          {selectedOccurrence.status !== 'pending' && <span className="reminders-badge">{selectedOccurrence.status === 'done' ? 'Erledigt' : 'Verworfen'}</span>}
+          {selectedReceipt?.snoozedUntil && <p className="reminders-meta">Geschlummert · ursprünglich {reminderTimeLabel(selectedOccurrence.scheduledAt, zone)}.</p>}
+          {selectedOccurrence.reminder.timeZone !== zone && <p className="reminders-meta">Eigene Zeitzone: {selectedOccurrence.reminder.timeZone} · {formatTime(selectedOccurrence.scheduledAt, selectedOccurrence.reminder.timeZone)}</p>}
+          {selectedOccurrence.adjusted && <p className="reminders-adjusted"><AlertCircle size={13} aria-hidden="true" /> Wegen Zeitumstellung auf eine gültige Minute angepasst.</p>}
+          {linkedTarget(selectedOccurrence.reminder)}
+          {linkedSchedule(selectedOccurrence)}
+        </div>
+        {occurrenceActions(selectedOccurrence, true)}
+      </aside>}</div> : visible.length ? <ul className="reminders-list">{visible.map(occurrenceRow)}</ul> : !(tab === 'overdue' && older.length) && <div className="reminders-empty"><BellOff size={27} aria-hidden="true" /><h2>{tabs.find(item => item.id === tab)?.empty}</h2></div>}
       {tab === 'done' && done.length > historyLimit && <button type="button" className="reminders-button reminders-more" onClick={() => setHistoryLimit(value => value + 50)}>Weitere {Math.min(50, done.length - historyLimit)} anzeigen · {historyLimit} von {done.length}</button>}
     </div>
-    <p className="reminders-footnote">Meldungen nur bei geöffneter App · {zone}</p>
-    <div className="reminders-notification-info"><Bell size={15} aria-hidden="true" /><p>{!data.settings.notifications ? 'Browsermeldungen sind ausgeschaltet.' : typeof Notification === 'undefined' ? 'Dieser Browser unterstützt keine Browsermeldungen.' : Notification.permission === 'granted' ? 'Browsermeldungen sind eingeschaltet und erlaubt.' : Notification.permission === 'denied' ? 'Browsermeldungen sind im Browser blockiert.' : 'Browsermeldungen sind noch nicht ausdrücklich erlaubt.'}</p><button type="button" className="reminders-link" onClick={() => onNavigate('settings')}><Settings2 size={14} aria-hidden="true" /> Einstellungen</button></div>
     <details className="reminders-help"><summary>Verhalten &amp; Wiederholungen</summary><p>Erledigen, Verwerfen und Schlummern gelten für ein Vorkommen. Verknüpfte Aufgaben behalten ihren Status.</p><p>Verpasste Vorkommen der letzten 28 Tage erscheinen einzeln, ältere je Erinnerung gesammelt. Alle Uhrzeiten in {zone}. Bei geschlossener App gibt es keine Meldungen.</p></details>
     <details className="reminders-rules"><summary><Repeat2 size={16} aria-hidden="true" /> {reminders.length} {reminders.length === 1 ? 'Erinnerungsregel' : 'Erinnerungsregeln'} · {reminders.filter(reminder => !reminder.enabled).length} pausiert</summary><p>Eine Pause stoppt neue Vorkommen. Bereits quittierte Vorkommen bleiben im Verlauf.</p>{reminders.length ? <ul>{[...reminders].sort((left, right) => left.localStart.localeCompare(right.localStart)).map(reminder => <li key={reminder.id}><div><strong>{reminder.title}</strong><span>{frequencyLabels[reminder.frequency]} · ab {formatDate(reminder.localStart.slice(0, 10), { day: 'numeric', month: 'short', year: 'numeric' })}, {reminder.localStart.slice(11)} · {reminder.timeZone}</span>{linkedTarget(reminder)}</div><div className="reminders-rule-actions"><button type="button" className="reminders-button" disabled={Boolean(busy)} aria-pressed={reminder.enabled} onClick={() => void perform(`rule-${reminder.id}`, () => planner.saveReminder({ ...reminder, enabled: !reminder.enabled, updatedAt: new Date().toISOString() }), reminder.enabled ? 'Die Erinnerungsregel wurde pausiert.' : 'Die Erinnerungsregel wurde aktiviert.')}>
       {reminder.enabled ? <Pause size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}{reminder.enabled ? 'Pausieren' : 'Aktivieren'}</button><button type="button" className="reminders-button" disabled={Boolean(busy)} onClick={() => onEditReminder(reminder)}>Bearbeiten</button></div></li>)}</ul> : <p>Lege deine erste Erinnerung an.</p>}</details>

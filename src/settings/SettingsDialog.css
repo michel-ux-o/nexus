@@ -138,7 +138,14 @@
   .dialog.settings-dialog .dialog-body { overflow: visible; }
 }
 
-.settings-dialog { overflow-wrap: anywhere; }
+.settings-dialog {
+  --settings-text-size: 1rem;
+  --settings-context-size: .875rem;
+  --settings-heading-size: 1.125rem;
+  overflow-wrap: anywhere;
+  font-size: var(--settings-text-size);
+  line-height: 1.55;
+}
 
 /* The settings page shares the atelier's open canvas; the dialog carries the
    same hierarchy when opened from the writing area. */
@@ -218,27 +225,31 @@
   font-size: .6875rem;
   line-height: 1.8;
 }
-.settings-atelier .settings-section-heading { margin-bottom: 18px; gap: 12px; }
-.settings-atelier .settings-section-heading > svg { width: 16px; height: 16px; }
-.settings-atelier .settings-section-heading h3,
+.settings-atelier .settings-section-heading { margin-bottom: 12px; gap: 10px; }
+.settings-atelier .settings-section-heading > svg { flex: 0 0 auto; width: 18px; height: 18px; }
+.settings-dialog .settings-section .settings-section-heading :is(h3, h4),
 .settings-atelier .backup-panel > h3 {
   margin: 0;
   color: var(--ui-text);
-  font-size: 1.0625rem;
-  font-weight: 450;
-  letter-spacing: -.02em;
-  line-height: 1.5;
+  font-size: var(--settings-heading-size);
+  font-weight: 550;
+  line-height: 1.4;
 }
-.settings-atelier .backup-panel > h3 { margin-bottom: 18px; }
-.settings-atelier .settings-section > p { max-width: 75ch; }
+.settings-atelier .backup-panel > h3 { margin-bottom: 12px; }
+.settings-atelier .settings-section p { max-width: 65ch; }
+.settings-atelier .settings-section p:not(:where(.settings-error, .settings-warning, .settings-progress, [role='alert'])) {
+  color: var(--ui-text);
+  font-size: var(--settings-text-size);
+  line-height: 1.6;
+}
+.settings-atelier .settings-section > button + p { margin-top: 12px; }
 .settings-atelier .settings-preferences { gap: 16px; }
-.settings-atelier .settings-preferences .field > span { color: var(--ui-text-secondary); font-weight: 450; }
+.settings-atelier .settings-preferences .field > span { color: var(--ui-text); font-weight: 500; }
 .settings-atelier .settings-subheading {
-  position: relative;
   margin: 16px 0 2px;
-  padding: 20px 0 0;
+  padding: 16px 0 0;
   border-color: var(--settings-rule);
-  font-size: .8125rem;
+  font-size: var(--settings-heading-size);
   font-weight: 550;
 }
 .settings-atelier .settings-preferences :is(input:not([type=checkbox]):not([type=radio]), select),
@@ -247,20 +258,20 @@
   border-radius: 3px;
   background: color-mix(in srgb, var(--ui-surface) 55%, transparent);
 }
-.settings-atelier .settings-check strong { font-weight: 450; }
+.settings-atelier .settings-check strong { font-weight: 550; }
 .settings-atelier .settings-check small { max-width: 70ch; }
 .settings-atelier .settings-window { padding-block: 10px; }
-.settings-atelier .settings-window-day { font-family: Consolas, 'Liberation Mono', monospace; font-size: .75rem; }
 .settings-atelier .settings-rule-list { gap: 0; }
 .settings-atelier .settings-rule-list li { padding: 16px 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; }
-.settings-atelier .settings-rule-list strong { font-weight: 450; }
+.settings-atelier .settings-rule-list strong { font-weight: 550; }
 .settings-atelier .settings-import-preview { border-radius: 3px; background: color-mix(in srgb, var(--ui-accent) 3%, transparent); }
 .settings-atelier .settings-import-counts dd { font-family: 'Bahnschrift', 'Segoe UI', sans-serif; font-size: 1.75rem; font-weight: 400; letter-spacing: -.05em; }
 .settings-atelier .settings-help { border-bottom: 1px solid var(--ui-border); }
-.settings-atelier .settings-help summary { color: var(--ui-text-secondary); font-size: .8125rem; }
+.settings-atelier :is(.settings-help, .settings-import-details) > summary { display: list-item; color: var(--ui-text); font-weight: 500; }
+.settings-atelier .settings-help > p { color: var(--ui-text-secondary); font-size: var(--settings-context-size); }
 .settings-atelier :is(.settings-error, .settings-warning, .settings-progress) { border-radius: 3px; }
 .settings-atelier .settings-body > :is(.settings-error, .settings-warning, .settings-progress, .info-box) { margin: 10px 0; }
-.settings-atelier .settings-save-state { color: var(--ui-text-muted); font-family: Consolas, 'Liberation Mono', monospace; font-size: .6875rem; }
+.settings-atelier .settings-save-state { color: var(--ui-text-secondary); font-size: var(--settings-context-size); }
 .settings-atelier .settings-danger::before,
 .settings-atelier .settings-danger .settings-section-heading > svg { color: var(--ui-danger) !important; }
 .settings-atelier > .dialog-footer { justify-content: flex-end; border-top: 0; }
@@ -285,8 +296,6 @@ html[data-theme='nexus'] .settings-atelier {
   --settings-rule: var(--hz-line, #a8cfe526);
   color: var(--ui-text);
   background: transparent;
-  font-size: var(--hz-body, .875rem);
-  line-height: 1.6;
 }
 html[data-theme='nexus'] .dialog.settings-atelier {
   background: var(--hz-window, #0c141eee);
@@ -318,48 +327,18 @@ html[data-theme='nexus'] .settings-atelier .settings-topics {
   gap: 0 20px;
   padding-block: 10px 16px;
 }
-html[data-theme='nexus'] .settings-atelier .settings-topics button {
-  font-size: var(--hz-meta, .75rem);
-  font-weight: 400;
-}
 html[data-theme='nexus'] .settings-atelier .settings-body > .settings-section {
   padding: 26px 0;
   border-color: var(--settings-rule);
   background: transparent;
 }
 html[data-theme='nexus'] .settings-atelier .settings-body > .settings-section::before { content: none; }
-html[data-theme='nexus'] .settings-atelier .settings-section-heading { gap: 10px; margin-bottom: 18px; }
-html[data-theme='nexus'] .settings-atelier .settings-section-heading > svg { width: 15px; height: 15px; color: var(--ui-text-muted); }
-html[data-theme='nexus'] .settings-atelier .settings-section-heading h3,
-html[data-theme='nexus'] .settings-atelier .backup-panel > h3 {
-  color: var(--ui-text-secondary);
-  font-size: var(--hz-label, .65rem);
-  font-weight: 550;
-  line-height: 1.8;
-  letter-spacing: var(--hz-tracking, .22em);
-  text-transform: uppercase;
-}
-html[data-theme='nexus'] .settings-atelier :is(.settings-section, .settings-check strong, .settings-preferences .field > span, .settings-import-mode strong, .settings-confirm) {
-  font-size: var(--hz-body, .875rem);
-  font-weight: 400;
-}
-html[data-theme='nexus'] .settings-atelier :is(.settings-muted, .settings-count, .settings-check small, .settings-preferences small, .settings-import-mode small, .settings-help summary, .settings-storage-info p) {
-  color: var(--ui-text-muted);
-  font-size: var(--hz-meta, .75rem);
-  line-height: 1.7;
-}
-html[data-theme='nexus'] .settings-atelier :is(.settings-subheading, .settings-import-preview h4) {
-  font-size: var(--hz-meta, .75rem);
-  font-weight: 500;
-  line-height: 1.6;
-  letter-spacing: .02em;
-}
+html[data-theme='nexus'] .settings-atelier .settings-section-heading > svg { color: var(--ui-text-secondary); }
 html[data-theme='nexus'] .settings-atelier .settings-preferences :is(input:not([type=checkbox]):not([type=radio]), select),
 html[data-theme='nexus'] .settings-atelier .settings-reset-confirmation input:not([type=checkbox]) {
   border-color: var(--settings-rule);
   border-radius: var(--hz-radius, 5px);
   background: #101b2766;
-  font-size: var(--hz-body, .875rem);
 }
 html[data-theme='nexus'] .settings-atelier .settings-file input::file-selector-button {
   border-color: var(--settings-rule);
@@ -367,11 +346,6 @@ html[data-theme='nexus'] .settings-atelier .settings-file input::file-selector-b
   background: #a8cfe50b;
 }
 html[data-theme='nexus'] .settings-atelier :is(.settings-window, .settings-rule-list li, .settings-help, .settings-persistent-storage) { border-color: var(--settings-rule); }
-html[data-theme='nexus'] .settings-atelier :is(.settings-window-day, .settings-models dt, .settings-rule-list small, .settings-import-counts dt, .settings-import-notes small, .settings-export-history li span, .settings-save-state) {
-  font-family: inherit;
-  font-size: var(--hz-meta, .75rem);
-  font-variant-numeric: tabular-nums;
-}
 html[data-theme='nexus'] .settings-atelier .settings-import-preview {
   border-color: var(--settings-rule);
   border-radius: var(--hz-radius, 5px);
@@ -385,7 +359,6 @@ html[data-theme='nexus'] .settings-atelier .settings-import-counts dd {
 }
 html[data-theme='nexus'] .settings-atelier :is(.settings-error, .settings-warning, .settings-progress) {
   border-radius: var(--hz-radius, 5px);
-  font-size: var(--hz-body, .875rem);
 }
 html[data-theme='nexus'] .settings-atelier > .dialog-footer { gap: 10px; padding-top: 20px; border-top: 1px solid var(--settings-rule); }
 @media (max-width: 600px) {
@@ -395,11 +368,15 @@ html[data-theme='nexus'] .settings-atelier > .dialog-footer { gap: 10px; padding
 }
 @media (max-width: 440px) {
   html[data-theme='nexus'] .dialog.settings-atelier { border-radius: 0; }
+  .settings-dialog.settings-atelier > .dialog-header { gap: 12px; }
+  .settings-atelier > .dialog-header .eyebrow { display: none; }
+  .settings-dialog.settings-atelier > .dialog-header h2,
+  html[data-theme='nexus'] .settings-atelier > .dialog-header h2 { font-size: clamp(1.15rem, .8rem + 3vw, 1.7rem); }
 }
 
 /* Categories keep a single shared draft while showing one working area. */
 .settings-dialog [hidden] { display: none !important; }
-.settings-category-layout { display: grid; grid-template-columns: minmax(175px, .32fr) minmax(0, 1fr); gap: 28px; min-width: 0; align-items: start; }
+.settings-category-layout { display: grid; grid-template-columns: minmax(12rem, .34fr) minmax(0, 1fr); gap: 28px; min-width: 0; align-items: start; }
 .settings-atelier .settings-category-layout > .settings-topics {
   display: flex;
   flex-direction: column;
@@ -415,18 +392,18 @@ html[data-theme='nexus'] .settings-atelier > .dialog-footer { gap: 10px; padding
   align-items: flex-start;
   gap: 10px;
   min-width: 0;
-  padding: 15px 0;
+  padding: 12px 0;
   line-height: 1.5;
 }
 .settings-topics button > svg { flex: 0 0 auto; margin-top: 2px; color: var(--ui-text-muted); }
 .settings-topics button > span { flex: 1 1 auto; min-width: 0; }
-.settings-topics button strong { display: block; font: inherit; font-weight: 500; }
-.settings-topics button small { display: block; margin-top: 5px; color: var(--ui-text-muted); font-size: .6875rem; font-weight: 400; line-height: 1.6; }
+.settings-topics button strong { display: block; font-size: var(--settings-text-size); font-weight: 550; line-height: 1.35; }
+.settings-topics button small { display: block; margin-top: 4px; color: var(--ui-text-secondary); font-size: var(--settings-context-size); font-weight: 400; line-height: 1.45; }
 .settings-topics .settings-topic-chevron { display: none; }
 .settings-atelier .settings-topics button[aria-current='page'] { color: var(--ui-accent); }
 .settings-atelier .settings-topics button[aria-current='page']::after { opacity: .7; }
-.settings-category-content { min-width: 0; }
-.settings-category-title { margin: 0 0 22px; color: var(--ui-text); font-size: 1.25rem; font-weight: 400; line-height: 1.4; letter-spacing: -.025em; }
+.settings-category-content { min-width: 0; padding-top: 16px; }
+.settings-dialog .settings-category-title { margin: 0 0 22px; color: var(--ui-text); font-size: 1.375rem; font-weight: 550; line-height: 1.35; letter-spacing: -.02em; }
 .settings-category-title:focus { outline: none; }
 .settings-dialog .settings-categories-back { display: none; }
 .settings-atelier .settings-category-content > .settings-section,
@@ -442,11 +419,22 @@ html[data-theme='nexus'] .settings-atelier > .dialog-footer { gap: 10px; padding
 }
 .settings-atelier .settings-category-content > .settings-personal { padding-top: 0; }
 .settings-atelier .settings-preference-group { display: flex; min-width: 0; flex-direction: column; gap: 16px; }
+.settings-atelier .settings-display { gap: 22px; }
+.settings-display-label { color: var(--ui-text); font-size: var(--settings-heading-size); font-weight: 550; }
+.settings-motion { display: grid; justify-items: start; gap: 8px; padding-top: 18px; border-top: 1px solid var(--settings-rule); }
+.settings-display .settings-muted { max-width: 65ch; }
+.settings-dialog .settings-preferences .settings-motion select,
+.settings-dialog .settings-preferences .settings-display-detail-fields select { max-width: 26rem; }
+.settings-display-details { min-width: 0; border-top: 1px solid var(--settings-rule); }
+.settings-atelier .settings-display-details > summary { display: list-item; min-height: 44px; padding: 12px 0; color: var(--ui-text); font-size: var(--settings-text-size); font-weight: 550; cursor: pointer; }
+.settings-display-details > summary::marker { color: var(--ui-accent); }
+.settings-display-details > summary:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+.settings-display-detail-fields { display: grid; gap: 8px; padding: 8px 0 4px; }
 .settings-atelier .settings-capacity-details { margin: 0; }
 .settings-capacity-details > summary { padding-top: 0; }
 .settings-capacity-details > :not(summary) { margin-block: 12px; }
 .settings-data-topics { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: -8px 0 22px; padding-bottom: 12px; border-bottom: 1px solid var(--settings-rule); }
-.settings-data-topics button { padding: 8px 0; border: 0; background: transparent; color: var(--ui-text-muted); font: inherit; font-size: .75rem; text-align: left; cursor: pointer; }
+.settings-data-topics button { padding: 8px 0; border: 0; background: transparent; color: var(--ui-text-secondary); font: inherit; font-size: var(--settings-context-size); text-align: left; cursor: pointer; }
 .settings-data-topics button[aria-current='page'] { color: var(--ui-accent); text-decoration: underline; text-underline-offset: 7px; }
 .settings-account-state { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-block: 24px; padding-block: 16px; border-block: 1px solid var(--settings-rule); font-size: .8125rem; }
 .settings-account-state strong { font-weight: 500; color: var(--ui-text-muted); }
@@ -456,15 +444,27 @@ html[data-theme='nexus'] .settings-atelier > .dialog-footer { gap: 10px; padding
 .settings-action-state .settings-muted { margin: 4px 0 0; }
 .settings-persistent-actions .settings-import-actions { margin-top: 0; }
 .settings-persistent-actions .settings-close-action { margin-left: auto; }
-.settings-category-content .settings-section-heading h4 { margin: 0; font-size: .875rem; font-weight: 500; }
+.settings-atelier :is(.settings-section, .settings-check strong, .settings-import-mode strong, .settings-confirm,
+  .settings-window-day, .settings-models dd, .settings-rule-list strong),
+.settings-atelier .settings-section .settings-file > span,
+.settings-atelier .settings-preferences .field > span,
+.settings-atelier .settings-preferences :is(select, input:not([type='checkbox'], [type='radio'], [type='color'])),
+.settings-atelier .settings-reset-confirmation :is(.field, .field input) { font-size: var(--settings-text-size); }
+.settings-atelier :is(.settings-muted, .settings-count, .settings-preferences small, .settings-import-mode small,
+  .settings-models dt, .settings-rule-list small, .settings-import-counts dt, .settings-import-notes small,
+  .settings-export-history li span) { color: var(--ui-text-secondary); font-size: var(--settings-context-size); line-height: 1.55; }
+.settings-atelier :is(.settings-import-mode legend, .settings-import-preview h4) { font-size: var(--settings-heading-size); }
+.settings-atelier :is(.settings-import-actions button, .settings-categories-back, .settings-help summary, .settings-import-details summary, .settings-file input) { font-size: var(--settings-context-size); }
+.settings-atelier .settings-storage-info > p { color: var(--ui-text); font-size: inherit; }
+.settings-atelier .settings-persistent-storage > p { color: var(--ui-text-secondary); font-size: var(--settings-context-size); }
 @media (min-width: 701px) {
   .dialog.settings-dialog { width: min(920px, 94vw); }
 }
 @media (max-width: 700px) {
   .settings-category-layout { display: block; }
+  .settings-category-content { padding-top: 12px; }
   .settings-atelier .settings-category-layout > .settings-topics { padding: 0; border: 0; }
   .settings-atelier .settings-topics button { width: 100%; padding: 18px 0; border-bottom: 1px solid var(--settings-rule); }
-  .settings-topics button small { font-size: .75rem; }
   .settings-topics .settings-topic-chevron { display: block; align-self: center; }
   .settings-atelier[data-settings-detail='false'] .settings-category-content { display: none; }
   .settings-atelier[data-settings-detail='true'] .settings-topics { display: none; }

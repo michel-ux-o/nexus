@@ -8,6 +8,12 @@
 .nexus-timeline-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; max-width: 100%; padding: 9px 12px; border: 1px solid var(--ui-border); border-radius: 8px; background: color-mix(in srgb, var(--ui-surface-hover) 1%, transparent); color: var(--ui-text-secondary); font-size: .75rem; line-height: 1.5; }
 .nexus-timeline-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--ui-accent) 44%, transparent); background: color-mix(in srgb, var(--ui-accent) 5%, transparent); color: var(--ui-text); }
 .nexus-timeline button:focus-visible, .nexus-timeline select:focus-visible, .nexus-timeline input:focus-visible, .nexus-timeline summary:focus-visible, .nexus-timeline-scroll:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+.nexus-timeline-quick-create { margin: 0 0 12px; border-block: 1px solid var(--ui-border-soft); }
+.nexus-timeline-quick-create > summary { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 0; color: var(--ui-text-secondary); font-size: .75rem; cursor: pointer; list-style: none; }
+.nexus-timeline-quick-create > summary::-webkit-details-marker { display: none; }
+.nexus-timeline-quick-create > summary::after { margin-left: auto; content: '+'; font-size: 1rem; }
+.nexus-timeline-quick-create[open] > summary::after { content: '−'; }
+.nexus-timeline-quick-create > summary:hover { color: var(--ui-accent); }
 .nexus-timeline button:disabled, .nexus-timeline input:disabled, .nexus-timeline select:disabled { cursor: default; opacity: .5; }
 .nexus-timeline-create { display: flex; align-items: end; flex-wrap: wrap; gap: 9px; margin: 0 0 16px; }
 .nexus-timeline-create label { display: flex; flex: 0 1 100px; flex-direction: column; gap: 5px; min-width: 0; color: var(--ui-text-muted); font-size: .625rem; }
@@ -16,7 +22,7 @@
 .nexus-timeline-create .nexus-timeline-dst { flex: 1 1 100%; }
 .nexus-timeline-create select, .nexus-timeline-create input { width: 100%; min-width: 0; min-height: 44px; padding: 9px 10px; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--ui-surface); color: var(--ui-text); font-size: .75rem; }
 .nexus-timeline-create select option { background: var(--ui-surface); color: var(--ui-text); }
-.nexus-timeline-scroll { max-height: min(580px, 68vh); min-height: 240px; overflow-y: auto; overflow-x: hidden; position: relative; border: 1px solid var(--ui-border); border-radius: 7px; background: var(--ui-surface); overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--ui-text-muted) transparent; }
+.nexus-timeline-scroll { max-height: min(420px, 55vh); min-height: 240px; overflow-y: auto; overflow-x: hidden; position: relative; border: 1px solid var(--ui-border); border-radius: 7px; background: var(--ui-surface); scrollbar-width: thin; scrollbar-color: var(--ui-text-muted) transparent; }
 .nexus-timeline-canvas { position: relative; min-width: 0; isolation: isolate; }
 .nexus-timeline-minutes { position: absolute; inset: 0 8px 0 64px; background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(15.75px - 1px), color-mix(in srgb, var(--ui-surface-hover) 2%, transparent) calc(15.75px - 1px), color-mix(in srgb, var(--ui-surface-hover) 2%, transparent) 15.75px); pointer-events: none; }
 .nexus-timeline-hour { position: absolute; right: 8px; left: 0; height: 1px; pointer-events: none; }
@@ -74,7 +80,7 @@
   .nexus-timeline-create .nexus-timeline-task { flex-basis: 100%; }
   .nexus-timeline-create label { flex: 1 1 90px; }
   .nexus-timeline-create > button { flex: 1 1 100%; }
-  .nexus-timeline-scroll { max-height: 480px; }
+  .nexus-timeline-scroll { max-height: min(360px, 55vh); }
   .nexus-timeline-events, .nexus-timeline-now, .nexus-timeline-drop { left: 50px; right: 4px; }
   .nexus-timeline-hour::after, .nexus-timeline-minutes { left: 50px; }
   .nexus-timeline-hour > button { left: 0; width: 46px; padding-left: 4px; font-size: .5625rem; }
@@ -170,27 +176,24 @@
 /* Horizont uses quiet blue event surfaces without altering the time geometry. */
 :root[data-theme] .nexus-horizon .today-view .nexus-timeline { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .nexus-horizon .today-view .nexus-timeline-heading { gap: 10px 18px; margin-bottom: 14px; }
-.nexus-horizon .today-view .nexus-timeline-eyebrow { margin-bottom: 8px; color: var(--ui-text-muted); font-family: inherit; font-size: var(--hz-meta, .75rem); font-weight: 400; letter-spacing: .02em; }
-.nexus-horizon .today-view .nexus-timeline-heading h2 { color: var(--ui-text-secondary); font-family: inherit; font-size: var(--hz-label, .65rem); font-weight: 550; line-height: 1.6; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; }
+.nexus-horizon .today-view .nexus-timeline-eyebrow { color: var(--ui-text-secondary); font-family: inherit; letter-spacing: 0; }
 .nexus-horizon .today-view .nexus-timeline-button { border-color: transparent; border-radius: var(--hz-radius, 5px); background: transparent; color: var(--ui-text-secondary); font-size: var(--hz-body, .875rem); font-weight: 400; box-shadow: none; }
 .nexus-horizon .today-view .nexus-timeline-button:hover:not(:disabled) { border-color: var(--ui-border); background: color-mix(in srgb, var(--ui-accent) 4%, transparent); color: var(--ui-accent); }
 .nexus-horizon .today-view .nexus-timeline-create { padding: 12px 0 16px; border-color: var(--hz-line, #a8cfe526); }
 .nexus-horizon .today-view .nexus-timeline-create label { color: var(--ui-text-muted); font-size: var(--hz-meta, .75rem); font-weight: 400; }
 .nexus-horizon .today-view .nexus-timeline-create :is(input, select) { border-color: var(--hz-line, #a8cfe526); border-radius: 0; border-width: 0 0 1px; background: transparent; color: var(--ui-text); font-size: var(--hz-body, .875rem); font-weight: 400; }
 .nexus-horizon .today-view .nexus-timeline-create select option { background: var(--ui-surface); }
-.nexus-horizon .today-view .nexus-timeline-scroll { max-height: min(600px, 68vh); border: 0; border-radius: 0; background: transparent; scrollbar-color: color-mix(in srgb, var(--ui-accent) 42%, var(--ui-surface)) transparent; }
+/* A thin local wash softens particles only behind the time grid. */
+.nexus-horizon .today-view .nexus-timeline-scroll { max-height: min(420px, 55vh); border: 0; border-radius: 0; background: var(--hz-content-wash, rgb(6 12 20 / .42)); backdrop-filter: blur(5px); scrollbar-color: color-mix(in srgb, var(--ui-accent) 42%, var(--ui-surface)) transparent; }
 .nexus-horizon .today-view .nexus-timeline-minutes { background: none; }
 .nexus-horizon .today-view .nexus-timeline-hour::after { background: var(--hz-line, #a8cfe526); }
-.nexus-horizon .today-view .nexus-timeline-hour > button { color: var(--ui-text-secondary); font-family: inherit; font-size: var(--hz-meta, .75rem); font-weight: 400; }
+.nexus-horizon .today-view .nexus-timeline-hour > button { font-family: inherit; }
 .nexus-horizon .today-view .nexus-timeline-entry { border: 1px solid var(--hz-line, #a8cfe526); border-left: 3px solid var(--ui-accent); border-radius: var(--hz-radius, 5px); background: color-mix(in srgb, var(--ui-accent) 8%, var(--hz-window, #0c141eee)); box-shadow: none; }
 .nexus-horizon .today-view .nexus-timeline-entry.is-appointment { border-left-color: var(--ui-info); background: color-mix(in srgb, var(--ui-info) 8%, var(--ui-canvas)); }
 .nexus-horizon .today-view .nexus-timeline-entry.is-done { border-left-color: var(--ui-success); background: color-mix(in srgb, var(--ui-success) 6%, var(--ui-canvas)); }
 .nexus-horizon .today-view .nexus-timeline-entry.has-conflict { border-color: var(--ui-warning); background: color-mix(in srgb, var(--ui-warning) 8%, var(--ui-canvas)); }
 .nexus-horizon .today-view .nexus-timeline-entry-edit { gap: 8px; color: var(--ui-text); }
-.nexus-horizon .today-view .nexus-timeline-entry-edit strong { color: var(--ui-text); font-size: var(--hz-body, .875rem); font-weight: 400; }
-.nexus-horizon .today-view .nexus-timeline-entry-time { color: var(--ui-text-secondary); font-family: inherit; font-size: var(--hz-meta, .75rem); font-weight: 400; }
-.nexus-horizon .today-view .nexus-timeline-entry.is-short .nexus-timeline-entry-edit strong { font-size: .625rem; }
-.nexus-horizon .today-view .nexus-timeline-entry.is-short .nexus-timeline-entry-time { font-size: .5625rem; }
+.nexus-horizon .today-view .nexus-timeline-entry-time { font-family: inherit; }
 .nexus-horizon .today-view .nexus-timeline-resize { border-top-color: color-mix(in srgb, var(--ui-accent) 15%, transparent); background: color-mix(in srgb, var(--ui-accent) 4%, transparent); color: var(--ui-text-muted); }
 .nexus-horizon .today-view .nexus-timeline-resize:hover { background: color-mix(in srgb, var(--ui-accent) 15%, var(--ui-canvas)); color: var(--ui-accent); }
 .nexus-horizon .today-view .nexus-timeline-selected { border-inline: 0; border-radius: 0; background: transparent; font-size: var(--hz-body, .875rem); }
@@ -202,13 +205,45 @@
 .nexus-horizon .today-view :is(.nexus-timeline-agenda li button, .nexus-timeline-allday button) { font-size: var(--hz-body, .875rem); }
 .nexus-horizon .today-view :is(.nexus-timeline-agenda strong, .nexus-timeline-allday strong) { font-weight: 400; }
 .nexus-horizon .today-view :is(.nexus-timeline-agenda time, .nexus-timeline-agenda li button span, .nexus-timeline-allday button span, .nexus-timeline-status, .nexus-timeline-touch-duration) { font-family: inherit; font-size: var(--hz-meta, .75rem); }
-.nexus-horizon .today-view .nexus-timeline-allday h3 { font-family: inherit; font-size: var(--hz-label, .65rem); font-weight: 550; letter-spacing: var(--hz-tracking, .22em); text-transform: uppercase; }
+.nexus-horizon .today-view .nexus-timeline-allday h3 { font-family: inherit; }
 .nexus-horizon .today-view .nexus-timeline-error { border-radius: var(--hz-radius, 5px); font-size: var(--hz-body, .875rem); box-shadow: none; }
 .nexus-horizon .today-view .nexus-timeline-touch-resize { font-size: var(--hz-meta, .75rem); }
 .nexus-horizon .today-view :is(.nexus-timeline-touch-resize select, .nexus-timeline-touch-grip) { border-color: var(--hz-line, #a8cfe526); border-radius: var(--hz-radius, 5px); background: transparent; font-size: var(--hz-body, .875rem); font-weight: 400; }
 @media (max-width: 560px) {
   .nexus-horizon .today-view .nexus-timeline-heading { align-items: flex-start; }
   .nexus-horizon .today-view .nexus-timeline-actions { gap: 4px; }
-  .nexus-horizon .today-view .nexus-timeline-scroll { max-height: 480px; }
-  .nexus-horizon .today-view .nexus-timeline-hour > button { font-size: .625rem; }
+  .nexus-horizon .today-view .nexus-timeline-scroll { max-height: min(360px, 55vh); }
+}
+
+/* Keep the unscaled time grid, with readable labels and compact entry rows. */
+:root[data-theme] .today-view .nexus-timeline :is(.nexus-timeline-heading h2, .nexus-timeline-allday h3) {
+  color: var(--ui-text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -.015em;
+}
+:root[data-theme] .today-view .nexus-timeline :is(.nexus-timeline-eyebrow, .nexus-timeline-help, .nexus-timeline-status, .nexus-timeline-error, .nexus-timeline-conflicts, .nexus-timeline-selected, .nexus-timeline-quick-create > summary, .nexus-timeline-create label, .nexus-timeline-allday button span, .nexus-timeline-touch-resize, .nexus-timeline-button, .nexus-timeline-now span, .nexus-timeline-drop span) {
+  font-size: .875rem;
+}
+:root[data-theme] .today-view .nexus-timeline :is(.nexus-timeline-help, .nexus-timeline-create label, .nexus-timeline-allday button span) { color: var(--ui-text-secondary); }
+:root[data-theme] .today-view .nexus-timeline :is(.nexus-timeline-create input, .nexus-timeline-create select, .nexus-timeline-touch-resize select, .nexus-timeline-allday strong) { font-size: 1rem; }
+
+.today-view .nexus-timeline-scroll { --timeline-day-gutter: min(32%, max(3.75rem, calc(3rem + 14px))); }
+:root[data-theme] .today-view :is(.nexus-timeline-minutes, .nexus-timeline-events, .nexus-timeline-now, .nexus-timeline-drop),
+:root[data-theme] .today-view .nexus-timeline-hour::after { left: var(--timeline-day-gutter); }
+:root[data-theme] .today-view .nexus-timeline-hour > button {
+  width: calc(var(--timeline-day-gutter) - 8px);
+  color: var(--ui-text-secondary);
+  font-size: .875rem;
+}
+
+:root[data-theme] .today-view .nexus-timeline-entry { container-type: inline-size; }
+:root[data-theme] .today-view .nexus-timeline-entry.is-short { min-height: calc(1.2rem + 12px); }
+:root[data-theme] .today-view .nexus-timeline-entry-edit { align-items: baseline; }
+:root[data-theme] .today-view .nexus-timeline-entry-edit strong { color: var(--ui-text); font-size: 1rem; font-weight: 600; line-height: 1.2; }
+:root[data-theme] .today-view .nexus-timeline-entry-time { flex: 0 0 auto; font-size: .875rem; font-weight: 550; font-variant-numeric: tabular-nums; }
+:root[data-theme] .today-view .nexus-timeline-entry-meta { color: var(--ui-text-secondary); font-size: .875rem; }
+@container (min-width: 37rem) {
+  :root[data-theme] .today-view .nexus-timeline-entry-meta { display: block; flex: 0 1 auto; }
 }

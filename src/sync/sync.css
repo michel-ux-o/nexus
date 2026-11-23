@@ -1,0 +1,9 @@
+.sync-status { border: 0; background: transparent; color: var(--text-muted, #b8c5d5); font: inherit; padding: .35rem .5rem; cursor: pointer; }
+.sync-status.sync-error, .sync-status.sync-conflict { color: #ffcb8e; }
+.sync-panel { max-width: 56rem; padding: 1rem; margin: 1rem auto; border-block: 1px solid var(--hz-line, #576378); background: rgb(7 9 15 / .86); color: var(--text, #f2f3f5); backdrop-filter: blur(12px); }
+.sync-panel p { line-height: 1.5; }
+.sync-panel button { min-height: 44px; margin: .5rem .5rem .5rem 0; }
+.sync-panel small { display: block; }
+.sync-panel summary { cursor: pointer; padding-block: .75rem; }
+.sync-conflict { border-top: 1px solid currentColor; margin-top: 1rem; padding-top: 1rem; }
+.sync-conflict li { overflow-wrap: anywhere; }

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Bold, CheckSquare, Eye, Heading2, History, Italic, List, PencilLine, Sparkles, Tag, Undo2, X } from 'lucide-react';
 import type { Note, NotePatch, Selection } from '../types';
 import { MarkdownPreview } from './MarkdownPreview';
+import { hasFocusLogTable } from './markdownTable';
+import { noteTagDate, noteTagLabel } from './noteTags';
 import '../horizon/notes.css';
 
 interface NoteEditorProps {
@@ -23,13 +25,34 @@ function formattedDate(value: string, timeZone: string): string {
   return Number.isNaN(date.getTime()) ? 'Unbekanntes Datum' : date.toLocaleString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone });
 }
 
+function scrollToSelection(textarea: HTMLTextAreaElement, offset: number) {
+  if (textarea.scrollHeight <= textarea.clientHeight) return;
+  // A programmatic selection does not scroll a textarea. Measure the wrapped text up to the selection.
+  const style = getComputedStyle(textarea);
+  const mirror = document.createElement('div');
+  Object.assign(mirror.style, {
+    position: 'fixed', visibility: 'hidden', inset: '0 auto auto 0',
+    boxSizing: 'border-box', width: `${textarea.clientWidth}px`, padding: style.padding,
+    font: style.font, lineHeight: style.lineHeight, letterSpacing: style.letterSpacing,
+    wordSpacing: style.wordSpacing, tabSize: style.tabSize, whiteSpace: 'pre-wrap', overflowWrap: 'break-word',
+  });
+  const cursor = document.createElement('span');
+  const lineEnd = textarea.value.indexOf('\n', offset);
+  cursor.textContent = textarea.value.slice(offset, lineEnd === -1 ? undefined : lineEnd) || '\u200b';
+  mirror.append(textarea.value.slice(0, offset), cursor);
+  document.body.append(mirror);
+  const top = cursor.getClientRects()[0]?.top ?? 0;
+  textarea.scrollTop = top - mirror.getBoundingClientRect().top - textarea.clientHeight / 2;
+  mirror.remove();
+}
+
 export function NoteEditor({ note, onChange, onSelectionChange, onAI, onRestoreRevision, timeZone = 'Europe/Berlin' }: NoteEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const selectionCallback = useRef(onSelectionChange);
   selectionCallback.current = onSelectionChange;
   const noteRef = useRef(note);
   noteRef.current = note;
-  const [preview, setPreview] = useState(false);
+  const [preview, setPreview] = useState(() => !note.deletedAt && hasFocusLogTable(note.content));
   const [tagDraft, setTagDraft] = useState('');
   const [tagError, setTagError] = useState('');
   const [editorError, setEditorError] = useState('');
@@ -37,22 +60,49 @@ export function NoteEditor({ note, onChange, onSelectionChange, onAI, onRestoreR
   const readOnly = note.deletedAt !== null;
 
   useEffect(() => {
-    setPreview(false);
+    const selectedNote = noteRef.current;
+    setPreview(!selectedNote.deletedAt && hasFocusLogTable(selectedNote.content));
     setTagDraft('');
     setTagError('');
     setEditorError('');
     setRevisionId(null);
     selectionCallback.current(null);
-    const selectedNote = noteRef.current;
     if (!selectedNote.deletedAt && !selectedNote.title && !selectedNote.content) {
       const frame = requestAnimationFrame(() => textareaRef.current?.focus());
       return () => cancelAnimationFrame(frame);
     }
   }, [note.id]);
 
-  const reportSelection = (element: HTMLTextAreaElement, content = element.value) => {
-    const { selectionStart: start, selectionEnd: end } = element;
+  const reportSelection = (element: HTMLTextAreaElement, content = noteRef.current.content) => {
+    let { selectionStart: start, selectionEnd: end } = element;
+    // Textareas normalize CRLF to LF, while imported notes can keep their original line endings.
+    if (end > start && content.includes('\r\n')) {
+      for (const match of content.matchAll(/\r\n/g)) {
+        if (match.index < start) start += 1;
+        if (match.index < end) end += 1;
+        else break;
+      }
+    }
     onSelectionChange(end > start ? { start, end, text: content.slice(start, end) } : null);
+  };
+
+  const editTableCell = (lineIndex: number, start: number, end: number) => {
+    const currentId = note.id;
+    setPreview(false);
+    requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+      if (noteRef.current.id !== currentId || !textarea) return;
+      let offset = 0;
+      for (let line = 0; line < lineIndex; line++) {
+        const newline = textarea.value.indexOf('\n', offset);
+        if (newline === -1) return;
+        offset = newline + 1;
+      }
+      textarea.focus();
+      textarea.setSelectionRange(offset + start, offset + end);
+      scrollToSelection(textarea, offset + start);
+      reportSelection(textarea);
+    });
   };
 
   const replaceContent = (content: string, start: number, end = start) => {
@@ -180,10 +230,17 @@ export function NoteEditor({ note, onChange, onSelectionChange, onAI, onRestoreR
   return <section className="editor notes-editor" aria-label={readOnly ? 'Notiz im Papierkorb' : 'Notiz bearbeiten'}>
     <header className="editor-header">
       <time className="notes-page-date" dateTime={note.updatedAt}>{formattedDate(note.updatedAt, timeZone)}</time>
-      <input className="title-input" aria-label="Notiztitel" placeholder="Unbenannte Notiz" value={note.title} maxLength={500} readOnly={readOnly} onChange={event => onChange({ title: event.target.value })} />
+      <div className="note-title-field">
+        {note.title && <span className="note-title-display" aria-hidden="true">{note.title}</span>}
+        <input className="title-input" aria-label="Notiztitel" placeholder="Unbenannte Notiz" value={note.title} maxLength={500} readOnly={readOnly} onChange={event => onChange({ title: event.target.value })} />
+      </div>
       <div className="tag-editor" aria-label="Tags">
         <Tag size={14} aria-hidden="true" />
-        {note.tags.map(tag => <span className="tag-chip" key={tag}><span>{tag}</span>{!readOnly && <button type="button" aria-label={`Tag ${tag} entfernen`} title={`Tag ${tag} entfernen`} onMouseDown={event => event.preventDefault()} onClick={() => onChange({ tags: note.tags.filter(item => item !== tag) })}><X size={12} aria-hidden="true" /></button>}</span>)}
+        {note.tags.map(tag => {
+          const label = noteTagLabel(tag);
+          const date = noteTagDate(tag);
+          return <span className="tag-chip" key={tag}>{date ? <time dateTime={date}>{label}</time> : <span>{label}</span>}{!readOnly && <button type="button" aria-label={`Tag ${label} entfernen`} title={`Tag ${label} entfernen`} onMouseDown={event => event.preventDefault()} onClick={() => onChange({ tags: note.tags.filter(item => item !== tag) })}><X size={12} aria-hidden="true" /></button>}</span>;
+        })}
         {!readOnly && <input className="tag-input" aria-label="Tags hinzufügen" placeholder={note.tags.length ? '+ Tag' : 'Tags hinzufügen …'} value={tagDraft} maxLength={MAX_TAG_LENGTH * MAX_TAGS} aria-describedby={tagError ? 'tag-error' : 'tag-hint'} onChange={event => { setTagDraft(event.target.value); setTagError(''); }} onBlur={addTags} onKeyDown={event => {
           if (event.key === 'Enter' || event.key === ',') { event.preventDefault(); addTags(); }
           if (event.key === 'Escape') { setTagDraft(''); setTagError(''); }
@@ -207,7 +264,7 @@ export function NoteEditor({ note, onChange, onSelectionChange, onAI, onRestoreR
 
     {editorError && <p id="editor-error" className="field-error" role="alert">{editorError}</p>}
     <div className="editor-content">
-      {preview ? <MarkdownPreview content={note.content} onToggleTask={readOnly ? undefined : toggleTask} /> : <textarea ref={textareaRef} className="editor-textarea" aria-label="Notiztext" aria-describedby={editorError ? 'editor-error' : undefined} placeholder="Was beschäftigt dich? Schreib es auf …" value={note.content} readOnly={readOnly} spellCheck lang="de" onPaste={event => {
+      {preview ? <MarkdownPreview content={note.content} onToggleTask={readOnly ? undefined : toggleTask} onEditCell={readOnly ? undefined : editTableCell} /> : <textarea ref={textareaRef} className="editor-textarea" aria-label="Notiztext" aria-describedby={editorError ? 'editor-error' : undefined} placeholder="Was beschäftigt dich? Schreib es auf …" value={note.content} readOnly={readOnly} spellCheck lang="de" onPaste={event => {
         if (readOnly) return;
         const textarea = event.currentTarget;
         const length = textarea.value.length - (textarea.selectionEnd - textarea.selectionStart) + event.clipboardData.getData('text/plain').length;
@@ -222,7 +279,7 @@ export function NoteEditor({ note, onChange, onSelectionChange, onAI, onRestoreR
         }
         setEditorError('');
         onChange({ content: event.target.value });
-        reportSelection(event.currentTarget);
+        reportSelection(event.currentTarget, event.currentTarget.value);
       }} onSelect={event => reportSelection(event.currentTarget)} onKeyDown={handleEditorKeyDown} />}
     </div>
 
@@ -238,7 +295,7 @@ export function NoteEditor({ note, onChange, onSelectionChange, onAI, onRestoreR
       </li>)}</ul>
       {revision && <section className="revision-preview" aria-label="Frühere Version">
         <h3>{revision.title || 'Unbenannte Notiz'}</h3>
-        {revision.tags.length > 0 && <p className="tag-hint">Tags: {revision.tags.join(', ')}</p>}
+        {revision.tags.length > 0 && <p className="tag-hint">Tags: {revision.tags.map(tag => noteTagLabel(tag)).join(', ')}</p>}
         <MarkdownPreview content={revision.content} />
         <button type="button" className="secondary-button" disabled={readOnly} onClick={() => {
           try {

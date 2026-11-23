@@ -2,11 +2,12 @@ import './note-actions.css';
 import { useAccount } from './auth/AccountBoundary';
 import { useAndroidMorningRequest } from './alarm';
 import './layout/DashboardAtelier.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, CloudOff, Copy, Download, FileText, ListPlus, LoaderCircle, MoreHorizontal, Pin, Plus, RotateCcw, Settings, Sparkles, Trash2, X } from 'lucide-react';
 import { useNotes } from './state/useNotes';
 import { Sidebar } from './sidebar/Sidebar';
 import { NoteEditor } from './editor/NoteEditor';
+import { LinkedNoteTasks } from './editor/LinkedNoteTasks';
 import { AIPanel } from './ai/AIPanel';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { BackupReminder } from './settings/BackupReminder';
@@ -39,7 +40,10 @@ import { TimeBlockDialog } from './planning/components/TimeBlockDialog';
 import { PlanningAIPanel } from './ai/PlanningAIPanel';
 import { VoicePanel } from './voice/VoicePanel';
 import { useTheme } from './themes/useTheme';
-import { HorizonHome, resetHorizonDraftIdentities } from './horizon/HorizonHome';
+import { HorizonHome, resetHorizonDraftIdentities, hasHorizonDrafts } from './horizon/HorizonHome';
+import { useWorkspaceSync } from './sync/useWorkspaceSync';
+import { SyncContext, SyncPanel, SyncStatus } from './sync/SyncContext';
+import { UpdateNotice } from './update/UpdateNotice';
 import { ParticleLandscape } from './horizon/ParticleLandscape';
 import { HorizonDock, HorizonHeader } from './horizon/HorizonShell';
 import { emitHorizonScene } from './horizon/sceneEvents';
@@ -48,7 +52,8 @@ import { committedSceneChange, type CommittedSceneSnapshot } from './horizon/com
 const ROUTES: Record<View, string> = { menu: '/', home: '/dashboard', tasks: '/aufgaben', notes: '/notizen', today: '/tagesplanung', week: '/wochenplanung', calendar: '/kalender', reminders: '/erinnerungen', settings: '/einstellungen', ai: '/ki' };
 function routeView(): View | undefined { return (Object.keys(ROUTES) as View[]).find(key => `#${ROUTES[key]}` === window.location.hash); }
 
-type Overlay = null | { kind: 'settings' | 'noteAI' | 'planningAI' | 'voice' | 'search' | 'capture' }
+type Overlay = null | { kind: 'settings' | 'noteAI' | 'voice' | 'search' | 'capture' }
+  | { kind: 'planningAI'; targetDate?: string }
   | { kind: 'task'; task?: Task; defaults?: Partial<Task> }
   | { kind: 'appointment'; appointment?: Appointment; date?: string; defaults?: Partial<Appointment> }
   | { kind: 'reminder'; reminder?: Reminder; defaults?: Partial<Reminder> }
@@ -74,6 +79,9 @@ export default function App() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [toast, setToast] = useState('');
   const [actionError, setActionError] = useState('');
+  const [syncDetails, setSyncDetails] = useState(false);
+  const [syncNeedsReload, setSyncNeedsReload] = useState(false);
+  const syncReloadRequired = useRef(false);
   const [busy, setBusy] = useState(false);
   const [demoNeedsReload, setDemoNeedsReload] = useState(false);
   const [onboardingHold, setOnboardingHold] = useState(false);
@@ -91,6 +99,63 @@ export default function App() {
   const deleteDialog = useRef<HTMLDialogElement>(null);
   const note = store.activeNote;
   if (!store.loading && !store.loadError && !planner.loading && !planner.loadError) initialized.current = true;
+
+  function canSync() {
+    const focused = document.activeElement;
+    return !!account?.active && !overlay && !confirmDelete && !settingsGuard.current
+      && area !== 'settings' && area !== 'ai' && !busy && !importing.current && !actionLock.current
+      && !store.loading && !planner.loading && !store.loadError && !planner.loadError
+      && store.status === 'saved' && planner.status === 'saved' && !hasHorizonDrafts()
+      && !document.querySelector('dialog[open]')
+      && !(focused instanceof HTMLElement && (focused.matches('input,textarea,select') || focused.isContentEditable));
+  }
+  const commitToken = useMemo(() => ({ notes: store.notes, planning: planner.data, notesStatus: store.status, planningStatus: planner.status }), [store.notes, planner.data, store.status, planner.status]);
+  const sync = useWorkspaceSync(account?.userId ?? null, !!account?.active, {
+    canRun: canSync,
+    withLocalLock: async work => {
+      if (!canSync()) return undefined;
+      importing.current = true; actionLock.current = true;
+      store.setBlocked(true); planner.setBlocked(true); setBusy(true);
+      try {
+        if (!await flushAll()) return undefined;
+        return await work();
+      } finally {
+        if (!syncReloadRequired.current) {
+          store.setBlocked(false); planner.setBlocked(false);
+          importing.current = false; actionLock.current = false;
+        }
+        setBusy(false);
+      }
+    },
+    onApplied: async () => {
+      syncReloadRequired.current = true;
+      try { await reloadSyncedData(); }
+      catch (cause) { setSyncNeedsReload(true); throw cause; }
+    },
+  }, commitToken);
+  async function reloadSyncedData() {
+    const results = await Promise.allSettled([store.reload(), planner.reload()]);
+    const failed = results.find(result => result.status === 'rejected');
+    if (failed?.status === 'rejected') throw failed.reason;
+    syncReloadRequired.current = false; setSyncNeedsReload(false); setSelection(null);
+  }
+  function openSyncDetails() { navigate('menu'); setSyncDetails(true); }
+  async function prepareUpdate() {
+    if (overlay || confirmDelete || settingsGuard.current || area === 'settings' || area === 'ai'
+      || busy || importing.current || actionLock.current || hasHorizonDrafts()
+      || store.loading || planner.loading || store.loadError || planner.loadError) return false;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && (focused.matches('input,textarea,select') || focused.isContentEditable)) return false;
+    importing.current = true; actionLock.current = true;
+    store.setBlocked(true); planner.setBlocked(true); setBusy(true);
+    const release = () => {
+      store.setBlocked(false); planner.setBlocked(false); importing.current = false; actionLock.current = false; setBusy(false);
+    };
+    try {
+      if (!await flushAll()) { release(); return false; }
+      return { ready: true, release };
+    } catch { release(); return false; }
+  }
 
   useEffect(() => account?.registerLeaveGuard(async () => {
     if (overlay || confirmDelete || settingsGuard.current || area === 'settings' || busy ||
@@ -229,7 +294,7 @@ export default function App() {
   const editBlock = (block?: TimeBlock, defaults?: BlockDefaults) => open({ kind: 'block', block, defaults });
   const editReminder = (reminder?: Reminder, defaults?: Partial<Reminder>) => open({ kind: 'reminder', reminder, defaults });
   const closeOverlay = () => { if (!importing.current) setOverlay(null); };
-  const viewProps: WorkspaceViewProps = { planner, notes: store.notes, onEditTask: editTask, onEditAppointment: editAppointment, onEditBlock: editBlock, onOpenNote: select, onDictate: () => open({ kind: 'voice' }), onAI: () => open({ kind: 'planningAI' }), onNavigate: navigate, onCreateNote: create, onEditReminder: editReminder, onQuickCapture: () => open({ kind: 'capture' }) };
+  const viewProps: WorkspaceViewProps = { planner, notes: store.notes, onEditTask: editTask, onEditAppointment: editAppointment, onEditBlock: editBlock, onOpenNote: select, onDictate: () => open({ kind: 'voice' }), onAI: () => open({ kind: 'planningAI', targetDate: area === 'today' ? date : undefined }), onNavigate: navigate, onCreateNote: create, onEditReminder: editReminder, onQuickCapture: () => open({ kind: 'capture' }) };
   const saveStatus = store.status === 'error' || planner.status === 'error' ? 'error' : store.status === 'saving' || planner.status === 'saving' ? 'saving' : 'saved';
   useEffect(() => {
     if (saveStatus !== 'saved' || store.loading || planner.loading || store.loadError || planner.loadError || importing.current) return;
@@ -308,7 +373,7 @@ export default function App() {
   }
   const settingsProps = { notes: store.notes, planner, onClose: closeOverlay, onFlush: flushAll, onImportStart: beginImport, onImported: finishImport };
   const isEmpty = !store.notes.length && !planner.data.tasks.length && !planner.data.appointments.length && !planner.data.timeBlocks.length && !(planner.data.reminders?.length) && !(planner.data.taskRules?.length) && !planner.data.days.length && !planner.data.weeks.length;
-  const showOnboarding = onboardingHold || (!store.loading && !planner.loading && !store.loadError && !planner.loadError && isEmpty && !planner.data.settings.onboardingDone);
+  const showOnboarding = onboardingHold || (!store.loading && !planner.loading && !store.loadError && !planner.loadError && isEmpty && !planner.data.settings.onboardingDone && (!account || sync.state.revision !== null));
   async function startEmpty() {
     setOnboardingHold(true);
     planner.updateSettings({ onboardingDone: true });
@@ -336,15 +401,18 @@ export default function App() {
   if ((store.loading || planner.loading) && !initialized.current) return <main className="startup-state" aria-live="polite"><LoaderCircle className="spin" /><h1>NEXUS</h1><p>Dein Arbeitsbereich wird geladen …</p></main>;
   if ((store.loadError || planner.loadError) && !initialized.current) return <main className="startup-state"><CloudOff size={40} /><h1>Arbeitsbereich konnte nicht geladen werden</h1><p role="alert">{store.loadError || planner.loadError}</p><p>Deine Daten werden nicht durch einen leeren Stand ersetzt.</p><button className="primary-button" onClick={() => void act(async () => { await Promise.all([store.reload(), planner.reload()]); })}>Erneut laden</button>{actionError && <p role="alert">{actionError}</p>}</main>;
 
-  return <div className={`nexus-app${area === 'menu' ? ' nexus-menu-mode' : ' nexus-atelier'}${area === 'home' ? ' nexus-dashboard-atelier' : ''}${horizon ? ' nexus-horizon' : ''}`} data-power-saving={planner.data.settings.powerSaving} data-scene-motion={planner.data.settings.powerSaving || planner.data.settings.menuMotion === 'still' || planner.data.settings.artifactIntensity === 'still' ? 'static' : 'animated'}>
+  return <SyncContext.Provider value={{ ...sync, openStart: openSyncDetails }}><div className={`nexus-app${area === 'menu' ? ' nexus-menu-mode' : ' nexus-atelier'}${area === 'home' ? ' nexus-dashboard-atelier' : ''}${horizon ? ' nexus-horizon' : ''}`} data-power-saving={planner.data.settings.powerSaving} data-scene-motion={planner.data.settings.powerSaving || planner.data.settings.menuMotion === 'still' || planner.data.settings.artifactIntensity === 'still' ? 'static' : 'animated'}>
     {horizon && <ParticleLandscape key={workspaceEpoch} view={area === 'menu' ? 'home' : area} focus={horizonFocus} particleColor={planner.data.settings.particleColor} powerSaving={planner.data.settings.powerSaving} still={planner.data.settings.menuMotion === 'still' || planner.data.settings.artifactIntensity === 'still'} />}
     {horizon && <HorizonHeader view={area} onNavigate={navigate} onDictate={viewProps.onDictate} />}
     {!horizon && area !== 'menu' && <AppNav view={area} onNavigate={navigate} onCreateNote={create} onCreateTask={() => editTask()} onDictate={viewProps.onDictate} onAI={() => navigate('ai')} onSettings={openSettings} onSearch={() => open({ kind: 'search' })} onQuickCapture={viewProps.onQuickCapture} />}
     <div className="main-stage" aria-busy={busy}>
+      <UpdateNotice prepareUpdate={prepareUpdate} />
+      {syncNeedsReload && <div className="save-error" role="alert"><p>Der Cloud-Stand ist lokal gespeichert, konnte aber noch nicht vollständig angezeigt werden. Die Bearbeitung bleibt bis zum Neuladen geschützt.</p><button onClick={() => { void reloadSyncedData().then(() => { store.setBlocked(false); planner.setBlocked(false); importing.current = false; actionLock.current = false; setActionError(''); sync.controller?.notifySafe(); }).catch(cause => setActionError(String(cause))); }}>Synchronisierten Stand erneut laden</button></div>}
       {demoNeedsReload && <div className="save-error" role="alert"><p>Die Beispieldaten sind gespeichert. Der Arbeitsbereich bleibt bis zum vollständigen Neuladen gesperrt.</p><button onClick={() => { void finishImport().catch(error => setActionError(String(error))); }}>Arbeitsbereich erneut laden</button></div>}
       {!horizon && area !== 'menu' && <WorkspaceHeader {...viewProps} atelier noteStatus={store.status} noteLoadError={store.loadError} onSettingsPanel={openSettings} onSearch={() => open({ kind: 'search' })} />}
       {(saveStatus === 'error' || actionError) && <div className="save-error global-save-error" role="alert"><div><strong>{saveStatus === 'error' ? 'Speichern fehlgeschlagen' : 'Aktion nicht abgeschlossen'}</strong><p>{store.error || store.loadError || planner.error || planner.loadError || actionError || 'Deine Eingabe bleibt erhalten.'}</p></div><div className="error-actions"><button onClick={() => void act(async () => { if (await flushAll()) setToast('Änderungen gespeichert.'); })}><RotateCcw size={16} />Erneut speichern</button>{note && <button onClick={saveDraft}><Download size={16} />Text sichern</button>}<button onClick={saveWorkspaceDraft}><Download size={16} />Entwurf als JSON sichern</button></div></div>}
-      <div className="area-content">
+      <div className="area-content" inert={syncNeedsReload || (busy && importing.current)}>
+      {(syncDetails || sync.state.status === 'conflict' || sync.state.status === 'error') && (area === 'menu' || area === 'home') && <div><SyncPanel /><button className="text-button" onClick={() => setSyncDetails(false)} hidden={sync.state.status === 'conflict' || sync.state.status === 'error'}>Synchronisierungsdetails schließen</button></div>}
       {!showOnboarding && <UndoBar planner={planner} disabled={busy || importing.current || overlay !== null} />}
       {!showOnboarding && <BackupReminder planner={planner} onOpen={openSettings} />}
       <div key={area} className="nexus-view-enter">
@@ -364,7 +432,7 @@ export default function App() {
       <header className="workspace-topbar">
         <div className="breadcrumb"><button className="icon-button mobile-back" aria-label="Zur Notizliste" onClick={() => void act(async () => { if (await store.flush()) setMobileEditor(false); })}><ArrowLeft size={19} /></button><strong>{view === 'trash' ? 'Papierkorb' : 'Notizen'}</strong></div>
         <div className="workspace-actions">
-          <button className="icon-button mobile-new" aria-label="Neue Notiz" title="Neue Notiz" onClick={create} disabled={busy}><Plus size={20} /></button>
+          {note && <button className="icon-button mobile-new" aria-label="Neue Notiz" title="Neue Notiz" onClick={create} disabled={busy}><Plus size={20} /></button>}
           {note && !note.deletedAt && <>
             <button className={`icon-button${note.pinned ? ' is-active' : ''}`} aria-label={note.pinned ? 'Loslösen' : 'Anheften'} title={note.pinned ? 'Loslösen' : 'Anheften'} aria-pressed={note.pinned} onClick={() => store.updateNote({ pinned: !note.pinned })}><Pin size={18} /></button>
             <details className="note-actions-menu" onBlur={event => {
@@ -395,14 +463,14 @@ export default function App() {
       </header>
       {note ? <>
         {note.deletedAt && <div className="trash-banner"><span>Diese Notiz liegt im Papierkorb.</span><div><button onClick={() => void act(async () => { await store.restoreNote(); setView('notes'); setToast('Notiz wiederhergestellt.'); })}><RotateCcw size={16} />Wiederherstellen</button><button className="danger-button" onClick={() => setConfirmDelete(true)}><Trash2 size={16} />Endgültig löschen</button></div></div>}
-        {!note.deletedAt && <div className="note-task-links"><button className="text-button" disabled={!selection?.text} onClick={() => { if (selection && note.content.slice(selection.start, selection.end) === selection.text) editTask(undefined, { title: selection.text.trim().split('\n')[0].slice(0, 300), description: selection.text, noteIds: [note.id] }); }}><ListPlus size={16} />Markierung als Aufgabe</button>{planner.data.tasks.filter(task => task.noteIds.includes(note.id)).map(task => <button key={task.id} className="linked-task" onClick={() => editTask(task)}>{task.title}</button>)}</div>}
+        {!note.deletedAt && <div className="note-task-links"><button className="text-button" disabled={!selection?.text} onClick={() => { if (selection && note.content.slice(selection.start, selection.end) === selection.text) editTask(undefined, { title: selection.text.trim().split('\n')[0].slice(0, 300), description: selection.text, noteIds: [note.id] }); }}><ListPlus size={16} />Markierung als Aufgabe</button><LinkedNoteTasks key={note.id} noteId={note.id} tasks={planner.data.tasks} blocks={planner.data.timeBlocks} timeZone={planner.data.settings.timeZone} onEditTask={editTask} /></div>}
         <NoteEditor timeZone={planner.data.settings.timeZone} key={note.id} note={note} onChange={store.updateNote} onSelectionChange={setSelection} onAI={() => open({ kind: 'noteAI' })} onRestoreRevision={store.restoreRevision} />
-      </> : <section className="empty-state"><div className="empty-orbit" aria-hidden="true"><FileText size={36} strokeWidth={1.2} /></div><h1>{view === 'trash' ? 'Papierkorb' : 'Eine neue Seite.'}</h1><p>{view === 'trash' ? 'Wähle eine gelöschte Notiz aus, um sie wiederherzustellen oder endgültig zu löschen.' : 'Halte deinen nächsten Gedanken fest.'}</p><button className="primary-button" onClick={create}><Plus size={18} />Neue Notiz</button></section>}
+      </> : <section className="empty-state"><div className="empty-orbit" aria-hidden="true"><FileText size={36} strokeWidth={1.2} /></div><h1>{view === 'trash' ? 'Papierkorb' : 'Eine neue Seite.'}</h1><p>{view === 'trash' ? 'Wähle eine gelöschte Notiz aus, um sie wiederherzustellen oder endgültig zu löschen.' : 'Halte deinen nächsten Gedanken fest.'}</p><button className="primary-button empty-note-create" onClick={create}><Plus size={18} />Neue Notiz</button></section>}
     </main>
     </div>}
     </div>
     </div>
-    <footer className="app-bottom-status">{account && <button disabled={busy || overlay !== null} onClick={() => void act(async () => { if (settingsGuard.current && !settingsGuard.current()) return; if (await flushAll()) await account.logout(); })}>Abmelden</button>}<span className={`save-status ${saveStatus}`} role="status">{saveStatus === 'saving' ? <LoaderCircle size={13} className="spin" /> : saveStatus === 'saved' ? <Check size={13} /> : <CloudOff size={13} />}{saveStatus === 'saving' ? 'Wird gespeichert' : saveStatus === 'saved' ? 'Gespeichert' : 'Speichern fehlgeschlagen'}</span><span>Nur auf diesem Gerät · {planner.data.settings.timeZone}</span></footer>
+    <footer className="app-bottom-status">{account && <button disabled={busy || overlay !== null} onClick={() => void act(async () => { if (settingsGuard.current && !settingsGuard.current()) return; if (await flushAll()) await account.logout(); })}>Abmelden</button>}<span className={`save-status ${saveStatus}`} role="status">{saveStatus === 'saving' ? <LoaderCircle size={13} className="spin" /> : saveStatus === 'saved' ? <Check size={13} /> : <CloudOff size={13} />}{saveStatus === 'saving' ? 'Wird gespeichert' : saveStatus === 'saved' ? 'Lokal gespeichert' : 'Speichern fehlgeschlagen'}</span><SyncStatus /><span>{planner.data.settings.timeZone}</span></footer>
     </div>
     {horizon && <HorizonDock view={area} onNavigate={navigate} onSearch={() => open({ kind: 'search' })} onQuickCapture={viewProps.onQuickCapture} />}
     {overlay?.kind === 'settings' && <SettingsDialog {...settingsProps} />}
@@ -415,9 +483,9 @@ export default function App() {
     {overlay?.kind === 'appointment' && <AppointmentDialog planner={planner} appointment={overlay.appointment} date={overlay.date} defaults={overlay.defaults} onClose={closeOverlay} />}
     {overlay?.kind === 'block' && <TimeBlockDialog planner={planner} block={overlay.block} defaults={overlay.defaults} onClose={closeOverlay} />}
     {overlay?.kind === 'voice' && <VoicePanel planner={planner} workspaceEpoch={workspaceEpoch} onClose={closeOverlay} onEditTask={editTask} />}
-    {overlay?.kind === 'planningAI' && <PlanningAIPanel planner={planner} notes={store.notes} workspaceEpoch={workspaceEpoch} onClose={closeOverlay} />}
+    {overlay?.kind === 'planningAI' && <PlanningAIPanel planner={planner} notes={store.notes} workspaceEpoch={workspaceEpoch} initialTargetDate={overlay.targetDate} onClose={closeOverlay} />}
     {overlay?.kind === 'noteAI' && note && !note.deletedAt && <AIPanel note={note} selection={selection} consent={planner.data.settings.aiConsent} onConsent={() => planner.updateSettings({ aiConsent: true })} workspaceEpoch={workspaceEpoch} onClose={closeOverlay} onApply={(content, range, metadata) => { if (importing.current) throw new Error('Der Arbeitsbereich wird gerade importiert.'); store.applyAI(content, range, metadata); setOverlay(null); setSelection(null); setToast('Vorschlag übernommen. Das Original findest du im Verlauf.'); }} />}
     <dialog ref={deleteDialog} className="dialog confirm-dialog" aria-labelledby="delete-title" onCancel={() => setConfirmDelete(false)} onClose={() => setConfirmDelete(false)}><div className="dialog-header"><h2 id="delete-title">Notiz endgültig löschen?</h2><button aria-label="Schließen" className="icon-button" onClick={() => setConfirmDelete(false)}><X size={20} /></button></div><div className="dialog-body"><p>„{note?.title || 'Unbenannte Notiz'}“ und ihr Verlauf werden dauerhaft von diesem Gerät entfernt. Verknüpfte Aufgaben bleiben erhalten; ihre Verbindung zu dieser Notiz wird gelöst.</p></div><div className="dialog-footer"><button autoFocus className="secondary-button" onClick={() => setConfirmDelete(false)}>Abbrechen</button><button className="danger-button" disabled={busy} onClick={() => void act(async () => { planner.setBlocked(true); try { if (!await flushAll()) return; await store.permanentlyDelete(); await planner.reload(); setConfirmDelete(false); setToast('Notiz endgültig gelöscht.'); } finally { planner.setBlocked(false); } })}>Endgültig löschen</button></div></dialog>
     {toast && <div className="toast" role="status"><Check size={16} />{toast}</div>}
-  </div>;
+  </div></SyncContext.Provider>;
 }
